@@ -1,0 +1,50 @@
+<div class="drawer-header">
+  <h2>{{ data.title }}</h2>
+  <button class="close-btn" type="button" (click)="dialogRef.close()" aria-label="Fermer">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="drawer-form">
+  <div class="drawer-body">
+    <div class="fields-list">
+      @for (field of data.fields; track field.key) {
+
+        @if (field.type === 'select') {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.key">
+              @for (opt of field.options ?? []; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+        } @else if (field.type === 'textarea') {
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ field.label }}</mat-label>
+            <textarea matInput rows="3" [formControlName]="field.key"></textarea>
+          </mat-form-field>
+
+        } @else if (field.type === 'datepicker' || field.type === 'date' || field.type === 'datetime-local') {
+          <div class="field-wrapper">
+            <label class="field-label">{{ field.label }}</label>
+            <input class="native-date" type="datetime-local" [formControlName]="field.key" />
+          </div>
+
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>{{ field.label }}</mat-label>
+            <input matInput [type]="field.type" [formControlName]="field.key" />
+          </mat-form-field>
+        }
+
+      }
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button mat-button type="button" (click)="dialogRef.close()">Annuler</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">Enregistrer</button>
+  </div>
+</form>

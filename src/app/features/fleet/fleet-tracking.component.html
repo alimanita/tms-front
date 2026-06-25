@@ -1,0 +1,180 @@
+<div class="samsara-layout">
+  <!-- Left Sidebar: Vehicles List -->
+  <aside class="samsara-sidebar">
+    <div class="sidebar-header">
+      <div class="logo-area">
+        <mat-icon class="pulse-icon">sensors</mat-icon>
+        <div>
+          <h3>Suivi Temps Réel</h3>
+          <span>Samsara Telemetry Hub</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Controls -->
+    <div class="sidebar-controls">
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input 
+          type="text" 
+          placeholder="Rechercher véhicule, chauffeur..." 
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="applyFilters()" 
+        />
+      </div>
+
+      <div class="filter-tabs">
+        <button [class.active]="statusFilter === 'ALL'" (click)="setFilter('ALL')">Tous</button>
+        <button [class.active]="statusFilter === 'ACTIVE'" (click)="setFilter('ACTIVE')">Actifs</button>
+        <button [class.active]="statusFilter === 'STOPPED'" (click)="setFilter('STOPPED')">Arrêtés</button>
+      </div>
+    </div>
+
+    <!-- Vehicles List -->
+    <div class="vehicle-list-wrapper">
+      @if (loading()) {
+        <div class="loading-state">
+          <mat-spinner diameter="32"></mat-spinner>
+          <p>Mise en relation des balises GPS...</p>
+        </div>
+      } @else if (filteredVehicles().length === 0) {
+        <p class="empty-state">Aucun véhicule trouvé</p>
+      } @else {
+        <div class="vehicle-items">
+          @for (v of filteredVehicles(); track v.id) {
+            <div 
+              class="vehicle-item" 
+              [class.selected]="v.selected" 
+              (click)="selectVehicle(v)"
+            >
+              <div class="item-header">
+                <span class="registration">{{ v.registration }}</span>
+                <span class="status-indicator" [style.background-color]="getStatusColor(v.status)"></span>
+              </div>
+              <div class="item-body">
+                <div class="info-row">
+                  <span class="muted-text">{{ v.brand }} {{ v.model }}</span>
+                  @if (v.status === 'ACTIVE') {
+                    <span class="telemetry-compact">
+                      <mat-icon>speed</mat-icon> {{ v.speed }} km/h
+                    </span>
+                  }
+                </div>
+                <div class="info-row font-sm">
+                  <span><mat-icon>person</mat-icon> {{ v.driverName }}</span>
+                  <span><mat-icon>local_gas_station</mat-icon> {{ v.fuel | number:'1.0-0' }}%</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Right Panel: Map & Telemetry Dashboard overlay -->
+  <div class="samsara-main">
+    <div id="tracking-map" class="map-container"></div>
+
+    <!-- Floating Live Telemetry Dashboard overlay (Top Right) -->
+    @if (selectedVehicle(); as v) {
+      <mat-card class="telemetry-card-overlay animate-slide-in">
+        <div class="card-header-overlay">
+          <div>
+            <h4>{{ v.registration }}</h4>
+            <span class="status-text">
+              <span class="status-dot" [style.background-color]="getStatusColor(v.status)"></span>
+              {{ getStatusLabel(v.status) }}
+            </span>
+          </div>
+          <button mat-icon-button (click)="selectedVehicle.set(null)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="divider-overlay"></div>
+
+        <div class="telemetry-grid">
+          <!-- Speedometer Telemetry -->
+          <div class="telemetry-box">
+            <span class="box-label">VITESSE</span>
+            <div class="gauge-value">
+              <strong>{{ v.speed }}</strong>
+              <span>km/h</span>
+            </div>
+            <div class="speed-indicator-bar">
+              <div class="fill" [style.width.%]="(v.speed / 120) * 100" [ngClass]="v.speed > 90 ? 'warning' : ''"></div>
+            </div>
+          </div>
+
+          <!-- Fuel Telemetry -->
+          <div class="telemetry-box">
+            <span class="box-label">CARBURANT</span>
+            <div class="gauge-value">
+              <strong>{{ v.fuel | number:'1.0-1' }}</strong>
+              <span>%</span>
+            </div>
+            <div class="fuel-indicator-bar">
+              <div class="fill" [style.width.%]="v.fuel" [ngClass]="v.fuel < 15 ? 'critical' : ''"></div>
+            </div>
+          </div>
+
+          <!-- Temp Telemetry -->
+          <div class="telemetry-box">
+            <span class="box-label">TEMP. ENGINE</span>
+            <div class="gauge-value">
+              <strong>{{ v.temp }}</strong>
+              <span>°C</span>
+            </div>
+          </div>
+
+          <!-- Battery Telemetry -->
+          <div class="telemetry-box">
+            <span class="box-label">BATTERIE</span>
+            <div class="gauge-value">
+              <strong>{{ v.batteryVoltage | number:'1.1-1' }}</strong>
+              <span>V</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider-overlay"></div>
+
+        <!-- Diagnostic Diagnostics -->
+        <div class="diagnostics-box">
+          <div class="diag-header">
+            <mat-icon [ngClass]="v.obdDiagnostics === 'Pas de code défaut' ? 'success' : 'warn'">verified</mat-icon>
+            <strong>Diagnostics OBD</strong>
+          </div>
+          <p class="diag-detail">{{ v.obdDiagnostics }}</p>
+        </div>
+
+        <div class="driver-profile-mini">
+          <div class="avatar"><mat-icon>person</mat-icon></div>
+          <div class="driver-meta">
+            <strong>{{ v.driverName }}</strong>
+            <span>Mission Active &bull; GPS Connecté</span>
+          </div>
+        </div>
+      </mat-card>
+    }
+
+    <!-- Bottom Left Alert Feeds Overlay -->
+    <div class="alerts-overlay-panel">
+      <div class="panel-header">
+        <mat-icon>notifications_active</mat-icon>
+        <strong>Flux d'Alertes Direct (Samsara Fleet)</strong>
+      </div>
+      <div class="alerts-stream">
+        @for (alert of alerts(); track alert.time + alert.vehicle) {
+          <div class="alert-stream-item">
+            <span class="time">{{ alert.time }}</span>
+            <span class="vehicle">{{ alert.vehicle }}</span>
+            <span class="alert-type status-chip" [class]="getSeverityColor(alert.severity)">{{ alert.type }}</span>
+            <span class="message">{{ alert.message }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

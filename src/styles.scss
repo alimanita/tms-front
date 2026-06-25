@@ -1,0 +1,250 @@
+@use '@angular/material' as mat;
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+@import '@angular/cdk/overlay-prebuilt.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ─── Design tokens ─────────────────────────────────────────── */
+:root {
+  --mat-sys-body-large-font: 'Inter', sans-serif;
+  --mat-sys-body-medium-font: 'Inter', sans-serif;
+  --mat-sys-body-small-font: 'Inter', sans-serif;
+  --mat-sys-title-large-font: 'Inter', sans-serif;
+  --mat-sys-title-medium-font: 'Inter', sans-serif;
+  --mat-sys-title-small-font: 'Inter', sans-serif;
+  --mat-sys-headline-large-font: 'Inter', sans-serif;
+  --mat-sys-headline-medium-font: 'Inter', sans-serif;
+  --mat-sys-headline-small-font: 'Inter', sans-serif;
+  --mat-sys-label-large-font: 'Inter', sans-serif;
+  --mat-sys-label-medium-font: 'Inter', sans-serif;
+  --mat-sys-label-small-font: 'Inter', sans-serif;
+
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface-2: #f8faff;
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --border-focus: #93c5fd;
+
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1d4ed8;
+  --accent: #0ea5e9;
+  --accent-light: #e0f2fe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 20px 48px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-glow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+
+  --radius: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+
+  --sidebar-width: 260px;
+  --topbar-height: 72px;
+
+  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Reset & base ──────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100%;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+/* ─── Typography ────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ─── Angular Material overrides ────────────────────────────── */
+.mat-mdc-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
+  background: var(--surface) !important;
+}
+
+.mat-mdc-form-field {
+  width: 100%;
+}
+
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+  border-radius: var(--radius) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+}
+
+.mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: var(--radius-lg) !important;
+}
+
+.mat-mdc-dialog-surface {
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: var(--radius) !important;
+  --mdc-snackbar-container-color: var(--text) !important;
+}
+
+/* Table Material */
+.mat-mdc-table {
+  border-radius: var(--radius) !important;
+  overflow: hidden;
+}
+
+.mdc-data-table__header-row {
+  background: var(--surface-2) !important;
+}
+
+.mat-mdc-header-cell {
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.mat-mdc-cell {
+  font-size: 0.9rem !important;
+  color: var(--text) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.mat-mdc-row:hover {
+  background: var(--surface-2) !important;
+  transition: background var(--transition);
+}
+
+/* Badge chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.chip-planned { background: var(--primary-light); color: var(--primary-dark); }
+.chip-active  { background: var(--success-light); color: #065f46; }
+.chip-warning { background: var(--warning-light); color: #92400e; }
+.chip-danger  { background: var(--danger-light);  color: #991b1b; }
+.chip-muted   { background: var(--border);         color: var(--muted); }
+
+/* ─── Samsara Side Drawer styling ───────────────────────────── */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.cdk-overlay-pane.samsara-drawer-panel {
+  animation: slideInRight 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    --mdc-dialog-container-shape: 0px !important;
+  }
+
+  .mat-mdc-dialog-surface {
+    border-radius: 0 !important;
+    box-shadow: -6px 0 30px rgba(15, 23, 42, 0.15) !important;
+    height: 100vh !important;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface) !important;
+    overflow: hidden;
+  }
+}
+
+/* ─── Custom Date & Datetime Inputs ────────────────────────── */
+input[type="datetime-local"] {
+  position: relative;
+  
+  /* Hide standard browser calendar picker indicator button */
+  &::-webkit-calendar-picker-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+}
+
+/* Make browser-inserted datetime-local placeholder segments soft and elegant */
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field,
+input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
+  color: var(--muted) !important;
+  opacity: 0.6 !important;
+  font-weight: 400 !important;
+}
+
+/* Ensure native input aligns and matches line-height */
+input[type="datetime-local"]::-webkit-datetime-edit {
+  padding: 0 !important;
+  color: var(--text) !important;
+}
+
+/* Ensure all dropdowns, select panels, and datepicker popups sit above the sliding drawer dialog */
+.cdk-overlay-pane:not(.samsara-drawer-panel),
+.cdk-overlay-connected-position-bounding-box {
+  z-index: 2000 !important;
+}
+

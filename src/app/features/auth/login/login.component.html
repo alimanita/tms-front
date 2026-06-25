@@ -1,0 +1,33 @@
+<section class="login-page">
+  <div class="login-card">
+    <div class="brand">
+      <div class="brand-icon">TMS</div>
+      <div>
+        <h1>Transport Management</h1>
+        <p>Connectez-vous pour acceder a votre espace</p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>
+        <span>Identifiant</span>
+        <input type="text" formControlName="username" autocomplete="username" />
+      </label>
+
+      <label>
+        <span>Mot de passe</span>
+        <input type="password" formControlName="password" autocomplete="current-password" />
+      </label>
+
+      @if (errorMessage()) {
+        <p class="error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="loading() || form.invalid">
+        {{ loading() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <p class="hint">Compte demo : admin / admin123</p>
+  </div>
+</section>

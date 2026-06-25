@@ -1,0 +1,44 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">TMS</div>
+      <div>
+        <strong>Marbre TMS</strong>
+        <span>Transport & logistique</span>
+      </div>
+    </div>
+
+    @for (section of navSections; track section.title) {
+      <div class="nav-section">
+        <p>{{ section.title }}</p>
+        <nav>
+          @for (item of section.items; track item.route) {
+            <a [routerLink]="item.route" routerLinkActive="active">
+              <mat-icon>{{ item.icon }}</mat-icon>
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      </div>
+    }
+  </aside>
+
+  <div class="content-area">
+    <header class="topbar">
+      <div>
+        <p class="welcome">Plateforme TMS</p>
+        <h2>{{ user()?.fullName ?? user()?.username }}</h2>
+      </div>
+      <div class="topbar-actions">
+        @if (user()?.roles?.length) {
+          <span class="role-badge">{{ user()?.roles?.[0] }}</span>
+        }
+        <button type="button" class="ghost" (click)="logout()">Deconnexion</button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

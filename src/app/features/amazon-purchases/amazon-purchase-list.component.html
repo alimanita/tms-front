@@ -1,0 +1,17 @@
+<mat-card>
+  <h1>Achats Amazon</h1>
+  @if (loading()) {
+    <div class="loading"><mat-spinner diameter="36"></mat-spinner></div>
+  } @else {
+    <table mat-table [dataSource]="purchases()">
+      <ng-container matColumnDef="amazonOrderNumber"><th mat-header-cell *matHeaderCellDef>Commande</th><td mat-cell *matCellDef="let row">{{ row.amazonOrderNumber }}</td></ng-container>
+      <ng-container matColumnDef="purchaseDate"><th mat-header-cell *matHeaderCellDef>Date</th><td mat-cell *matCellDef="let row">{{ row.purchaseDate | date:'dd/MM/yyyy' }}</td></ng-container>
+      <ng-container matColumnDef="supplier"><th mat-header-cell *matHeaderCellDef>Fournisseur</th><td mat-cell *matCellDef="let row">{{ row.supplier }}</td></ng-container>
+      <ng-container matColumnDef="amountTtc"><th mat-header-cell *matHeaderCellDef>TTC</th><td mat-cell *matCellDef="let row">{{ row.amountTtc | number:'1.2-2' }} EUR</td></ng-container>
+      <ng-container matColumnDef="totalPurchaseCost"><th mat-header-cell *matHeaderCellDef>Cout total</th><td mat-cell *matCellDef="let row">{{ row.totalPurchaseCost | number:'1.2-2' }} EUR</td></ng-container>
+      <ng-container matColumnDef="status"><th mat-header-cell *matHeaderCellDef>Statut</th><td mat-cell *matCellDef="let row">{{ row.status }}</td></ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  }
+</mat-card>
