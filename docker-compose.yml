@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  tms-front:
+    build: .
+    container_name: tms-front
+    restart: unless-stopped
+    ports:
+      - "8091:80"
