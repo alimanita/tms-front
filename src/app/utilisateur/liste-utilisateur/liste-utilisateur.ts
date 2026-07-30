@@ -110,7 +110,7 @@ export class ListeUtilisateurs implements OnInit {
   }
 
   openAddUtilisateur(): void {
-    this.router.navigate(['/users/create']);
+    this.router.navigate(['/admin/users/create']);
   }
 
   editUtilisateur(id: number): void {
