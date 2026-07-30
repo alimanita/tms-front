@@ -1,0 +1,121 @@
+<div class="page-header">
+  <div class="header-left">
+    <button class="quick-btn" (click)="retourMachines()" matTooltip="Retour aux machines">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">Règles de maintenance</h2>
+      <p class="page-subtitle">Plan d'entretien périodique de la machine</p>
+    </div>
+  </div>
+  <button class="create-btn" (click)="openDialog()">
+    <mat-icon>add</mat-icon>
+    Ajouter une règle
+  </button>
+</div>
+
+<!-- Spinner -->
+<div *ngIf="loading()" class="loading-overlay">
+  <mat-spinner diameter="48"></mat-spinner>
+</div>
+
+<!-- Table -->
+<div class="table-card" *ngIf="!loading()">
+  <table class="bl-table">
+    <thead>
+      <tr>
+        <th class="col-code">Code</th>
+        <th class="col-description">Description</th>
+        <th class="col-type">Type</th>
+        <th class="col-intervalle">Intervalle</th>
+        <th class="col-consommable">Consommable</th>
+        <th class="col-echeance">Échéance</th>
+        <th class="col-actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of rules()" [class.row-warning]="r.prochaineEcheanceProche">
+
+        <td class="col-code">
+          <span class="code-badge" *ngIf="r.code">{{ r.code }}</span>
+          <span *ngIf="!r.code">—</span>
+        </td>
+
+        <td class="col-description">{{ r.description }}</td>
+
+        <td class="col-type">
+          <span class="type-badge" [ngClass]="'type-' + r.typeAction.toLowerCase()">
+            {{ typeLabel(r.typeAction) }}
+          </span>
+        </td>
+
+        <td class="col-intervalle">
+          <span *ngIf="r.intervalleHeures">{{ r.intervalleHeures }} h</span>
+          <span *ngIf="r.intervalleJours"> / {{ r.intervalleJours }} j</span>
+          <span *ngIf="!r.intervalleHeures && !r.intervalleJours">—</span>
+        </td>
+
+        <td class="col-consommable">
+          <span *ngIf="r.consommable">
+            {{ r.consommable }}
+            <span class="quantite" *ngIf="r.quantite">({{ r.quantite }} {{ r.uniteQuantite }})</span>
+          </span>
+          <span *ngIf="!r.consommable">—</span>
+        </td>
+
+        <td class="col-echeance">
+          <span *ngIf="r.heuresRestantes !== null && r.heuresRestantes !== undefined"
+                [class.text-warning]="r.prochaineEcheanceProche && r.heuresRestantes > 0"
+                [class.text-danger]="r.heuresRestantes <= 0">
+            {{ r.heuresRestantes | number:'1.0-0' }} h restantes
+          </span>
+          <span *ngIf="r.heuresRestantes === null || r.heuresRestantes === undefined">—</span>
+        </td>
+
+        <td class="col-actions">
+          <div class="quick-actions">
+            <button class="quick-btn btn-success"
+                    matTooltip="Marquer effectuée"
+                    (click)="marquerEffectuee(r)">
+              <mat-icon class="menu-icon icon-check">check_circle</mat-icon>
+            </button>
+            <button class="quick-btn"
+                    matTooltip="Modifier"
+                    (click)="openDialog(r)">
+              <mat-icon class="menu-icon icon-edit">edit</mat-icon>
+            </button>
+            <button class="quick-btn btn-danger"
+                    matTooltip="Supprimer"
+                    (click)="delete(r)">
+              <mat-icon class="menu-icon icon-delete">delete</mat-icon>
+            </button>
+          </div>
+        </td>
+
+      </tr>
+
+      <!-- Empty state -->
+      <tr *ngIf="rules().length === 0">
+        <td colspan="7">
+          <div class="empty-state">
+            <mat-icon>build_circle</mat-icon>
+            <p>Aucune règle de maintenance définie.</p>
+            <button class="create-btn" (click)="openDialog()">
+              <mat-icon>add</mat-icon> Ajouter la première règle
+            </button>
+          </div>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<!-- Panneau — Créer / Modifier une règle -->
+<app-maintenance-rule-dialog
+  [open]="isRuleDialogOpen"
+  [machineId]="machineId()"
+  [rule]="selectedRule"
+  (closed)="onRuleDialogClosed()"
+  (ruleSaved)="onRuleSaved()">
+</app-maintenance-rule-dialog>

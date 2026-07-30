@@ -1,0 +1,337 @@
+<!-- chauffeur-dashboard.component.html -->
+<div class="chauf-dashboard">
+
+  <!-- ── En-tête / Bienvenue ──────────────────────────────────────────── -->
+  <div class="chauf-header">
+    <div class="chauf-header-left">
+      <div class="chauf-avatar">
+        <mat-icon>local_shipping</mat-icon>
+      </div>
+      <div class="chauf-header-text">
+        <h1>Bonjour, {{ userName }} 👋</h1>
+        <p>Tableau de bord — <strong>Chauffeur</strong></p>
+      </div>
+    </div>
+    <div class="chauf-header-actions">
+      <button mat-stroked-button routerLink="/fleet/missions" color="primary">
+        <mat-icon>map</mat-icon> Mes missions
+      </button>
+      <button mat-flat-button routerLink="/fleet/vehicles" color="primary">
+        <mat-icon>directions_car</mat-icon> Mes véhicules
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="56" />
+      <p>Chargement des statistiques…</p>
+    </div>
+  } @else {
+
+  <!-- ── KPIs principaux ─────────────────────────────────────────────── -->
+  <div class="kpi-row">
+
+    <div class="kpi-card kpi-indigo">
+      <div class="kpi-icon-wrap">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.mesVehicules }}</span>
+        <span class="kpi-label">Mes véhicules</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon-wrap">
+        <mat-icon>route</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.missionsEnCours }}</span>
+        <span class="kpi-label">Missions en cours</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon-wrap">
+        <mat-icon>task_alt</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.missionsTerminees }}</span>
+        <span class="kpi-label">Terminées (mois)</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-orange" [class.pulse]="stats.maintenancesAVenir > 0">
+      <div class="kpi-icon-wrap">
+        <mat-icon>build_circle</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.maintenancesAVenir }}</span>
+        <span class="kpi-label">Maintenances à venir</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon-wrap">
+        <mat-icon>local_gas_station</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.pleinsCeMois }}</span>
+        <span class="kpi-label">Pleins ce mois</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon-wrap">
+        <mat-icon>euro</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.coutCarburantMois | number:'1.0-0' }}</span>
+        <span class="kpi-label">Coût carburant (TND)</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Taux de missions + barre de progression ────────────────────── -->
+  <mat-card class="progress-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="prog-icon">donut_large</mat-icon>
+      <mat-card-title>Avancement des missions</mat-card-title>
+      <mat-card-subtitle>{{ stats.missionsTerminees }} terminées sur {{ stats.missionsEnCours + stats.missionsTerminees }} totales</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="prog-bar-wrap">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="tauxMissionsTerminees"
+          [color]="tauxMissionsTerminees >= 75 ? 'primary' : tauxMissionsTerminees >= 50 ? 'accent' : 'warn'"
+        />
+        <span class="prog-pct">{{ tauxMissionsTerminees }}%</span>
+      </div>
+      <div class="prog-legend">
+        <span class="legend-dot green"></span><span>Terminées ({{ stats.missionsTerminees }})</span>
+        <span class="legend-dot orange"></span><span>En cours ({{ stats.missionsEnCours }})</span>
+        <span class="legend-dot gray"></span><span>Planifiées</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Contenu principal en 2 colonnes ───────────────────────────── -->
+  <div class="main-content-grid">
+
+    <!-- Missions récentes -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar style="color:#6366f1">map</mat-icon>
+        <mat-card-title>Mes missions récentes</mat-card-title>
+        <mat-card-subtitle>8 dernières missions assignées</mat-card-subtitle>
+        <div class="card-header-action">
+          <button mat-icon-button routerLink="/fleet/missions" matTooltip="Voir toutes">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        @if (loadingMissions) {
+          <div class="spinner-wrap"><mat-spinner diameter="36" /></div>
+        } @else if (mesMissions.length === 0) {
+          <div class="empty-state">
+            <mat-icon>route</mat-icon>
+            <p>Aucune mission assignée</p>
+          </div>
+        } @else {
+          <mat-table [dataSource]="mesMissions" class="compact-table">
+
+            <ng-container matColumnDef="reference">
+              <mat-header-cell *matHeaderCellDef>Référence</mat-header-cell>
+              <mat-cell *matCellDef="let m">
+                <span class="ref-badge">{{ m.reference }}</span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="destination">
+              <mat-header-cell *matHeaderCellDef>Destination</mat-header-cell>
+              <mat-cell *matCellDef="let m">
+                <span class="dest-label">
+                  <mat-icon class="dest-icon">place</mat-icon>
+                  {{ m.destination ?? '—' }}
+                </span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="statut">
+              <mat-header-cell *matHeaderCellDef>Statut</mat-header-cell>
+              <mat-cell *matCellDef="let m">
+                <span class="chip-pill"
+                  [style.background]="getStatutColor(m.statut) + '22'"
+                  [style.color]="getStatutColor(m.statut)"
+                  [style.border]="'1px solid ' + getStatutColor(m.statut)">
+                  {{ getStatutLabel(m.statut) }}
+                </span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="plannedDeparture">
+              <mat-header-cell *matHeaderCellDef>Départ</mat-header-cell>
+              <mat-cell *matCellDef="let m">{{ m.plannedDeparture ? (m.plannedDeparture | date:'dd/MM HH:mm') : '—' }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="plannedReturn">
+              <mat-header-cell *matHeaderCellDef>Retour prévu</mat-header-cell>
+              <mat-cell *matCellDef="let m">{{ m.plannedReturn ? (m.plannedReturn | date:'dd/MM HH:mm') : '—' }}</mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="missionColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: missionColumns;"></mat-row>
+          </mat-table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Colonne droite -->
+    <div class="right-col">
+
+      <!-- Historique pleins carburant -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar style="color:#f59e0b">local_gas_station</mat-icon>
+          <mat-card-title>Historique carburant</mat-card-title>
+          <mat-card-subtitle>8 derniers pleins effectués</mat-card-subtitle>
+          <div class="card-header-action">
+            <button mat-icon-button routerLink="/fleet/fuel-fillings" matTooltip="Voir tout">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          @if (loadingPleins) {
+            <div class="spinner-wrap"><mat-spinner diameter="32" /></div>
+          } @else if (pleins.length === 0) {
+            <div class="empty-state success">
+              <mat-icon>local_gas_station</mat-icon>
+              <p>Aucun plein enregistré</p>
+            </div>
+          } @else {
+            <mat-table [dataSource]="pleins" class="compact-table">
+              <ng-container matColumnDef="fillingDate">
+                <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+                <mat-cell *matCellDef="let p">{{ p.fillingDate ? (p.fillingDate | date:'dd/MM') : '—' }}</mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="fuelType">
+                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-cell *matCellDef="let p">
+                  <span class="fuel-badge">{{ getFuelTypeLabel(p.fuelType) }}</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="quantityLiters">
+                <mat-header-cell *matHeaderCellDef>Litres</mat-header-cell>
+                <mat-cell *matCellDef="let p">
+                  <span class="qty-value">{{ p.quantityLiters | number:'1.1-1' }} L</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="totalAmount">
+                <mat-header-cell *matHeaderCellDef>Montant</mat-header-cell>
+                <mat-cell *matCellDef="let p">
+                  <span class="amount-value">{{ p.totalAmount | number:'1.2-2' }} TND</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="mileageAfter">
+                <mat-header-cell *matHeaderCellDef>Km</mat-header-cell>
+                <mat-cell *matCellDef="let p">{{ p.mileageAfter ? (p.mileageAfter | number) : '—' }}</mat-cell>
+              </ng-container>
+              <mat-header-row *matHeaderRowDef="pleinsColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: pleinsColumns;"></mat-row>
+            </mat-table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Résumé mensuel carburant -->
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar style="color:#10b981">insights</mat-icon>
+          <mat-card-title>Résumé mensuel</mat-card-title>
+          <mat-card-subtitle>Activité du mois en cours</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-icon fuel">
+                <mat-icon>local_gas_station</mat-icon>
+              </div>
+              <div class="summary-text">
+                <span class="summary-value">{{ stats.pleinsCeMois }}</span>
+                <span class="summary-label">Pleins ce mois</span>
+              </div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-icon cost">
+                <mat-icon>euro</mat-icon>
+              </div>
+              <div class="summary-text">
+                <span class="summary-value">{{ stats.coutCarburantMois | number:'1.0-0' }} TND</span>
+                <span class="summary-label">Coût carburant</span>
+              </div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-icon mission">
+                <mat-icon>task_alt</mat-icon>
+              </div>
+              <div class="summary-text">
+                <span class="summary-value">{{ stats.missionsTerminees }}</span>
+                <span class="summary-label">Missions terminées</span>
+              </div>
+            </div>
+            <div class="summary-item">
+              <div class="summary-icon alert" [class.active]="stats.maintenancesAVenir > 0">
+                <mat-icon>build</mat-icon>
+              </div>
+              <div class="summary-text">
+                <span class="summary-value">{{ stats.maintenancesAVenir }}</span>
+                <span class="summary-label">Maintenances prévues</span>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /right-col -->
+  </div><!-- /main-content-grid -->
+
+  <!-- ── Accès rapides ─────────────────────────────────────────────── -->
+  <div class="shortcuts-section">
+    <h3 class="shortcuts-title">
+      <mat-icon>flash_on</mat-icon> Accès rapide
+    </h3>
+    <div class="shortcuts-grid">
+      <a class="shortcut-card" routerLink="/fleet/missions">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5)">
+          <mat-icon>map</mat-icon>
+        </div>
+        <span>Mes missions</span>
+      </a>
+      <a class="shortcut-card" routerLink="/fleet/vehicles">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+          <mat-icon>directions_car</mat-icon>
+        </div>
+        <span>Véhicules</span>
+      </a>
+      <a class="shortcut-card" routerLink="/fleet/fuel-fillings">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <mat-icon>local_gas_station</mat-icon>
+        </div>
+        <span>Pleins carburant</span>
+      </a>
+      <a class="shortcut-card" routerLink="/fleet/notifications">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#10b981,#059669)">
+          <mat-icon>notifications</mat-icon>
+        </div>
+        <span>Notifications</span>
+      </a>
+    </div>
+  </div>
+
+  }<!-- /else loading -->
+</div>

@@ -1,0 +1,49 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Affectation des Pneus</h2>
+    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Monter un pneu</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>Pneu (S/N)</th>
+          <th>Véhicule</th>
+          <th>Position</th>
+          <th>Date de montage</th>
+          <th>Km Montage</th>
+          <th>Démonté le</th>
+          <th>Km Démontage</th>
+          <th>Km parcourus</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of affectations">
+          <td><strong>{{ a.pneuSerialNumber || ('Pneu #' + a.pneuId) }}</strong></td>
+          <td>{{ a.vehiculeImmatriculation || ('Vehicule #' + a.vehiculeId) }}</td>
+          <td>{{ a.position }}</td>
+          <td>{{ a.mountDate | date:'dd/MM/yyyy' }}</td>
+          <td>{{ a.mountMileage }}</td>
+          <td>{{ a.unmountDate ? (a.unmountDate | date:'dd/MM/yyyy') : '-' }}</td>
+          <td>{{ a.unmountMileage || '-' }}</td>
+          <td>
+            <span class="badge badge--blue" *ngIf="a.kmUsed">{{ a.kmUsed }} km</span>
+            <span *ngIf="!a.kmUsed">-</span>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" *ngIf="!a.unmountDate" (click)="demonter(a)" title="Démonter">
+              Démonter
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="affectations.length === 0">
+          <td colspan="9" class="fl-empty">Aucune affectation enregistrée</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -3,23 +3,66 @@
     <div class="sidebar-brand">
       <div class="logo">TMS</div>
       <div>
-        <strong>Marbre TMS</strong>
+        <strong> TMS</strong>
         <span>Transport & logistique</span>
       </div>
     </div>
 
-    @for (section of navSections; track section.title) {
-      <div class="nav-section">
-        <p>{{ section.title }}</p>
-        <nav>
-          @for (item of section.items; track item.route) {
-            <a [routerLink]="item.route" routerLinkActive="active">
-              <mat-icon>{{ item.icon }}</mat-icon>
-              <span>{{ item.label }}</span>
-            </a>
+    @if (dynamicMenu().length > 0) {
+      <nav class="dynamic-nav">
+        @for (item of dynamicMenu(); track item.route) {
+          @if (item.type === 'link') {
+            <div class="nav-section link-item">
+              <nav>
+                <a [routerLink]="item.route" routerLinkActive="active">
+                  @if (item.icon) {
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                  }
+                  <span>{{ item.name }}</span>
+                </a>
+              </nav>
+            </div>
+          } @else if (item.type === 'sub') {
+            <div class="nav-section submenu-group">
+              <button type="button" class="submenu-header" (click)="toggleExpand(item.route)">
+                <div class="header-left">
+                  @if (item.icon) {
+                    <mat-icon>{{ item.icon }}</mat-icon>
+                  }
+                  <p>{{ item.name }}</p>
+                </div>
+                <mat-icon class="caret">{{ isExpanded(item.route) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+              </button>
+              @if (isExpanded(item.route)) {
+                <nav class="submenu-items">
+                  @for (child of item.children; track child.route) {
+                    <a [routerLink]="child.route" routerLinkActive="active">
+                      @if (child.icon) {
+                        <mat-icon class="sub-icon">{{ child.icon }}</mat-icon>
+                      }
+                      <span>{{ child.name }}</span>
+                    </a>
+                  }
+                </nav>
+              }
+            </div>
           }
-        </nav>
-      </div>
+        }
+      </nav>
+    } @else {
+      @for (section of fallbackSections; track section.title) {
+        <div class="nav-section">
+          <p>{{ section.title }}</p>
+          <nav>
+            @for (item of section.items; track item.route) {
+              <a [routerLink]="item.route" routerLinkActive="active">
+                <mat-icon>{{ item.icon }}</mat-icon>
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+        </div>
+      }
     }
   </aside>
 
@@ -31,7 +74,7 @@
       </div>
       <div class="topbar-actions">
         @if (user()?.roles?.length) {
-          <span class="role-badge">{{ user()?.roles?.[0] }}</span>
+          <span class="role-badge">{{ getPrimaryRoleName() }}</span>
         }
         <button type="button" class="ghost" (click)="logout()">Deconnexion</button>
       </div>

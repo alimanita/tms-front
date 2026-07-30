@@ -1,0 +1,54 @@
+$primary    : #2563eb;
+$border     : #e2e8f0;
+$text-main  : #1e293b;
+$text-muted : #64748b;
+$radius     : 8px;
+
+.fleet-page   { min-height: 100vh; background: #f8fafc; padding-bottom: 40px; }
+
+.fleet-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px; background: #fff;
+  border-bottom: 1px solid $border; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.fleet-title  { font-size: 15px; font-weight: 600; color: $text-main; margin: 0; }
+.fleet-body   { padding: 24px; }
+.fleet-loading { text-align: center; padding: 40px; color: $text-muted; }
+
+.fl-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: $radius; font-size: 13px;
+  font-weight: 500; cursor: pointer; border: 1px solid transparent;
+  transition: background .15s; white-space: nowrap;
+  &:disabled { opacity: .5; cursor: not-allowed; }
+  &-ghost    { background: transparent; color: $text-muted;
+               &:hover:not(:disabled) { background: #f1f5f9; color: $text-main; } }
+  &-primary  { background: $primary; color: #fff; border-color: $primary;
+               &:hover:not(:disabled) { background: #1d4ed8; } }
+}
+
+.fl-table {
+  width: 100%; border-collapse: collapse; font-size: 13px; background: #fff;
+  border-radius: $radius; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  th { background: #f8fafc; font-weight: 600; color: $text-muted;
+       padding: 10px 14px; text-align: left; border-bottom: 1px solid $border; }
+  td { padding: 10px 14px; border-bottom: 1px solid $border; color: $text-main; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+}
+
+.fl-empty  { text-align: center; padding: 32px !important; color: $text-muted; }
+.fl-actions { display: flex; gap: 4px; justify-content: flex-end; }
+.text-red  { color: #dc2626; font-weight: 600; }
+.text-muted { color: $text-muted; }
+
+.badge {
+  display: inline-flex; padding: 2px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  &--green { background: #d1fae5; color: #065f46; }
+  &--blue  { background: #dbeafe; color: #1e40af; }
+  &--red   { background: #fee2e2; color: #991b1b; }
+  &--grey  { background: #f1f5f9; color: $text-muted; }
+}

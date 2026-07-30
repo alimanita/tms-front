@@ -1,0 +1,110 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier le plein' : 'Nouveau plein carburant' }}</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost"   (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" class="fl-form">
+      <div class="fl-grid">
+
+        <div class="fl-field">
+          <label>Véhicule *</label>
+          <select formControlName="vehiculeId"
+                  [class.error]="submitted && form.get('vehiculeId')?.invalid">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let v of vehicules" [value]="v.id">
+              {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+            </option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Date et heure *</label>
+          <input type="datetime-local" formControlName="fillingDate"
+                 [class.error]="submitted && form.get('fillingDate')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Type de carburant *</label>
+          <select formControlName="fuelType">
+            <option *ngFor="let f of fuelTypes" [value]="f">{{ f }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Quantité (L) *</label>
+          <input type="number" formControlName="quantityLiters" min="0" step="0.001"
+                 [class.error]="submitted && form.get('quantityLiters')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Prix / litre (DT) *</label>
+          <input type="number" formControlName="pricePerLiter" min="0" step="0.001"
+                 [class.error]="submitted && form.get('pricePerLiter')?.invalid"/>
+        </div>
+
+        <div class="fl-field fl-field--highlight">
+          <label>Total estimé</label>
+          <div class="fl-total">{{ totalEstime | number:'1.3-3' }} DT</div>
+        </div>
+
+        <div class="fl-field">
+          <label>Km avant</label>
+          <input type="number" formControlName="mileageBefore" min="0"/>
+        </div>
+
+      <div class="fl-field fl-field--full">
+  <label>Justificatif (photo, reçu scanné…)</label>
+
+  <div class="fl-upload-zone">
+    <input
+      type="file"
+      id="proofFile"
+      accept="image/*,.pdf"
+      (change)="onFileSelected($event)"
+      hidden
+    />
+    <label for="proofFile" class="fl-btn fl-btn-ghost">
+      📎 Choisir un fichier
+    </label>
+
+    <span *ngIf="selectedFile" class="fl-file-name">
+      {{ selectedFile.name }}
+      <button type="button" class="fl-file-remove" (click)="removeFile()">✕</button>
+    </span>
+
+    <span *ngIf="!selectedFile && existingProofUrl" class="fl-file-name">
+      Justificatif existant
+      <a [href]="existingProofUrl" target="_blank">Voir</a>
+    </span>
+  </div>
+
+  <img *ngIf="previewUrl" [src]="previewUrl" alt="Aperçu" class="fl-preview-img"/>
+</div>
+
+        <div class="fl-field">
+          <label>N° reçu</label>
+          <input formControlName="receiptNumber" placeholder="REF-001"/>
+        </div>
+
+        <div class="fl-field fl-field--checkbox">
+          <label>
+            <input type="checkbox" formControlName="isFullTank"/> Plein complet
+          </label>
+        </div>
+
+        <div class="fl-field fl-field--full">
+          <label>Notes</label>
+          <textarea formControlName="notes" rows="3" placeholder="Observations…"></textarea>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,293 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title class="register-title">
+        {{ 'register_welcome' | translate }}
+        <br />
+        {{ 'register_company_title' | translate }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-stepper linear #stepper>
+        <!-- Étape 1: Informations de l'entreprise -->
+        <mat-step [stepControl]="entrepriseForm" label="{{ 'company_information' | translate }}">
+          <form class="form-container" [formGroup]="entrepriseForm">
+            <h3 class="section-title">{{ 'company_details' | translate }}</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'company_name' | translate }}</mat-label>
+                <input matInput formControlName="nom" required />
+                @if (entrepriseForm.get('nom')?.hasError('required') && entrepriseForm.get('nom')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (entrepriseForm.get('nom')?.hasError('minlength')) {
+                  <mat-error>{{ 'validation.min_length' | translate: {value: 3} }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'description' | translate }}</mat-label>
+                <textarea matInput formControlName="description" rows="3"></textarea>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row two-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'email' | translate }}</mat-label>
+                <input matInput type="email" formControlName="email" required />
+                @if (entrepriseForm.get('email')?.hasError('required') && entrepriseForm.get('email')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (entrepriseForm.get('email')?.hasError('email')) {
+                  <mat-error>{{ 'validation.invalid_email' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'phone_number' | translate }}</mat-label>
+                <input matInput formControlName="numTel" required />
+                @if (entrepriseForm.get('numTel')?.hasError('required') && entrepriseForm.get('numTel')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row two-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'fiscal_number' | translate }}</mat-label>
+                <input matInput formControlName="matriculeFiscal" required />
+                @if (entrepriseForm.get('matriculeFiscal')?.hasError('required') && entrepriseForm.get('matriculeFiscal')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'tax_code' | translate }}</mat-label>
+                <input matInput formControlName="codeFiscal" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'website' | translate }}</mat-label>
+                <input matInput formControlName="steWeb" placeholder="https://www.exemple.com" />
+              </mat-form-field>
+            </div>
+
+            <h3 class="section-title">{{ 'address' | translate }}</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'address_line_1' | translate }}</mat-label>
+                <input matInput formControlName="adresse1" required />
+                @if (entrepriseForm.get('adresse1')?.hasError('required') && entrepriseForm.get('adresse1')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'address_line_2' | translate }}</mat-label>
+                <input matInput formControlName="adresse2" />
+              </mat-form-field>
+            </div>
+
+            <div class="form-row three-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'city' | translate }}</mat-label>
+                <input matInput formControlName="ville" required />
+                @if (entrepriseForm.get('ville')?.hasError('required') && entrepriseForm.get('ville')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'postal_code' | translate }}</mat-label>
+                <input matInput formControlName="codePostale" required />
+                @if (entrepriseForm.get('codePostale')?.hasError('required') && entrepriseForm.get('codePostale')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'country' | translate }}</mat-label>
+                <input matInput formControlName="pays" required />
+                @if (entrepriseForm.get('pays')?.hasError('required') && entrepriseForm.get('pays')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="button-container">
+              <button mat-raised-button color="primary" matStepperNext [disabled]="entrepriseForm.invalid">
+                {{ 'next' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Étape 2: Informations de l'administrateur -->
+        <mat-step [stepControl]="adminForm" label="{{ 'admin_information' | translate }}">
+          <form class="form-container" [formGroup]="adminForm">
+            <h3 class="section-title">{{ 'admin_account_details' | translate }}</h3>
+
+            <div class="form-row two-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'last_name' | translate }}</mat-label>
+                <input matInput formControlName="nom" required />
+                @if (adminForm.get('nom')?.hasError('required') && adminForm.get('nom')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'first_name' | translate }}</mat-label>
+                <input matInput formControlName="prenom" required />
+                @if (adminForm.get('prenom')?.hasError('required') && adminForm.get('prenom')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'email' | translate }}</mat-label>
+                <input matInput type="email" formControlName="email" required />
+                @if (adminForm.get('email')?.hasError('required') && adminForm.get('email')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (adminForm.get('email')?.hasError('email')) {
+                  <mat-error>{{ 'validation.invalid_email' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'username' | translate }}</mat-label>
+                <input matInput formControlName="login" required />
+                @if (adminForm.get('login')?.hasError('required') && adminForm.get('login')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (adminForm.get('login')?.hasError('minlength')) {
+                  <mat-error>{{ 'validation.min_length' | translate: {value: 3} }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'password' | translate }}</mat-label>
+                <input matInput type="password" formControlName="password" required />
+                @if (adminForm.get('password')?.hasError('required') && adminForm.get('password')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (adminForm.get('password')?.hasError('minlength')) {
+                  <mat-error>{{ 'validation.min_length' | translate: {value: 6} }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>{{ 'confirm_password' | translate }}</mat-label>
+                <input matInput type="password" formControlName="confirmPassword" required />
+                @if (adminForm.get('confirmPassword')?.hasError('required') && adminForm.get('confirmPassword')?.touched) {
+                  <mat-error>{{ 'validation.required' | translate }}</mat-error>
+                }
+                @if (adminForm.get('confirmPassword')?.hasError('mismatch')) {
+                  <mat-error>{{ 'validation.password_mismatch' | translate }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <div class="button-container">
+              <button mat-button matStepperPrevious>{{ 'previous' | translate }}</button>
+              <button mat-raised-button color="primary" matStepperNext [disabled]="adminForm.invalid">
+                {{ 'next' | translate }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <!-- Étape 3: Confirmation -->
+        <mat-step label="{{ 'confirmation' | translate }}">
+          <div class="confirmation-container">
+            <h3 class="section-title">{{ 'review_information' | translate }}</h3>
+            
+            <div class="info-section">
+              <h4>{{ 'company_information' | translate }}</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">{{ 'company_name' | translate }}:</span>
+                  <span class="value">{{ entrepriseForm.value.nom }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">{{ 'email' | translate }}:</span>
+                  <span class="value">{{ entrepriseForm.value.email }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">{{ 'fiscal_number' | translate }}:</span>
+                  <span class="value">{{ entrepriseForm.value.matriculeFiscal }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">{{ 'phone_number' | translate }}:</span>
+                  <span class="value">{{ entrepriseForm.value.numTel }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <h4>{{ 'admin_information' | translate }}</h4>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">{{ 'full_name' | translate }}:</span>
+                  <span class="value">{{ adminForm.value.prenom }} {{ adminForm.value.nom }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">{{ 'email' | translate }}:</span>
+                  <span class="value">{{ adminForm.value.email }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">{{ 'username' | translate }}:</span>
+                  <span class="value">{{ adminForm.value.login }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="terms-container">
+              <mat-checkbox [(ngModel)]="termsAccepted" [ngModelOptions]="{standalone: true}">
+                {{ 'read_and_agree' | translate }}
+              </mat-checkbox>
+            </div>
+
+            <div class="button-container">
+              <button mat-button matStepperPrevious>{{ 'previous' | translate }}</button>
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="onSubmit()" 
+                [disabled]="!termsAccepted || isLoading">
+                @if (isLoading) {
+                  <span>{{ 'creating' | translate }}...</span>
+                } @else {
+                  <span>{{ 'create_company' | translate }}</span>
+                }
+              </button>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+
+      <div class="footer-link">
+        <span>{{ 'have_an_account' | translate }}?</span>
+        <a routerLink="/auth/login">{{ 'login' | translate }}</a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

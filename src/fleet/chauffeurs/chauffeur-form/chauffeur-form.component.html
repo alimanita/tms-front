@@ -1,0 +1,81 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier le chauffeur' : 'Nouveau chauffeur' }}</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost" (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" class="fl-form">
+      <div class="fl-grid">
+
+        <div class="fl-field">
+          <label>Nom *</label>
+          <input formControlName="nom" placeholder="Nom de famille"
+                 [class.error]="submitted && form.get('nom')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Prénom *</label>
+          <input formControlName="prenom" placeholder="Prénom"
+                 [class.error]="submitted && form.get('prenom')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Téléphone</label>
+          <input formControlName="telephone" placeholder="+216 ..."/>
+        </div>
+
+        <div class="fl-field">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="chauffeur@exemple.com"
+                 [class.error]="submitted && form.get('email')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Numéro de permis</label>
+          <input formControlName="numeroPermis"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Expiration du permis</label>
+          <input type="date" formControlName="dateExpirationPermis"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Statut *</label>
+          <select formControlName="statut">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field fl-field--checkbox">
+          <label>
+            <input type="checkbox" formControlName="actif"/> Actif
+          </label>
+        </div>
+
+        <!-- ── Compte utilisateur lié ─────────────────────────────────────── -->
+        <div class="fl-field fl-field--full">
+          <label>Compte utilisateur lié</label>
+          <select formControlName="idUtilisateur" [disabled]="loadingUtilisateurs">
+            <option [ngValue]="null">— Aucun compte lié —</option>
+            <option *ngFor="let u of utilisateursDisponibles" [ngValue]="u.id">
+              {{ u.prenom }} {{ u.nom }} ({{ u.email }})
+            </option>
+          </select>
+          <small class="fl-field-hint" *ngIf="!loadingUtilisateurs && utilisateursDisponibles.length === 0">
+            Aucun utilisateur avec le rôle CHAUFFEUR n'est disponible. Créez-en un dans
+            <a routerLink="/settings/users">la gestion des utilisateurs</a>.
+          </small>
+          <small class="fl-field-hint" *ngIf="loadingUtilisateurs">Chargement des comptes…</small>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="panel-overlay" *ngIf="isOpen" (click)="onBackdropClick()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <mat-icon>speed</mat-icon>
+        <h2>Mettre à jour les heures</h2>
+      </div>
+      <button type="button" class="modal-close" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="modal-body" [formGroup]="form">
+
+      <div class="machine-info" *ngIf="machine">
+        <span class="machine-name">{{ machine.nom }}</span>
+        <span class="machine-current">Heures actuelles : <strong>{{ machine.heuresActuelles | number:'1.0-0' }} h</strong></span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Nouvelles heures <span class="required">*</span></label>
+        <div class="field-input-suffix">
+          <input class="field-input" type="number" formControlName="nouvellesHeures" min="0" autofocus>
+          <span class="suffix">h</span>
+        </div>
+        <span class="field-error" *ngIf="form.get('nouvellesHeures')?.hasError('required') && form.get('nouvellesHeures')?.touched">
+          Ce champ est obligatoire
+        </span>
+        <span class="field-error" *ngIf="form.get('nouvellesHeures')?.hasError('inferieurActuel')">
+          La valeur ne peut pas être inférieure aux heures actuelles ({{ machine?.heuresActuelles | number:'1.0-0' }} h)
+        </span>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+      <button type="button" class="btn-primary" (click)="submit()" [disabled]="form.invalid || loading">
+        <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!loading">check</mat-icon>
+        <span>Enregistrer</span>
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,210 @@
+<!-- liste-utilisateur.html -->
+<div class="page-wrapper">
+
+  <!-- ══ HEADER ══ -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <mat-icon>group</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">Utilisateurs</h1>
+        <p class="page-subtitle">{{ filteredUtilisateurs.length }} utilisateur(s) trouvé(s)</p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn-creer" (click)="openAddUtilisateur()">
+        <mat-icon>person_add</mat-icon>
+        Nouvel utilisateur
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ TOOLBAR ══ -->
+  <div class="toolbar-card">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Rechercher par nom d'utilisateur, nom complet, email, téléphone..."
+        [(ngModel)]="searchText"
+        (ngModelChange)="applyFilter()" />
+      <button class="search-clear" *ngIf="searchText" (click)="searchText=''; applyFilter()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <span class="count-badge">{{ filteredUtilisateurs.length }}</span>
+    </div>
+  </div>
+
+  <!-- ══ TABLE ══ -->
+  <div class="table-card">
+
+    <!-- Loading -->
+    <div class="table-loading" *ngIf="isLoading">
+      <mat-spinner diameter="36"></mat-spinner>
+      <span>Chargement des utilisateurs...</span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="table-empty" *ngIf="!isLoading && filteredUtilisateurs.length === 0">
+      <mat-icon>person_off</mat-icon>
+      <p>Aucun utilisateur trouvé</p>
+      <span *ngIf="searchText">Essayez de modifier votre recherche</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-scroll" *ngIf="!isLoading && filteredUtilisateurs.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="col-id">ID</th>
+            <th class="col-user">Utilisateur</th>
+            <th class="col-email">Email</th>
+            <th class="col-phone">Téléphone</th>
+            <th class="col-entreprise">Entreprise</th>
+            <th class="col-roles">Rôles</th>
+            <th class="col-status">Statut</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of paginatedUtilisateurs; let i = index"
+              class="table-row">
+
+            <!-- ID -->
+            <td class="col-id">
+              <span class="id-badge">{{ u.id }}</span>
+            </td>
+
+            <!-- Utilisateur (avatar + username + fullName) -->
+            <td class="col-user">
+              <div class="user-cell">
+                <div class="user-avatar" [style.background]="getAvatarColor(u)">
+                  {{ getInitials(u) }}
+                </div>
+                <div class="user-info">
+                  <span class="user-nom">{{ u.fullName }}</span>
+                  <span class="user-id-sm">&#64;{{ u.username }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Email -->
+            <td class="col-email">
+              <a class="email-link" [href]="'mailto:' + u.email">{{ u.email }}</a>
+            </td>
+
+            <!-- Téléphone -->
+            <td class="col-phone">
+              <span class="ville-text" *ngIf="u.phone">
+                <mat-icon class="ville-icon">phone</mat-icon>
+                {{ u.phone }}
+              </span>
+              <span class="text-muted" *ngIf="!u.phone">—</span>
+            </td>
+
+            <!-- Entreprise -->
+            <td class="col-entreprise">
+              <span *ngIf="u.entreprise?.nom" class="entreprise-text">{{ u.entreprise?.nom }}</span>
+              <span class="text-muted" *ngIf="!u.entreprise?.nom">—</span>
+            </td>
+
+            <!-- Rôles -->
+            <td class="col-roles">
+              <div class="roles-cell">
+                <span class="role-tag"
+                      *ngFor="let r of u.roles"
+                      [ngClass]="getRoleClass(r.roleName)">
+                  {{ r.roleName }}
+                </span>
+              </div>
+            </td>
+
+            <!-- Statut -->
+            <td class="col-status">
+              <span class="status-badge" [ngClass]="u.active ? 'status-active' : 'status-inactive'">
+                {{ u.active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="col-actions">
+              <div class="actions-cell">
+                <button class="action-btn edit" (click)="editUtilisateur(u.id!)" title="Modifier">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="action-btn password" (click)="changerMotDePasse(u.id!)" title="Changer mot de passe">
+                  <mat-icon>lock_reset</mat-icon>
+                </button>
+                <button class="action-btn delete"
+                        (click)="confirmDelete(u)"
+                        title="Supprimer">
+                  <mat-icon>delete_outline</mat-icon>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ══ PAGINATION ══ -->
+    <div class="pagination-bar" *ngIf="!isLoading && totalPages > 1">
+      <div class="pagination-info">
+        {{ pageStart + 1 }}–{{ pageEnd }} sur {{ filteredUtilisateurs.length }}
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button class="page-btn"
+                *ngFor="let p of pageNumbers"
+                [class.active]="p === currentPage"
+                (click)="goToPage(p)">
+          {{ p }}
+        </button>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      <div class="page-size-selector">
+        <span>Lignes :</span>
+        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="20">20</option>
+          <option [value]="50">50</option>
+        </select>
+      </div>
+    </div>
+
+  </div><!-- /table-card -->
+
+  <!-- ══ MODAL CONFIRM DELETE ══ -->
+  <div class="modal-overlay" *ngIf="userToDelete" (click)="cancelDelete()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <h3 class="modal-title">Confirmer la suppression</h3>
+      <ng-container *ngIf="userToDelete as u">
+        <p class="modal-body">
+          Êtes-vous sûr de vouloir supprimer
+          <strong>{{ u.fullName }}</strong> (&#64;{{ u.username }}) ?
+          Cette action est irréversible.
+        </p>
+      </ng-container>
+      <div class="modal-actions">
+        <button class="btn-annuler" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-delete" (click)="confirmDeleteAction()">
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

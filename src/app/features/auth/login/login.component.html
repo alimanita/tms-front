@@ -11,7 +11,7 @@
     <form [formGroup]="form" (ngSubmit)="submit()">
       <label>
         <span>Identifiant</span>
-        <input type="text" formControlName="username" autocomplete="username" />
+        <input type="text" formControlName="email" autocomplete="username" />
       </label>
 
       <label>
@@ -29,5 +29,10 @@
     </form>
 
     <p class="hint">Compte demo : admin / admin123</p>
+
+    <div class="register-link">
+      <span>{{ 'have_no_account' | translate }}?</span>
+      <a routerLink="/auth/register">{{ 'create_one_account' | translate }}</a>
+    </div>
   </div>
 </section>

@@ -1,0 +1,357 @@
+// ═══════════════════════════════════════════════════════════════
+//  ADD UTILISATEUR — SCSS
+//  Design cohérent avec paiement-drawer
+// ═══════════════════════════════════════════════════════════════
+
+$primary:       #1a6fdb;
+$primary-light: #e8f1fd;
+$success:       #1a9a5e;
+$success-light: #e6f7f0;
+$info:          #0891b2;
+$info-light:    #e0f7fa;
+$purple:        #7c3aed;
+$purple-light:  #ede9fe;
+$danger:        #e53e3e;
+$danger-light:  #fff5f5;
+$neutral-50:    #f8f9fb;
+$neutral-100:   #f1f3f6;
+$neutral-200:   #e4e7ec;
+$neutral-300:   #cdd2da;
+$neutral-500:   #6b7280;
+$neutral-700:   #374151;
+$neutral-900:   #111827;
+$white:         #ffffff;
+$radius-sm:     6px;
+$radius-md:     10px;
+$radius-lg:     14px;
+$shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+$shadow-md:     0 4px 12px rgba(0,0,0,.10);
+$transition:    all .2s ease;
+
+// ── Page wrapper ───────────────────────────────────────────────
+.page-wrapper {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Header ─────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: $white;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  background: $primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: $white;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.page-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: $neutral-900;
+  margin: 0 0 2px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: $neutral-500;
+  margin: 0;
+}
+
+.page-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+// Boutons header (identiques au drawer)
+.btn-annuler {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: $white;
+  border: 1px solid $neutral-300;
+  border-radius: $radius-sm;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: $neutral-700;
+  cursor: pointer;
+  transition: $transition;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { background: $neutral-100; border-color: #9ca3af; }
+}
+
+.btn-creer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  background: $primary;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $white;
+  cursor: pointer;
+  transition: $transition;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover:not(:disabled) { background: #1459b5; }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+// ── Sections ───────────────────────────────────────────────────
+.form-section {
+  background: $white;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-md;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: $neutral-50;
+  border-bottom: 1px solid $neutral-100;
+}
+
+.section-dot {
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  flex-shrink: 0;
+
+  &.dot-primary { background: $primary; }
+  &.dot-success { background: $success; }
+  &.dot-info    { background: $info; }
+  &.dot-purple  { background: $purple; }
+}
+
+.section-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $primary;
+
+  &.success { color: $success; }
+  &.info    { color: $info; }
+  &.purple  { color: $purple; }
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: $neutral-700;
+}
+
+.section-body {
+  padding: 16px;
+}
+
+// ── Grille de champs ───────────────────────────────────────────
+.fields-grid {
+  display: grid;
+  gap: 14px;
+
+  &.two-col {
+    grid-template-columns: 1fr 1fr;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  &.full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4b5563;
+
+  &.required-label::after {
+    content: ' *';
+    color: $danger;
+  }
+}
+
+// ── Input wrapper (icône + champ) ──────────────────────────────
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid $neutral-300;
+  border-radius: $radius-sm;
+  background: $white;
+  overflow: hidden;
+  transition: $transition;
+
+  &:focus-within {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, .1);
+  }
+
+  &.error {
+    border-color: $danger;
+    &:focus-within { box-shadow: 0 0 0 3px rgba($danger, .1); }
+  }
+
+  .input-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    color: $neutral-500;
+    margin: 0 10px;
+    flex-shrink: 0;
+  }
+}
+
+.field-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 8px 10px 8px 0;
+  font-size: 13px;
+  color: $neutral-900;
+  background: transparent;
+  font-family: inherit;
+
+  &::placeholder { color: #9ca3af; }
+
+  &.date-input {
+    padding-right: 10px;
+    &::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+  }
+}
+
+// Bouton toggle visibilité mot de passe
+.toggle-visibility {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 10px;
+  color: $neutral-500;
+  transition: $transition;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  &:hover { color: $neutral-700; }
+}
+
+.field-error {
+  font-size: 11.5px;
+  color: $danger;
+  margin-top: 2px;
+}
+
+// ── Rôles (chips cliquables) ───────────────────────────────────
+.roles-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  font-size: 13px;
+  color: $neutral-500;
+}
+
+.roles-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid $neutral-200;
+  border-radius: 20px;
+  background: $white;
+  cursor: pointer;
+  transition: $transition;
+  user-select: none;
+
+  .role-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $neutral-500;
+  }
+
+  .role-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: $neutral-700;
+  }
+
+  .role-check {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $primary;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-light;
+
+    .role-icon  { color: $primary; }
+    .role-label { color: $primary; }
+  }
+
+  &.selected {
+    border-color: $primary;
+    background: $primary-light;
+
+    .role-icon  { color: $primary; }
+    .role-label { color: $primary; font-weight: 600; }
+  }
+}

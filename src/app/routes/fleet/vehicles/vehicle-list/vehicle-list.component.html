@@ -1,0 +1,53 @@
+<div class="fleet-page">
+  <div  class="fleet-topbar">
+    <h2 class="fleet-title">Parc de véhicules</h2>
+    <button  *ngIf="isAdmin" class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>Référence</th>
+          <th>Immatriculation</th>
+          <th>Marque / Modèle</th>
+          <th>Carburant</th>
+          <th>Km actuel</th>
+          <th>Statut</th>
+          <th>Actif</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of vehicules">
+          <td>{{ v.reference }}</td>
+          <td><strong>{{ v.immatriculation }}</strong></td>
+          <td>{{ v.marque }} {{ v.modele }} <span class="text-muted">{{ v.annee }}</span></td>
+          <td>{{ v.typeCarburant }}</td>
+          <td>{{ v.kilometrageActuel | number:'1.0-0' }} km</td>
+          <td>
+            <span class="badge" [ngClass]="statutClass(v.statut)">{{ v.statut }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="v.actif ? 'badge--green' : 'badge--grey'">
+              {{ v.actif ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" (click)="goFuel(v)" title="Pleins">⛽</button>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(v)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="toggle(v)"
+                    [title]="v.actif ? 'Désactiver' : 'Activer'">
+              {{ v.actif ? '🔴' : '🟢' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="vehicules.length === 0">
+          <td colspan="8" class="fl-empty">Aucun véhicule enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

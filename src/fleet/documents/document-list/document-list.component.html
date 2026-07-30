@@ -1,0 +1,56 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Documents de Flotte</h2>
+    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Nouveau Document</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Réf</th>
+          <th>Émetteur</th>
+          <th>Entité</th>
+          <th>Date Emission</th>
+          <th>Date Expiration</th>
+          <th>Statut</th>
+          <th>Fichier</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of documents">
+          <td><strong>{{ d.typeDocument }}</strong></td>
+          <td>{{ d.referenceNumber }}</td>
+          <td>{{ d.issuer }}</td>
+          <td>{{ d.entityType }} ({{ d.entityRef || d.entityId }})</td>
+          <td>{{ d.issueDate | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span [ngClass]="{'text-red': d.status === 'EXPIRED'}">
+              {{ d.expiryDate | date:'dd/MM/yyyy' }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="d.status === 'ACTIVE' ? 'badge--green' : 'badge--red'">
+              {{ d.status }}
+            </span>
+          </td>
+          <td>
+            <button *ngIf="d.fileName" class="fl-btn fl-btn-ghost" (click)="downloadFile(d)" title="Télécharger">📄</button>
+            <span *ngIf="!d.fileName">-</span>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(d)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(d.id)" style="color: red;" title="Supprimer">🗑</button>
+          </td>
+        </tr>
+        <tr *ngIf="documents.length === 0">
+          <td colspan="9" class="fl-empty">Aucun document enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

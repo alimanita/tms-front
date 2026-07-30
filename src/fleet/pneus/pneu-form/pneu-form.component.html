@@ -1,0 +1,79 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier Pneu' : 'Nouveau Pneu' }}</h2>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="fl-form">
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>N° de Série *</label>
+          <input type="text" formControlName="serialNumber"
+                 [ngClass]="{'is-invalid': submitted && form.controls['serialNumber'].invalid}">
+        </div>
+        <div class="fl-col">
+          <label>Taille (ex: 225/65R17)</label>
+          <input type="text" formControlName="size">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Marque</label>
+          <input type="text" formControlName="brand">
+        </div>
+        <div class="fl-col">
+          <label>Modèle</label>
+          <input type="text" formControlName="model">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Type de pneu</label>
+          <select formControlName="type">
+            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Statut</label>
+          <select formControlName="status">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Date d'achat</label>
+          <input type="date" formControlName="purchaseDate">
+        </div>
+        <div class="fl-col">
+          <label>Coût d'achat</label>
+          <input type="number" formControlName="purchaseCost">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Kilométrage Max Estimé</label>
+          <input type="number" formControlName="maxKm">
+        </div>
+        <div class="fl-col" style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+          <input type="checkbox" formControlName="isActive" id="isActive">
+          <label for="isActive" style="margin: 0; font-weight: normal; cursor: pointer;">
+            Pneu actif
+          </label>
+        </div>
+      </div>
+
+      <div class="fl-form-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="onCancel()">Annuler</button>
+        <button type="submit" class="fl-btn fl-btn-primary" [disabled]="loading">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

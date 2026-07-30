@@ -1,17 +1,18 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+
 import { PageResponse } from '../models/page.model';
+import { environment } from 'environments/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TmsApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl = environment.baseUrl;
 
   // Dashboard
   getDashboard(): Observable<unknown> {
-    return this.http.get(`${this.baseUrl}/api/v1/dashboard`);
+    return this.http.get(`${this.baseUrl}/dashboard`);
   }
 
   // Generic CRUD helpers
@@ -42,16 +43,23 @@ export class TmsApiService {
 
   // Paths
   readonly paths = {
-    vehicles: '/api/v1/vehicles',
-    drivers: '/api/v1/drivers',
-    customers: '/api/v1/customers',
-    amazonPurchases: '/api/v1/amazon-purchases',
-    customerOrders: '/api/v1/customer-orders',
-    missions: '/api/v1/missions',
-    fuelRecords: '/api/v1/fuel-records',
-    maintenanceRecords: '/api/v1/maintenance-records',
-    spareParts: '/api/v1/spare-parts',
-    financialEntries: '/api/v1/financial-entries',
-    notifications: '/api/v1/notifications'
+    vehicles: '/vehicles',
+    drivers: '/drivers',
+    customers: '/customers',
+    amazonPurchases: '/amazon-purchases',
+    customerOrders: '/customer-orders',
+    missions: '/missions',
+    fuelRecords: '/fuel-records',
+    maintenanceRecords: '/maintenance-records',
+    spareParts: '/spare-parts',
+    financialEntries: '/financial-entries',
+    notifications: '/notifications',
+    machines: '/machines',
+    workOrders: '/work-orders',
+    tires: '/tires',
+    tireAssignments: '/tires/assignments',
+    oilChanges: '/oil-changes',
+    fleetDocuments: '/fleet-documents',
+    maintenancePlans: '/maintenance-plans'
   };
 }

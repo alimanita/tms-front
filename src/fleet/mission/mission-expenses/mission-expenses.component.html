@@ -1,0 +1,105 @@
+<div class="expenses-card">
+
+  <div class="expenses-header">
+    <h3>Dépenses de mission</h3>
+    <button
+      *ngIf="!readonly"
+      class="add-expense-btn"
+      (click)="toggleForm()"
+      type="button"
+    >
+      <mat-icon>{{ showForm ? 'close' : 'add' }}</mat-icon>
+      {{ showForm ? 'Annuler' : 'Ajouter une dépense' }}
+    </button>
+  </div>
+
+  <!-- Formulaire d'ajout -->
+  <form *ngIf="showForm" [formGroup]="form" (ngSubmit)="onSubmit()" class="expense-form">
+    <div class="expense-form-grid">
+
+      <div class="expense-field">
+        <label>Type *</label>
+        <select formControlName="expenseType" [class.error]="submitted && form.get('expenseType')?.invalid">
+          <option *ngFor="let t of typeOptions" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+
+      <div class="expense-field">
+        <label>Montant (TND) *</label>
+        <input type="number" step="0.001" min="0" formControlName="montant"
+               [class.error]="submitted && form.get('montant')?.invalid"/>
+      </div>
+
+      <div class="expense-field">
+        <label>Date *</label>
+        <input type="datetime-local" formControlName="expenseDate"
+               [class.error]="submitted && form.get('expenseDate')?.invalid"/>
+      </div>
+
+      <div class="expense-field expense-field--checkbox">
+        <label>
+          <input type="checkbox" formControlName="isReimbursable"/>
+          Remboursable
+        </label>
+      </div>
+
+      <div class="expense-field expense-field--full">
+        <label>Description</label>
+        <input type="text" formControlName="description" placeholder="Ex: Plein gasoil station X"/>
+      </div>
+
+    </div>
+
+    <div class="expense-form-actions">
+      <button type="submit" class="save-expense-btn">Enregistrer</button>
+    </div>
+  </form>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="expenses-loading">
+    <mat-progress-spinner diameter="28" mode="indeterminate"></mat-progress-spinner>
+  </div>
+
+  <!-- Liste des dépenses -->
+  <table *ngIf="!loading" class="expenses-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Montant</th>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Remboursable</th>
+        <th *ngIf="!readonly"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="depenses.length === 0">
+        <td [attr.colspan]="readonly ? 5 : 6" class="expenses-empty">Aucune dépense enregistrée</td>
+      </tr>
+      <tr *ngFor="let d of depenses">
+        <td>{{ getTypeLabel(d.expenseType) }}</td>
+        <td>{{ d.montant | number:'1.3-3' }} {{ d.currency }}</td>
+        <td>{{ d.expenseDate | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ d.description || '—' }}</td>
+        <td>
+          <span [class]="d.isReimbursable ? 'badge-yes' : 'badge-no'">
+            {{ d.isReimbursable ? 'Oui' : 'Non' }}
+          </span>
+        </td>
+        <td *ngIf="!readonly">
+          <button class="remove-expense-btn" (click)="supprimer(d)" type="button" title="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot *ngIf="depenses.length > 0">
+      <tr>
+        <td colspan="1"><strong>Total</strong></td>
+        <td><strong>{{ totalDepenses | number:'1.3-3' }} TND</strong></td>
+        <td colspan="4"></td>
+      </tr>
+    </tfoot>
+  </table>
+
+</div>

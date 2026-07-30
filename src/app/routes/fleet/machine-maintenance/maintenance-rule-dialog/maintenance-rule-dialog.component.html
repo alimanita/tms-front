@@ -1,0 +1,100 @@
+<div class="panel-overlay" *ngIf="isOpen" (click)="onBackdropClick()">
+  <div class="drawer" (click)="$event.stopPropagation()">
+
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <mat-icon>build</mat-icon>
+        <h2>{{ isEditMode ? 'Modifier la règle' : 'Nouvelle règle de maintenance' }}</h2>
+      </div>
+      <button type="button" class="drawer-close" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="drawer-body" [formGroup]="form">
+
+      <div class="field-group">
+        <label class="field-label">Code</label>
+        <input class="field-input" formControlName="code" placeholder="A, B, C...">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Type d'action <span class="required">*</span></label>
+        <select class="field-input" formControlName="typeAction">
+          <option value="" disabled selected>Sélectionner...</option>
+          <option *ngFor="let type of typesAction" [value]="type.value">{{ type.label }}</option>
+        </select>
+        <span class="field-error" *ngIf="form.get('typeAction')?.invalid && form.get('typeAction')?.touched">
+          Obligatoire
+        </span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Description <span class="required">*</span></label>
+        <textarea class="field-input" formControlName="description" rows="2"
+                  placeholder="Ex: Vérifier niveau et remplir huile HM 32"></textarea>
+        <span class="field-error" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
+          La description est obligatoire
+        </span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Consommable</label>
+        <input class="field-input" formControlName="consommable" placeholder="Huile CKC 150...">
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Quantité</label>
+          <input class="field-input" type="number" formControlName="quantite">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Unité</label>
+          <input class="field-input" formControlName="uniteQuantite" placeholder="KG, L...">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label class="field-label">Intervalle (heures)</label>
+          <input class="field-input" type="number" formControlName="intervalleHeures">
+          <span class="field-hint">Ex: 200, 2000, 5000</span>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Intervalle (jours)</label>
+          <input class="field-input" type="number" formControlName="intervalleJours">
+          <span class="field-hint">Ex: 7 pour hebdomadaire</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Dernières heures effectuées</label>
+        <input class="field-input" type="number" formControlName="dernieresHeuresEffectuees">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Dernière date effectuée</label>
+        <div class="date-input-wrap">
+          <input class="field-input" [matDatepicker]="picker" formControlName="derniereDateEffectuee">
+          <mat-datepicker-toggle [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+      </div>
+
+      <div class="field-group checkbox-group">
+        <mat-checkbox formControlName="actif">Règle active</mat-checkbox>
+      </div>
+
+    </div>
+
+    <div class="drawer-footer">
+      <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+      <button type="button" class="btn-primary" (click)="submit()" [disabled]="form.invalid || loading">
+        <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!loading">check</mat-icon>
+        <span>{{ isEditMode ? 'Modifier' : 'Créer la règle' }}</span>
+      </button>
+    </div>
+
+  </div>
+</div>

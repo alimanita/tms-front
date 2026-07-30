@@ -1,0 +1,12 @@
+{
+  "register_welcome": "Bienvenue",
+  "register_company_title": "Créer votre entreprise",
+  "company_information": "Informations de l'entreprise",
+  "company_name": "Nom de l'entreprise",
+  "validation": {
+    "required": "Ce champ est requis",
+    "min_length": "Minimum {{value}} caractères",
+    "invalid_email": "Email invalide",
+    "password_mismatch": "Les mots de passe ne correspondent pas"
+  }
+}

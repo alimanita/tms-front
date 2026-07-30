@@ -1,0 +1,106 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier Vidange' : 'Nouvelle Vidange' }}</h2>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="fl-form">
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Type d'entité *</label>
+          <select formControlName="entityType">
+            <option value="VEHICLE">Véhicule</option>
+            <option value="MACHINE">Machine</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Entité *</label>
+          <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
+            <option [ngValue]="null">-- Sélectionner --</option>
+            <ng-container *ngIf="entityType === 'VEHICLE'">
+              <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
+            </ng-container>
+            <ng-container *ngIf="entityType === 'MACHINE'">
+              <option *ngFor="let m of machines" [value]="m.id">{{ m.nom }} ({{ m.numeroSerie }})</option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Type d'huile *</label>
+          <select formControlName="typeHuile">
+            <option *ngFor="let t of typesHuile" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Date de vidange *</label>
+          <input type="date" formControlName="changeDate"
+                 [ngClass]="{'is-invalid': submitted && form.controls['changeDate'].invalid}">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Km actuels (si Véhicule)</label>
+          <input type="number" formControlName="mileageAtChange">
+        </div>
+        <div class="fl-col">
+          <label>Heures actuelles (si Machine)</label>
+          <input type="number" formControlName="hoursAtChange">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Quantité (Litres) *</label>
+          <input type="number" formControlName="quantityLiters" step="0.1"
+                 [ngClass]="{'is-invalid': submitted && form.controls['quantityLiters'].invalid}">
+        </div>
+        <div class="fl-col">
+          <label>Coût unitaire (MAD/L)</label>
+          <input type="number" formControlName="unitCost" step="0.01">
+        </div>
+        <div class="fl-col">
+          <label>Coût Total (MAD)</label>
+          <input type="number" formControlName="totalCost" step="0.01">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Prochain Km (estimation)</label>
+          <input type="number" formControlName="nextChangeKm">
+        </div>
+        <div class="fl-col">
+          <label>Prochaines Heures (estimation)</label>
+          <input type="number" formControlName="nextChangeHours">
+        </div>
+        <div class="fl-col">
+          <label>Prochaine Date (estimation)</label>
+          <input type="date" formControlName="nextChangeDate">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Effectué par</label>
+          <input type="text" formControlName="performedBy">
+        </div>
+        <div class="fl-col">
+          <label>Notes</label>
+          <input type="text" formControlName="notes">
+        </div>
+      </div>
+
+      <div class="fl-form-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="onCancel()">Annuler</button>
+        <button type="submit" class="fl-btn fl-btn-primary" [disabled]="loading">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

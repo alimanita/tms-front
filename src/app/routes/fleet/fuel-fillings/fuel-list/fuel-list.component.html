@@ -1,0 +1,99 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Pleins carburant</h2>
+    <div class="fl-topbar-actions">
+      <select class="fl-select" (change)="onVehiculeFilter($event)">
+        <option value="">Tous les véhicules</option>
+        <option *ngFor="let v of vehicules" [value]="v.id"
+                [selected]="v.id === selectedVehiculeId">
+          {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+        </option>
+      </select>
+      <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+<table *ngIf="!loading" class="fl-table">
+  <thead>
+    <tr>
+      <th>Référence</th>
+      <th>Véhicule</th>
+      <th>Date</th>
+      <th>Carburant</th>
+      <th>Quantité (L)</th>
+      <th>Prix/L</th>
+      <th>Total</th>
+      <th>Conso (L/100)</th>
+      <th>Km avant</th>
+      <th>Justificatif</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of pleins">
+      <td>{{ p.reference }}</td>
+      <td>{{ p.vehicule?.immatriculation }}</td>
+      <td>{{ p.fillingDate | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ p.fuelType }}</td>
+      <td>{{ p.quantityLiters | number:'1.3-3' }}</td>
+      <td>{{ p.pricePerLiter | number:'1.3-3' }}</td>
+      <td><strong>{{ p.totalAmount | number:'1.3-3' }} DT</strong></td>
+      <td>
+        <span *ngIf="p.consumptionRate">{{ p.consumptionRate | number:'1.2-2' }}</span>
+        <span *ngIf="!p.consumptionRate" class="text-muted">—</span>
+      </td>
+      <td>{{ p.mileageBefore | number:'1.0-0' }}</td>
+
+      <td>
+        <div class="fl-actions">
+          <ng-container *ngIf="p.proofUrl; else noProof">
+            <button class="fl-btn fl-btn-ghost" (click)="viewProof(p.id)" title="Voir">👁</button>
+            <button class="fl-btn fl-btn-ghost" (click)="downloadProof(p.id, p.reference)" title="Télécharger">⬇</button>
+          </ng-container>
+          <ng-template #noProof><span class="text-muted">—</span></ng-template>
+        </div>
+      </td>
+
+      <td>
+        <div class="fl-actions">
+          <button class="fl-btn fl-btn-ghost" (click)="goEdit(p)" title="Modifier">✎</button>
+          <button class="fl-btn fl-btn-ghost" (click)="delete(p)" title="Supprimer">🗑</button>
+        </div>
+      </td>
+    </tr>
+    <tr *ngIf="pleins.length === 0">
+      <td colspan="11" class="fl-empty">Aucun plein enregistré</td>
+    </tr>
+  </tbody>
+</table>
+  </div>
+</div>
+
+<!-- Modal justificatif -->
+<div class="fl-modal-overlay" *ngIf="proofModalOpen" (click)="closeProofModal()">
+  <div class="fl-modal" (click)="$event.stopPropagation()">
+    <div class="fl-modal-header">
+      <h3>Justificatif</h3>
+      <button class="fl-modal-close" (click)="closeProofModal()">✕</button>
+    </div>
+
+    <div class="fl-modal-body">
+      <div *ngIf="proofLoading" class="fl-modal-loading">Chargement…</div>
+
+      <ng-container *ngIf="!proofLoading">
+        <img *ngIf="proofIsImage" [src]="proofSafeUrl" class="fl-modal-img" alt="Justificatif"/>
+        <iframe *ngIf="!proofIsImage" [src]="proofSafeUrl" class="fl-modal-pdf"></iframe>
+      </ng-container>
+    </div>
+
+    <div class="fl-modal-footer">
+      <button class="fl-btn fl-btn-ghost" (click)="downloadProof(currentProofId!, currentProofRef)">
+        ⬇ Télécharger
+      </button>
+      <button class="fl-btn fl-btn-primary" (click)="closeProofModal()">Fermer</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div class="ac-wrapper" [class.ac-wrapper--disabled]="disabled">
+
+  <!-- ── Input ──────────────────────────────────────────────────────────── -->
+  <div class="ac-input-wrap" [class.ac-input-wrap--open]="isOpen"
+       [class.ac-input-wrap--error]="hasError">
+    <svg class="ac-icon ac-icon--search" width="14" height="14"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+
+    <input
+      #inputRef
+      type="text"
+      class="ac-input"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      [value]="searchTerm"
+      (input)="onInput($any($event.target).value)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      autocomplete="off"
+    />
+
+    <!-- Bouton Clear -->
+    <button *ngIf="searchTerm && !disabled" type="button"
+            class="ac-icon ac-icon--clear" (mousedown)="clear()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <svg *ngIf="!searchTerm || disabled" class="ac-icon ac-icon--chevron"
+         width="13" height="13" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </div>
+
+  <!-- ── Dropdown ───────────────────────────────────────────────────────── -->
+  <div class="ac-dropdown" *ngIf="isOpen">
+
+    <!-- Loading -->
+    <div class="ac-item ac-item--loading" *ngIf="loading">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" class="ac-spin">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+      Recherche…
+    </div>
+
+    <!-- Liste scrollable -->
+    <div class="ac-list" *ngIf="!loading" (scroll)="onScroll($event)">
+      <div
+        class="ac-item"
+        *ngFor="let opt of visibleOptions"
+        (mousedown)="selectOption(opt)">
+        <span class="ac-item__label">{{ opt.label }}</span>
+        <span class="ac-item__sublabel" *ngIf="opt.sublabel">{{ opt.sublabel }}</span>
+        <small class="ac-item__meta" *ngIf="opt.meta">{{ opt.meta }}</small>
+      </div>
+
+      <div class="ac-item ac-item--empty" *ngIf="visibleOptions.length === 0">
+        {{ emptyMessage }}
+      </div>
+    </div>
+
+    <!-- Créer -->
+    <div class="ac-item ac-item--create" *ngIf="showCreate" (mousedown)="onCreate()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      {{ createLabel || ('Créer "' + searchTerm + '"') }}
+    </div>
+
+  </div>
+</div>

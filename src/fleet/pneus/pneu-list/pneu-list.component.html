@@ -1,0 +1,54 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Inventaire des Pneus</h2>
+    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>S/N</th>
+          <th>Marque</th>
+          <th>Modèle</th>
+          <th>Taille</th>
+          <th>Type</th>
+          <th>Date d'achat</th>
+          <th>Statut</th>
+          <th>Actif</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of pneus">
+          <td><strong>{{ p.serialNumber }}</strong></td>
+          <td>{{ p.brand }}</td>
+          <td>{{ p.model }}</td>
+          <td>{{ p.size }}</td>
+          <td>{{ p.type }}</td>
+          <td>{{ p.purchaseDate | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="badge" [ngClass]="statutClass(p.status)">{{ p.status }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="p.isActive ? 'badge--green' : 'badge--grey'">
+              {{ p.isActive ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(p)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="toggle(p)"
+                    [title]="p.isActive ? 'Désactiver' : 'Activer'">
+              {{ p.isActive ? '🔴' : '🟢' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="pneus.length === 0">
+          <td colspan="9" class="fl-empty">Aucun pneu enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

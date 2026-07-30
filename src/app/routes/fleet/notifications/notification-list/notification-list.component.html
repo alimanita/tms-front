@@ -1,0 +1,37 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Notifications</h2>
+    <button class="fl-btn fl-btn-ghost" (click)="marquerToutesLues()" [disabled]="notifications.length === 0">
+      Tout marquer comme lu
+    </button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <div *ngIf="!loading" class="notif-list">
+      <div *ngFor="let n of notifications"
+           class="notif-item"
+           [class.notif-item--unread]="!n.isRead"
+           [ngClass]="severityClass(n.severity)">
+        <div class="notif-icon">{{ severityIcon(n.severity) }}</div>
+        <div class="notif-content">
+          <div class="notif-title">{{ n.title }}</div>
+          <div class="notif-message">{{ n.message }}</div>
+          <div class="notif-meta">
+            <span *ngIf="n.entityRef">{{ n.entityRef }} · </span>
+            <span>{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="notif-actions">
+          <button *ngIf="!n.isRead" class="fl-btn fl-btn-ghost" (click)="marquerLue(n)" title="Marquer comme lue">✓</button>
+          <button class="fl-btn fl-btn-ghost" (click)="ignorer(n)" title="Ignorer">✕</button>
+        </div>
+      </div>
+
+      <div *ngIf="notifications.length === 0" class="fl-empty">
+        Aucune notification
+      </div>
+    </div>
+  </div>
+</div>

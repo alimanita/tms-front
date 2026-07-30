@@ -1,0 +1,99 @@
+<page-header title="Statistiques Lames de Scie (Syage)">
+  <breadcrumb [nav]="['Flotte', 'Machines', 'Statistiques Syage']"></breadcrumb>
+</page-header>
+
+<div class="row" *ngIf="loading">
+  <div class="col-12 text-center p-y-24">
+    <mat-spinner diameter="40" class="m-auto"></mat-spinner>
+    <p class="m-t-16">Chargement des statistiques...</p>
+  </div>
+</div>
+
+<div class="row" *ngIf="!loading">
+  <!-- KPIs pour les lames actuelles -->
+  <div class="col-12 m-b-24">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Lames Actuelles en Service</mat-card-title>
+        <mat-card-subtitle *ngIf="currentStats?.otId">
+          Installées le {{ currentStats?.dateChangementLames | date:'dd/MM/yyyy HH:mm' }} 
+          (OT: {{ currentStats?.referenceOT }})
+        </mat-card-subtitle>
+        <mat-card-subtitle *ngIf="!currentStats?.otId">
+          Aucun changement de lames enregistré pour cette machine.
+        </mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content *ngIf="currentStats?.otId" class="m-t-16">
+        <div class="row">
+          <div class="col-sm-4 text-center">
+            <h2 class="mat-display-1 m-b-0 text-primary">{{ currentStats?.hauteurTotaleMetres | number:'1.2-2' }} m</h2>
+            <p class="text-muted">Hauteur totale syée</p>
+          </div>
+          <div class="col-sm-4 text-center">
+            <h2 class="mat-display-1 m-b-0">{{ currentStats?.nombreBlocsSyes }}</h2>
+            <p class="text-muted">Blocs syés</p>
+          </div>
+          <div class="col-sm-4 text-center">
+            <h2 class="mat-display-1 m-b-0">{{ currentStats?.nombreOFsSyage }}</h2>
+            <p class="text-muted">Ordres de fabrication (Syage)</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Historique des changements -->
+  <div class="col-12">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Historique des Changements de Lames</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="p-0 m-t-16">
+        <table mat-table [dataSource]="history" class="w-full">
+          
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef> Date d'installation </th>
+            <td mat-cell *matCellDef="let row"> {{ row.dateChangementLames | date:'dd/MM/yyyy HH:mm' }} </td>
+          </ng-container>
+
+          <!-- Reference Column -->
+          <ng-container matColumnDef="reference">
+            <th mat-header-cell *matHeaderCellDef> Réf. Ordre de Travail </th>
+            <td mat-cell *matCellDef="let row"> {{ row.referenceOT }} </td>
+          </ng-container>
+
+          <!-- Hauteur Column -->
+          <ng-container matColumnDef="hauteur">
+            <th mat-header-cell *matHeaderCellDef> Hauteur Syée </th>
+            <td mat-cell *matCellDef="let row"> <strong>{{ row.hauteurTotaleMetres | number:'1.2-2' }} m</strong> </td>
+          </ng-container>
+
+          <!-- Blocs Column -->
+          <ng-container matColumnDef="blocs">
+            <th mat-header-cell *matHeaderCellDef> Blocs </th>
+            <td mat-cell *matCellDef="let row"> {{ row.nombreBlocsSyes }} </td>
+          </ng-container>
+
+          <!-- OFs Column -->
+          <ng-container matColumnDef="ofs">
+            <th mat-header-cell *matHeaderCellDef> OFs </th>
+            <td mat-cell *matCellDef="let row"> {{ row.nombreOFsSyage }} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          
+          <!-- Ligne si vide -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center p-y-16" colspan="5">
+              Aucun historique disponible.
+            </td>
+          </tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

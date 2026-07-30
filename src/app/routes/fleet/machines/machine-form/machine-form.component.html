@@ -1,0 +1,75 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier la machine' : 'Nouvelle machine' }}</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost" (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" class="fl-form">
+      <div class="fl-grid">
+<div class="fl-field">
+  <label>Référence *</label>
+  <input formControlName="reference" placeholder="Ex: MC-2024-001"
+         [class.error]="submitted && form.get('reference')?.invalid"/>
+</div>
+
+
+        <div class="fl-field">
+          <label>Nom *</label>
+          <input formControlName="nom" placeholder="Nom de la machine"
+                 [class.error]="submitted && form.get('nom')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Numéro de série *</label>
+          <input formControlName="numeroSerie" placeholder="Ex: SN-12345"
+                 [class.error]="submitted && form.get('numeroSerie')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Marque</label>
+          <input formControlName="marque" placeholder="Caterpillar, Komatsu…"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Modèle</label>
+          <input formControlName="modele" placeholder="320D, PC200…"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Catégorie</label>
+          <input formControlName="categorie" placeholder="COMPRESSEUR, GRUE…"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Statut *</label>
+          <select formControlName="statut">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Heures actuelles (h)</label>
+          <input type="number" formControlName="heuresActuelles" min="0"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Localisation</label>
+          <input formControlName="localisation" placeholder="Chantier, atelier…"/>
+        </div>
+
+        <div class="fl-field fl-field--checkbox">
+          <label>
+            <input type="checkbox" formControlName="actif"/> Actif
+          </label>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

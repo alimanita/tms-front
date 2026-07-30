@@ -1,0 +1,167 @@
+.mission-detail-page {
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.detail-loading {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.detail-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px 0;
+  color: #9ca3af;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+// ── Header ─────────────────────────────────────────────────────────
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.detail-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #4b5563;
+  }
+}
+
+.detail-title {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.detail-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover { background: #f9fafb; }
+}
+
+.action-edit    { color: #374151; }
+.action-start   { color: #2563eb; border-color: #bfdbfe; &:hover { background: #eff6ff; } }
+.action-close   { color: #059669; border-color: #a7f3d0; &:hover { background: #ecfdf5; } }
+.action-cancel  { color: #d97706; border-color: #fde68a; &:hover { background: #fffbeb; } }
+.action-delete  { color: #dc2626; border-color: #fecaca; &:hover { background: #fef2f2; } }
+
+// ── Cards ──────────────────────────────────────────────────────────
+.detail-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+  }
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  span {
+    font-size: 14px;
+    color: #111827;
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+}
+
+// ── Status badge (aligné avec mission-list) ─────────────────────────
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-validee { background: #dbeafe; color: #1d4ed8; }
+.status-partiel { background: #fef3c7; color: #b45309; }
+.status-livree  { background: #d1fae5; color: #047857; }
+.status-annulee { background: #fee2e2; color: #b91c1c; }

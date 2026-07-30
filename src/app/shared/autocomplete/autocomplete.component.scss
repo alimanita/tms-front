@@ -1,0 +1,237 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Variables (héritées du contexte parent si disponibles, sinon fallback)
+// ─────────────────────────────────────────────────────────────────────────────
+$ac-primary:      var(--ac-primary,      #2563eb);
+$ac-border:       var(--ac-border,       #e2e8f0);
+$ac-surface:      var(--ac-surface,      #ffffff);
+$ac-text:         var(--ac-text,         #0f172a);
+$ac-text-muted:   var(--ac-text-muted,   #94a3b8);
+$ac-hover-bg:     var(--ac-hover-bg,     #f1f5f9);
+$ac-error:        var(--ac-error,        #ef4444);
+$ac-radius:       var(--ac-radius,       6px);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Wrapper
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-wrapper {
+  position: relative;
+  width: 100%;
+
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Input wrap
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid $ac-border;
+  border-radius: $ac-radius;
+  background: $ac-surface;
+  padding: 7px 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: text;
+  box-sizing: border-box;
+
+  // Ouvert ou focus
+  &--open,
+  &:focus-within {
+    border-color: $ac-primary;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  // Erreur de validation
+  &--error {
+    border-color: $ac-error;
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Input texte
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  // Hérite de la taille du parent pour s'intégrer dans .field-input
+  font-size: inherit;
+  font-family: inherit;
+  color: $ac-text;
+  min-width: 0;
+
+  &::placeholder { color: $ac-text-muted; }
+  &:disabled      { cursor: not-allowed; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Icônes (search, clear, chevron)
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-icon {
+  flex-shrink: 0;
+  color: $ac-text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &--search  { color: $ac-text-muted; }
+
+  &--clear {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    color: $ac-text-muted;
+    line-height: 0;
+
+    &:hover { color: $ac-error; }
+  }
+
+  &--chevron { margin-left: auto; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dropdown
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  min-width: 260px;
+  background: $ac-surface;
+  border: 1px solid $ac-border;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 3000;     // même z-index que .article-dropdown du bon de réception
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Liste scrollable (5 items max ≈ 200px)
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-list {
+  max-height: 185px;   // 5 × 37px — identique à .article-dropdown__list
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  display: block;
+
+  scrollbar-width: thin;
+  scrollbar-color: #d0d5dd transparent;
+
+  &::-webkit-scrollbar       { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Item générique
+// ─────────────────────────────────────────────────────────────────────────────
+
+.ac-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  min-height: 37px;   // aligné sur le bon de réception
+  cursor: pointer;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: background 0.1s;
+
+  &:hover { background: $ac-hover-bg; }
+
+  // Label principal (designation / nom)
+  &__label {
+    flex: 1;
+    font-weight: 500;
+    color: $ac-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Sublabel (code article / référence fournisseur)
+  &__sublabel {
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    background: #f8fafc;
+    border: 1px solid $ac-border;
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: #64748b;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  // Meta (prix, ville…)
+  &__meta {
+    color: #64748b;
+    font-size: 11px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  // États spéciaux
+  &--loading {
+    color: #64748b;
+    font-style: italic;
+    cursor: default;
+    gap: 7px;
+    &:hover { background: transparent; }
+  }
+
+  &--empty {
+    color: #64748b;
+    font-style: italic;
+    font-size: 12.5px;
+    cursor: default;
+    &:hover { background: transparent; }
+  }
+
+  // Bouton "Créer" — hors du scroll, toujours visible en bas
+  &--create {
+    color: $ac-primary;
+    font-weight: 500;
+    font-size: 13px;
+    border-top: 1px solid $ac-border;
+    background: #fafcff;
+    flex-shrink: 0;
+    gap: 7px;
+
+    svg { flex-shrink: 0; stroke: $ac-primary; }
+
+    &:hover { background: #eff6ff; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Spinner (loading)
+// ─────────────────────────────────────────────────────────────────────────────
+
+@keyframes ac-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.ac-spin {
+  animation: ac-spin 0.8s linear infinite;
+}

@@ -1,0 +1,87 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Documents de Flotte</h2>
+    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Nouveau Document</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Réf</th>
+          <th>Émetteur</th>
+          <th>Entité</th>
+          <th>Date Emission</th>
+          <th>Date Expiration</th>
+          <th>Statut</th>
+          <th>Fichier</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of documents">
+          <td><strong>{{ formatType(d.typeDocument) }}</strong></td>
+          <td>{{ d.referenceNumber || '-' }}</td>
+          <td>{{ d.issuer || '-' }}</td>
+          <td>{{ formatEntity(d.entityType) }} ({{ d.entityRef || d.entityId }})</td>
+          <td>{{ d.issueDate | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span [ngClass]="{'text-red': d.status === 'EXPIRED'}">
+              {{ d.expiryDate | date:'dd/MM/yyyy' }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="d.status === 'ACTIVE' ? 'badge--green' : 'badge--red'">
+              {{ d.status }}
+            </span>
+          </td>
+          <td>
+            <div class="fl-actions" style="justify-content: flex-start;">
+              <ng-container *ngIf="d.fileName; else noFile">
+                <button class="fl-btn fl-btn-ghost" (click)="viewProof(d.id, d.referenceNumber)" title="Voir">👁</button>
+                <button class="fl-btn fl-btn-ghost" (click)="downloadFile(d.id, d.referenceNumber)" title="Télécharger">⬇</button>
+              </ng-container>
+              <ng-template #noFile><span style="color: #9ca3af; padding-left: 10px;">—</span></ng-template>
+            </div>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(d)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(d.id)" style="color: red;" title="Supprimer">🗑</button>
+          </td>
+        </tr>
+        <tr *ngIf="documents.length === 0">
+          <td colspan="9" class="fl-empty">Aucun document enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal justificatif -->
+<div class="fl-modal-overlay" *ngIf="proofModalOpen" (click)="closeProofModal()">
+  <div class="fl-modal" (click)="$event.stopPropagation()">
+    <div class="fl-modal-header">
+      <h3>Justificatif</h3>
+      <button class="fl-modal-close" (click)="closeProofModal()">✕</button>
+    </div>
+
+    <div class="fl-modal-body">
+      <div *ngIf="proofLoading" class="fl-modal-loading">Chargement…</div>
+
+      <ng-container *ngIf="!proofLoading">
+        <img *ngIf="proofIsImage" [src]="proofSafeUrl" class="fl-modal-img" alt="Justificatif"/>
+        <iframe *ngIf="!proofIsImage" [src]="proofSafeUrl" class="fl-modal-pdf"></iframe>
+      </ng-container>
+    </div>
+
+    <div class="fl-modal-footer">
+      <button class="fl-btn fl-btn-ghost" (click)="downloadFile(currentProofId!, currentProofRef)">
+        ⬇ Télécharger
+      </button>
+      <button class="fl-btn fl-btn-primary" (click)="closeProofModal()">Fermer</button>
+    </div>
+  </div>
+</div>

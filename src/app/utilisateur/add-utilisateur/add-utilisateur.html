@@ -1,0 +1,177 @@
+<!-- add-utilisateur.html -->
+<div class="page-wrapper">
+
+  <!-- ══ HEADER ══ -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">{{ isEditMode ? "Modifier l'utilisateur" : 'Ajouter un utilisateur' }}</h1>
+        <p class="page-subtitle">
+          {{ isEditMode ? "Mettez à jour les informations de l'utilisateur" : 'Remplissez les informations du nouvel utilisateur' }}
+        </p>
+      </div>
+    </div>
+    <div class="page-header-actions">
+      <button class="btn-annuler" type="button" (click)="cancel()">
+        <mat-icon>close</mat-icon> Annuler
+      </button>
+      <button class="btn-creer" type="button"
+              (click)="onSubmit()"
+              [disabled]="utilisateurForm.invalid || saving">
+        <mat-spinner *ngIf="saving" diameter="16"></mat-spinner>
+        <mat-icon *ngIf="!saving">check</mat-icon>
+        Enregistrer
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ LOADING (mode édition) ══ -->
+  <div class="table-loading" *ngIf="loadingUser">
+    <mat-spinner diameter="30"></mat-spinner>
+    <span>Chargement de l'utilisateur...</span>
+  </div>
+
+  <!-- ══ FORM ══ -->
+  <form [formGroup]="utilisateurForm" (ngSubmit)="onSubmit()" class="page-form" *ngIf="!loadingUser">
+
+    <!-- ── Informations personnelles ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-dot dot-primary"></span>
+        <mat-icon class="section-icon">person</mat-icon>
+        <span class="section-title">Informations personnelles</span>
+      </div>
+      <div class="section-body">
+        <div class="fields-grid two-col">
+
+          <div class="field-group">
+            <label class="field-label required-label">Nom d'utilisateur</label>
+            <div class="input-wrapper" [class.error]="isInvalid('username')">
+              <mat-icon class="input-icon">badge</mat-icon>
+              <input type="text" formControlName="username" placeholder="Ex: jdupont" class="field-input" />
+            </div>
+            <span class="field-error" *ngIf="isInvalid('username')">Le nom d'utilisateur est requis</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label required-label">Nom complet</label>
+            <div class="input-wrapper" [class.error]="isInvalid('fullName')">
+              <mat-icon class="input-icon">badge</mat-icon>
+              <input type="text" formControlName="fullName" placeholder="Ex: Jean Dupont" class="field-input" />
+            </div>
+            <span class="field-error" *ngIf="isInvalid('fullName')">Le nom complet est requis</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label required-label">Email</label>
+            <div class="input-wrapper" [class.error]="isInvalid('email')">
+              <mat-icon class="input-icon">email</mat-icon>
+              <input type="email" formControlName="email" placeholder="exemple@email.com" class="field-input" />
+            </div>
+            <span class="field-error" *ngIf="f['email']?.hasError('required') && f['email']?.touched">L'email est requis</span>
+            <span class="field-error" *ngIf="f['email']?.hasError('email') && f['email']?.touched">Email invalide</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Téléphone</label>
+            <div class="input-wrapper">
+              <mat-icon class="input-icon">phone</mat-icon>
+              <input type="text" formControlName="phone" placeholder="Ex: +216 20 000 000" class="field-input" />
+            </div>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Statut du compte</label>
+            <div class="input-wrapper" style="padding: 8px 12px;">
+              <input type="checkbox" id="active-checkbox" formControlName="active" style="margin-right: 8px; width: 16px; height: 16px;" />
+              <label for="active-checkbox" style="font-size: 13px; color: #374151; cursor: pointer;">Compte actif</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Mot de passe ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-dot dot-success"></span>
+        <mat-icon class="section-icon success">lock</mat-icon>
+        <span class="section-title">Mot de passe</span>
+      </div>
+      <div class="section-body">
+        <p *ngIf="isEditMode" class="password-hint">
+          Laissez ces champs vides pour conserver le mot de passe actuel.
+        </p>
+        <div class="fields-grid two-col">
+
+          <div class="field-group">
+            <label class="field-label" [class.required-label]="!isEditMode">Mot de passe</label>
+            <div class="input-wrapper" [class.error]="isInvalid('password')">
+              <mat-icon class="input-icon">vpn_key</mat-icon>
+              <input [type]="showPassword ? 'text' : 'password'"
+                     formControlName="password" class="field-input" />
+              <button type="button" class="toggle-visibility" (click)="showPassword = !showPassword">
+                <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="f['password']?.hasError('required') && f['password']?.touched">Le mot de passe est requis</span>
+            <span class="field-error" *ngIf="f['password']?.hasError('minlength') && f['password']?.touched">Minimum 6 caractères</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" [class.required-label]="!isEditMode">Confirmer le mot de passe</label>
+            <div class="input-wrapper" [class.error]="passwordMismatch">
+              <mat-icon class="input-icon">vpn_key</mat-icon>
+              <input [type]="showConfirmPassword ? 'text' : 'password'"
+                     formControlName="confirmMotDePasse" class="field-input" />
+              <button type="button" class="toggle-visibility" (click)="showConfirmPassword = !showConfirmPassword">
+                <mat-icon>{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            <span class="field-error" *ngIf="passwordMismatch">Les mots de passe ne correspondent pas</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Rôles ── -->
+    <div class="form-section">
+      <div class="section-header">
+        <span class="section-dot dot-purple"></span>
+        <mat-icon class="section-icon purple">admin_panel_settings</mat-icon>
+        <span class="section-title">Rôles et permissions</span>
+      </div>
+      <div class="section-body">
+
+        <div class="field-group full-width">
+          <label class="field-label required-label">Rôles</label>
+
+          <div class="roles-loading" *ngIf="loadingRoles">
+            <mat-spinner diameter="18"></mat-spinner>
+            <span>Chargement des rôles...</span>
+          </div>
+
+          <div class="roles-grid" *ngIf="!loadingRoles">
+            <label class="role-chip"
+                   *ngFor="let role of rolesDisponibles"
+                   [class.selected]="isRoleSelected(role.roleName)"
+                   (click)="toggleRole(role.roleName)">
+              <mat-icon class="role-icon">{{ getRoleIcon(role.roleName) }}</mat-icon>
+              <span class="role-label">{{ role.roleName }}</span>
+              <mat-icon class="role-check" *ngIf="isRoleSelected(role.roleName)">check_circle</mat-icon>
+            </label>
+          </div>
+
+          <span class="field-error" *ngIf="isInvalid('roles')">Au moins un rôle est requis</span>
+        </div>
+
+      </div>
+    </div>
+
+  </form>
+</div>

@@ -1,0 +1,387 @@
+<!-- mecanicien-dashboard.component.html -->
+<div class="meca-dashboard">
+
+  <!-- ── En-tête / Bienvenue ──────────────────────────────────────────── -->
+  <div class="meca-header">
+    <div class="meca-header-left">
+      <div class="meca-avatar">
+        <mat-icon>build_circle</mat-icon>
+      </div>
+      <div class="meca-header-text">
+        <h1>Bonjour, {{ userName }} 👋</h1>
+        <p>Tableau de bord — <strong>Mécanicien</strong></p>
+      </div>
+    </div>
+    <div class="meca-header-actions">
+      <button mat-stroked-button routerLink="/fleet/maintenances" color="primary">
+        <mat-icon>pending_actions</mat-icon> Ordres de travail
+      </button>
+      <button mat-flat-button routerLink="/fleet/machines" color="primary">
+        <mat-icon>precision_manufacturing</mat-icon> Machines
+      </button>
+        <button mat-stroked-button routerLink="/fleet/fuel-fillings" color="primary">
+    <mat-icon>local_gas_station</mat-icon> Pleins de carburant
+  </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="loading-center">
+      <mat-spinner diameter="56" />
+      <p>Chargement des statistiques…</p>
+    </div>
+  } @else {
+
+  <!-- ── KPIs principaux ─────────────────────────────────────────────── -->
+  <div class="kpi-row">
+
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon-wrap">
+        <mat-icon>precision_manufacturing</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.mesMachines }}</span>
+        <span class="kpi-label">Mes machines</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon-wrap">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.machinesOperationnelles }}</span>
+        <span class="kpi-label">Opérationnelles</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-red" [class.pulse]="stats.machinesEnPanne > 0">
+      <div class="kpi-icon-wrap">
+        <mat-icon>error_outline</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.machinesEnPanne }}</span>
+        <span class="kpi-label">En panne</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-orange">
+      <div class="kpi-icon-wrap">
+        <mat-icon>pending_actions</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.ordresTravailEnCours }}</span>
+        <span class="kpi-label">OT en cours</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-teal">
+      <div class="kpi-icon-wrap">
+        <mat-icon>task_alt</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.ordresTravailTermines }}</span>
+        <span class="kpi-label">OT terminés (mois)</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-amber" [class.pulse]="stats.piecesCritiquesMeca > 0">
+      <div class="kpi-icon-wrap">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ stats.piecesCritiquesMeca }}</span>
+        <span class="kpi-label">Pièces critiques</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── KPIs secondaires ───────────────────────────────────────────── -->
+  <div class="secondary-kpi-row">
+
+    <div class="sec-kpi-card">
+      <mat-icon>rule</mat-icon>
+      <div>
+        <span class="sec-value">{{ stats.reglesMaintenanceActives }}</span>
+        <span class="sec-label">Règles actives</span>
+      </div>
+    </div>
+
+    <div class="sec-kpi-card">
+      <mat-icon>calendar_month</mat-icon>
+      <div>
+        <span class="sec-value">{{ stats.otPlanifiesMois }}</span>
+        <span class="sec-label">OT planifiés ce mois</span>
+      </div>
+    </div>
+
+    <div class="sec-kpi-card">
+      <mat-icon>euro</mat-icon>
+      <div>
+        <span class="sec-value">{{ stats.coutMaintenanceMois | number:'1.2-2' }} TND</span>
+        <span class="sec-label">Coût maintenance mois</span>
+      </div>
+    </div>
+
+    <div class="sec-kpi-card">
+      <mat-icon>speed</mat-icon>
+      <div>
+        <span class="sec-value">{{ tauxDisponibilite }}%</span>
+        <span class="sec-label">Taux disponibilité</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Barre de progression disponibilité ────────────────────────── -->
+  <mat-card class="availability-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar class="avail-icon">donut_large</mat-icon>
+      <mat-card-title>Disponibilité du parc machines</mat-card-title>
+      <mat-card-subtitle>{{ stats.machinesOperationnelles }} / {{ stats.mesMachines }} machines opérationnelles</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="avail-bar-wrap">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="tauxDisponibilite"
+          [color]="tauxDisponibilite >= 75 ? 'primary' : tauxDisponibilite >= 50 ? 'accent' : 'warn'"
+        />
+        <span class="avail-pct">{{ tauxDisponibilite }}%</span>
+      </div>
+      <div class="avail-legend">
+        <span class="legend-dot green"></span><span>Opérationnelle ({{ stats.machinesOperationnelles }})</span>
+        <span class="legend-dot red"></span><span>En panne ({{ stats.machinesEnPanne }})</span>
+        <span class="legend-dot gray"></span><span>Autre ({{ stats.mesMachines - stats.machinesOperationnelles - stats.machinesEnPanne }})</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ── Contenu principal en 2 colonnes ───────────────────────────── -->
+  <div class="main-content-grid">
+
+    <!-- Ordres de travail récents -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar style="color:#f59e0b">build</mat-icon>
+        <mat-card-title>Ordres de travail récents</mat-card-title>
+        <mat-card-subtitle>8 derniers OT machines</mat-card-subtitle>
+        <div class="card-header-action">
+          <button mat-icon-button routerLink="/fleet/maintenances" matTooltip="Voir tous">
+            <mat-icon>open_in_new</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        @if (loadingOTs) {
+          <div class="spinner-wrap"><mat-spinner diameter="36" /></div>
+        } @else if (recentOTs.length === 0) {
+          <div class="empty-state">
+            <mat-icon>task_alt</mat-icon>
+            <p>Aucun OT récent</p>
+          </div>
+        } @else {
+          <mat-table [dataSource]="recentOTs" class="compact-table">
+
+            <ng-container matColumnDef="reference">
+              <mat-header-cell *matHeaderCellDef>Référence</mat-header-cell>
+              <mat-cell *matCellDef="let ot">
+                <span class="ref-badge">{{ ot.reference }}</span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="entityRef">
+              <mat-header-cell *matHeaderCellDef>Machine</mat-header-cell>
+              <mat-cell *matCellDef="let ot">{{ ot.entityRef ?? '—' }}</mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="typeMaintenance">
+              <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+              <mat-cell *matCellDef="let ot">
+                <span class="type-label">{{ ot.typeMaintenanceLabel ?? ot.typeMaintenance }}</span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="priorite">
+              <mat-header-cell *matHeaderCellDef>Priorité</mat-header-cell>
+              <mat-cell *matCellDef="let ot">
+                <span class="chip-pill"
+                  [style.background]="getPrioriteColor(ot.priorite) + '22'"
+                  [style.color]="getPrioriteColor(ot.priorite)"
+                  [style.border]="'1px solid ' + getPrioriteColor(ot.priorite)">
+                  {{ getPrioriteLabel(ot.priorite) }}
+                </span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="statut">
+              <mat-header-cell *matHeaderCellDef>Statut</mat-header-cell>
+              <mat-cell *matCellDef="let ot">
+                <span class="chip-pill"
+                  [style.background]="getStatutColor(ot.statut) + '22'"
+                  [style.color]="getStatutColor(ot.statut)"
+                  [style.border]="'1px solid ' + getStatutColor(ot.statut)">
+                  {{ getStatutLabel(ot.statut) }}
+                </span>
+              </mat-cell>
+            </ng-container>
+
+            <ng-container matColumnDef="scheduledDate">
+              <mat-header-cell *matHeaderCellDef>Planifié le</mat-header-cell>
+              <mat-cell *matCellDef="let ot">{{ ot.scheduledDate ?? '—' }}</mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="otColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: otColumns;"></mat-row>
+          </mat-table>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Colonne droite -->
+    <div class="right-col">
+
+      <!-- Pièces critiques -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar style="color:#ef4444">warning_amber</mat-icon>
+          <mat-card-title>Pièces critiques</mat-card-title>
+          <mat-card-subtitle>Stock sous le seuil minimum</mat-card-subtitle>
+          <div class="card-header-action">
+            <button mat-icon-button routerLink="/fleet/pieces-rechange" matTooltip="Voir stock">
+              <mat-icon>open_in_new</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          @if (loadingParts) {
+            <div class="spinner-wrap"><mat-spinner diameter="32" /></div>
+          } @else if (criticalParts.length === 0) {
+            <div class="empty-state success">
+              <mat-icon>inventory</mat-icon>
+              <p>Aucune pièce critique ✓</p>
+            </div>
+          } @else {
+            <mat-table [dataSource]="criticalParts" class="compact-table">
+              <ng-container matColumnDef="reference">
+                <mat-header-cell *matHeaderCellDef>Réf.</mat-header-cell>
+                <mat-cell *matCellDef="let p">
+                  <span class="ref-badge small">{{ p.reference }}</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="name">
+                <mat-header-cell *matHeaderCellDef>Désignation</mat-header-cell>
+                <mat-cell *matCellDef="let p">{{ p.name }}</mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="stockQty">
+                <mat-header-cell *matHeaderCellDef>Stock</mat-header-cell>
+                <mat-cell *matCellDef="let p">
+                  <span class="stock-badge" [class.zero]="p.stockQty === 0">{{ p.stockQty }}</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="minStockQty">
+                <mat-header-cell *matHeaderCellDef>Seuil</mat-header-cell>
+                <mat-cell *matCellDef="let p">{{ p.minStockQty }}</mat-cell>
+              </ng-container>
+              <mat-header-row *matHeaderRowDef="partsColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: partsColumns;"></mat-row>
+            </mat-table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Règles de maintenance urgentes -->
+      <mat-card class="table-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar style="color:#8b5cf6">rule</mat-icon>
+          <mat-card-title>Maintenances à venir</mat-card-title>
+          <mat-card-subtitle>Règles dont l'échéance approche</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (loadingRules) {
+            <div class="spinner-wrap"><mat-spinner diameter="32" /></div>
+          } @else if (urgentRules.length === 0) {
+            <div class="empty-state success">
+              <mat-icon>check_circle</mat-icon>
+              <p>Aucune maintenance urgente ✓</p>
+            </div>
+          } @else {
+            <mat-table [dataSource]="urgentRules" class="compact-table">
+              <ng-container matColumnDef="code">
+                <mat-header-cell *matHeaderCellDef>Code</mat-header-cell>
+                <mat-cell *matCellDef="let r">
+                  <span class="ref-badge small purple">{{ r.code ?? '—' }}</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="description">
+                <mat-header-cell *matHeaderCellDef>Description</mat-header-cell>
+                <mat-cell *matCellDef="let r">{{ r.description }}</mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="typeAction">
+                <mat-header-cell *matHeaderCellDef>Type</mat-header-cell>
+                <mat-cell *matCellDef="let r">
+                  <span class="type-label">{{ r.typeAction }}</span>
+                </mat-cell>
+              </ng-container>
+              <ng-container matColumnDef="heuresRestantes">
+                <mat-header-cell *matHeaderCellDef>H. restantes</mat-header-cell>
+                <mat-cell *matCellDef="let r">
+                  @if (r.heuresRestantes !== null && r.heuresRestantes !== undefined) {
+                    <span class="hours-badge" [class.urgent]="r.heuresRestantes <= 10">
+                      {{ r.heuresRestantes | number:'1.0-0' }} h
+                    </span>
+                  } @else { <span>—</span> }
+                </mat-cell>
+              </ng-container>
+              <mat-header-row *matHeaderRowDef="rulesColumns"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: rulesColumns;"></mat-row>
+            </mat-table>
+          }
+        </mat-card-content>
+      </mat-card>
+
+    </div><!-- /right-col -->
+  </div><!-- /main-content-grid -->
+
+  <!-- ── Accès rapides ─────────────────────────────────────────────── -->
+  <div class="shortcuts-section">
+    <h3 class="shortcuts-title">
+      <mat-icon>flash_on</mat-icon> Accès rapide
+    </h3>
+    <div class="shortcuts-grid">
+      <a class="shortcut-card" routerLink="/fleet/machines">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8)">
+          <mat-icon>precision_manufacturing</mat-icon>
+        </div>
+        <span>Machines</span>
+      </a>
+      <a class="shortcut-card" routerLink="/fleet/maintenances">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
+          <mat-icon>build</mat-icon>
+        </div>
+        <span>Ordres de travail</span>
+      </a>
+      <a class="shortcut-card" routerLink="/fleet/pieces-rechange">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#ef4444,#b91c1c)">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <span>Pièces de rechange</span>
+      </a>
+        <a class="shortcut-card" routerLink="/fleet/fuel-fillings">
+    <div class="sc-icon" style="background:linear-gradient(135deg,#06b6d4,#0891b2)">
+      <mat-icon>local_gas_station</mat-icon>
+    </div>
+    <span>Pleins de carburant</span>
+  </a>
+      <a class="shortcut-card" routerLink="/fleet/notifications">
+        <div class="sc-icon" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9)">
+          <mat-icon>notifications</mat-icon>
+        </div>
+        <span>Notifications</span>
+      </a>
+    </div>
+  </div>
+
+  }<!-- /else loading -->
+</div>

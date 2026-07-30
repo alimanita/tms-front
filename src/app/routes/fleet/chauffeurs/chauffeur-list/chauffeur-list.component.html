@@ -1,0 +1,52 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Chauffeurs</h2>
+    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <table *ngIf="!loading" class="fl-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Téléphone</th>
+          <th>Email</th>
+          <th>Permis</th>
+          <th>Expiration permis</th>
+          <th>Statut</th>
+          <th>Actif</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of chauffeurs">
+          <td><strong>{{ c.nom }} {{ c.prenom }}</strong></td>
+          <td>{{ c.telephone }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.numeroPermis }}</td>
+          <td>{{ c.dateExpirationPermis | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <span class="badge" [ngClass]="statutClass(c.statut)">{{ c.statut }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="c.actif ? 'badge--green' : 'badge--grey'">
+              {{ c.actif ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+          <td class="fl-actions">
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="toggle(c)"
+                    [title]="c.actif ? 'Désactiver' : 'Activer'">
+              {{ c.actif ? '🔴' : '🟢' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="chauffeurs.length === 0">
+          <td colspan="8" class="fl-empty">Aucun chauffeur enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

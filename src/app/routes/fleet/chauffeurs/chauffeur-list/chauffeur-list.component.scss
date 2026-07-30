@@ -1,0 +1,146 @@
+.fleet-page {
+  padding: 24px;
+}
+
+.fleet-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  .fleet-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+}
+
+.fl-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.15s ease, background 0.15s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &-primary {
+    background: #1976d2;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: #1565c0;
+    }
+  }
+
+  &-ghost {
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 4px 8px;
+    font-size: 1rem;
+
+    &:hover:not(:disabled) {
+      background: #f0f0f0;
+      border-radius: 4px;
+    }
+  }
+}
+
+.fleet-body {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.fleet-loading {
+  padding: 40px;
+  text-align: center;
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.fl-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      text-align: left;
+      padding: 12px 10px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #777;
+      border-bottom: 2px solid #eee;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f0f0f0;
+
+      &:hover {
+        background: #fafafa;
+      }
+    }
+
+    td {
+      padding: 12px 10px;
+      font-size: 0.9rem;
+      color: #333;
+      vertical-align: middle;
+    }
+  }
+
+  .text-muted {
+    color: #999;
+    font-size: 0.85em;
+  }
+}
+
+.fl-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.fl-empty {
+  text-align: center;
+  padding: 40px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &--green {
+    background: #e6f7ed;
+    color: #1e8e4f;
+  }
+
+  &--blue {
+    background: #e6f0fb;
+    color: #1565c0;
+  }
+
+  &--red {
+    background: #fbe9e7;
+    color: #c62828;
+  }
+
+  &--grey {
+    background: #f0f0f0;
+    color: #777;
+  }
+}

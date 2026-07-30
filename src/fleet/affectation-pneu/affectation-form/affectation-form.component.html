@@ -1,0 +1,60 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Monter un Pneu (Affectation)</h2>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="fl-form">
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Pneu à monter (En stock) *</label>
+          <select formControlName="pneuId" [ngClass]="{'is-invalid': submitted && form.controls['pneuId'].invalid}">
+            <option [ngValue]="null">-- Sélectionner un pneu --</option>
+            <option *ngFor="let p of pneus" [value]="p.id">{{ p.serialNumber }} ({{ p.brand }} {{ p.size }})</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Véhicule *</label>
+          <select formControlName="vehiculeId" [ngClass]="{'is-invalid': submitted && form.controls['vehiculeId'].invalid}">
+            <option [ngValue]="null">-- Sélectionner un véhicule --</option>
+            <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Position sur véhicule *</label>
+          <select formControlName="position">
+            <option *ngFor="let pos of positions" [value]="pos">{{ pos }}</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Date de montage *</label>
+          <input type="date" formControlName="mountDate"
+                 [ngClass]="{'is-invalid': submitted && form.controls['mountDate'].invalid}">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Kilométrage actuel du véhicule *</label>
+          <input type="number" formControlName="mountMileage"
+                 [ngClass]="{'is-invalid': submitted && form.controls['mountMileage'].invalid}">
+        </div>
+        <div class="fl-col">
+          <label>Notes</label>
+          <input type="text" formControlName="notes">
+        </div>
+      </div>
+
+      <div class="fl-form-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="onCancel()">Annuler</button>
+        <button type="submit" class="fl-btn fl-btn-primary" [disabled]="loading">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,582 @@
+// ═══════════════════════════════════════════════════════════════
+//  LISTE UTILISATEURS — SCSS
+//  Design cohérent avec add-utilisateur & paiement-drawer
+// ═══════════════════════════════════════════════════════════════
+
+$primary:       #1a6fdb;
+$primary-light: #e8f1fd;
+$primary-hover: #1459b5;
+$danger:        #e53e3e;
+$danger-light:  #fff5f5;
+$success:       #1a9a5e;
+$success-light: #e6f7f0;
+$warning:       #d97706;
+$purple-light:  #ede9fe;
+$neutral-50:    #f8f9fb;
+$neutral-100:   #f1f3f6;
+$neutral-200:   #e4e7ec;
+$neutral-300:   #cdd2da;
+$neutral-500:   #6b7280;
+$neutral-700:   #374151;
+$neutral-900:   #111827;
+$white:         #ffffff;
+$radius-sm:     6px;
+$radius-md:     10px;
+$radius-lg:     14px;
+$shadow-sm:     0 1px 3px rgba(0,0,0,.08);
+$shadow-md:     0 4px 12px rgba(0,0,0,.10);
+$transition:    all .2s ease;
+
+// ── Page wrapper ───────────────────────────────────────────────
+.page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// ── Header (identique add-utilisateur) ────────────────────────
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: $white;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.page-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  background: $primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon { color: $white; font-size: 22px; width: 22px; height: 22px; }
+}
+
+.page-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: $neutral-900;
+  margin: 0 0 2px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: $neutral-500;
+  margin: 0;
+}
+
+.page-header-actions { display: flex; gap: 8px; }
+
+.btn-annuler {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: $white;
+  border: 1px solid $neutral-300;
+  border-radius: $radius-sm;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: $neutral-700;
+  cursor: pointer;
+  transition: $transition;
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { background: $neutral-100; border-color: #9ca3af; }
+}
+
+.btn-creer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  background: $primary;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $white;
+  cursor: pointer;
+  transition: $transition;
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { background: $primary-hover; }
+}
+
+// ── Toolbar recherche ──────────────────────────────────────────
+.toolbar-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: $white;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+}
+
+.search-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $neutral-50;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-sm;
+  padding: 7px 12px;
+  transition: $transition;
+
+  &:focus-within {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, .1);
+    background: $white;
+  }
+
+  .search-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: $neutral-500;
+    flex-shrink: 0;
+  }
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: $neutral-900;
+  font-family: inherit;
+  &::placeholder { color: #9ca3af; }
+}
+
+.search-clear {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: $neutral-500;
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { color: $neutral-700; }
+}
+
+.toolbar-right { display: flex; align-items: center; gap: 10px; }
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 8px;
+  background: $primary-light;
+  color: $primary;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+// ── Table card ─────────────────────────────────────────────────
+.table-card {
+  background: $white;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+}
+
+// ── Loading / Empty ────────────────────────────────────────────
+.table-loading,
+.table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  gap: 12px;
+  color: $neutral-500;
+
+  mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: .4; }
+  p { font-size: 14px; font-weight: 500; margin: 0; }
+  span { font-size: 12.5px; }
+}
+
+.table-loading {
+  flex-direction: row;
+  gap: 14px;
+  padding: 40px 24px;
+  font-size: 13.5px;
+}
+
+// ── Scroll wrapper ─────────────────────────────────────────────
+.table-scroll {
+  overflow-x: auto;
+
+  &::-webkit-scrollbar { height: 5px; }
+  &::-webkit-scrollbar-thumb { background: $neutral-300; border-radius: 10px; }
+}
+
+// ── Table ──────────────────────────────────────────────────────
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 800px;
+
+  thead tr {
+    background: $neutral-50;
+    border-bottom: 1px solid $neutral-200;
+  }
+
+  th {
+    padding: 10px 14px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: $neutral-500;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .table-row {
+    border-bottom: 1px solid $neutral-100;
+    transition: background .15s;
+
+    &:hover { background: $neutral-50; }
+    &:last-child { border-bottom: none; }
+  }
+
+  td {
+    padding: 10px 14px;
+    vertical-align: middle;
+  }
+}
+
+// ── Colonnes ──────────────────────────────────────────────────
+.col-id       { width: 64px; }
+.col-user     { min-width: 180px; }
+.col-email    { min-width: 200px; }
+.col-phone   { width: 120px; }
+.col-entreprise { width: 150px; }
+.col-roles    { width: 160px; }
+.col-actions  { width: 130px; }
+.col-status     { width: 90px; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &.status-active   { background: #e6f7f0; color: #1a9a5e; }
+  &.status-inactive { background: #fff5f5; color: #e53e3e; }
+}
+// ── Cellule utilisateur ────────────────────────────────────────
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: $white;
+  flex-shrink: 0;
+  letter-spacing: .5px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.user-nom {
+  font-size: 13px;
+  font-weight: 600;
+  color: $neutral-900;
+}
+
+.user-id-sm {
+  font-size: 11px;
+  color: $neutral-500;
+}
+
+// ── ID badge ───────────────────────────────────────────────────
+.id-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  background: $neutral-100;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $neutral-700;
+}
+
+// ── Email ──────────────────────────────────────────────────────
+.email-link {
+  color: $primary;
+  text-decoration: none;
+  font-size: 13px;
+  &:hover { text-decoration: underline; }
+}
+
+// ── Ville ──────────────────────────────────────────────────────
+.ville-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: $neutral-700;
+
+  .ville-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: $neutral-500;
+  }
+}
+
+.entreprise-text {
+  font-size: 13px;
+  color: $neutral-700;
+}
+
+.text-muted {
+  font-size: 13px;
+  color: $neutral-300;
+}
+
+// ── Rôles ──────────────────────────────────────────────────────
+.roles-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.role-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+
+  &.role-admin     { background: #fef3c7; color: #92400e; }
+  &.role-user      { background: $primary-light; color: $primary; }
+  &.role-manager   { background: $purple-light; color: #5b21b6; }
+  &.role-comptable { background: $success-light; color: $success; }
+  &.role-vendeur   { background: #fff7ed; color: #c2410c; }
+  &.role-default   { background: $neutral-100; color: $neutral-700; }
+}
+
+// ── Actions ────────────────────────────────────────────────────
+.actions-cell {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: $radius-sm;
+  background: none;
+  cursor: pointer;
+  transition: $transition;
+  color: $neutral-500;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+  &.edit:hover     { background: $primary-light; color: $primary; }
+  &.password:hover { background: #ede9fe; color: #7c3aed; }
+  &.delete:hover   { background: $danger-light; color: $danger; }
+}
+
+// ── Pagination ─────────────────────────────────────────────────
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid $neutral-100;
+  background: $neutral-50;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pagination-info {
+  font-size: 12.5px;
+  color: $neutral-500;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid $neutral-200;
+  border-radius: $radius-sm;
+  background: $white;
+  font-size: 13px;
+  font-weight: 500;
+  color: $neutral-700;
+  cursor: pointer;
+  transition: $transition;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover:not(:disabled) { background: $primary-light; border-color: $primary; color: $primary; }
+  &.active               { background: $primary; color: $white; border-color: $primary; }
+  &:disabled             { opacity: .4; cursor: not-allowed; }
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: $neutral-500;
+
+  select {
+    padding: 4px 8px;
+    border: 1px solid $neutral-200;
+    border-radius: $radius-sm;
+    font-size: 12.5px;
+    color: $neutral-700;
+    background: $white;
+    cursor: pointer;
+    outline: none;
+    &:focus { border-color: $primary; }
+  }
+}
+
+// ── Modal confirmation suppression ────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, .45);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn .2s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.modal-box {
+  background: $white;
+  border-radius: $radius-lg;
+  padding: 28px 28px 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 48px rgba(0,0,0,.18);
+  text-align: center;
+  animation: slideUp .25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: $danger-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+
+  mat-icon { font-size: 26px; width: 26px; height: 26px; color: $danger; }
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $neutral-900;
+  margin: 0 0 10px;
+}
+
+.modal-body {
+  font-size: 13.5px;
+  color: $neutral-500;
+  line-height: 1.6;
+  margin: 0 0 20px;
+
+  strong { color: $neutral-900; }
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  background: $danger;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $white;
+  cursor: pointer;
+  transition: $transition;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  &:hover { background: #c53030; }
+}

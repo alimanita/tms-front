@@ -1,0 +1,88 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier la mission' : 'Nouvelle mission' }}</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost" (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" class="fl-form">
+      <div class="fl-grid">
+
+        <div class="fl-field fl-field--full">
+          <label>Titre *</label>
+          <input formControlName="title" placeholder="Ex: Livraison chantier Sousse"
+                 [class.error]="submitted && form.get('title')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Véhicule *</label>
+          <select formControlName="vehiculeId"
+                  [class.error]="submitted && form.get('vehiculeId')?.invalid">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let v of vehicules" [value]="v.id">
+              {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+            </option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Chauffeur *</label>
+          <select formControlName="chauffeurId"
+                  [class.error]="submitted && form.get('chauffeurId')?.invalid">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.prenom }} {{ c.nom }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Lieu de départ *</label>
+          <input formControlName="departureLocation" placeholder="Ex: Dépôt Tunis"
+                 [class.error]="submitted && form.get('departureLocation')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Lieu d'arrivée *</label>
+          <input formControlName="arrivalLocation" placeholder="Ex: Chantier Sousse"
+                 [class.error]="submitted && form.get('arrivalLocation')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Date/heure de départ prévue *</label>
+          <input type="datetime-local" formControlName="plannedDeparture"
+                 [class.error]="submitted && form.get('plannedDeparture')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Date/heure de retour prévue</label>
+          <input type="datetime-local" formControlName="plannedReturn"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Poids cargo (kg)</label>
+          <input type="number" formControlName="cargoWeight" min="0"/>
+        </div>
+
+        <div class="fl-field fl-field--full">
+          <label>Motif / objet de la mission</label>
+          <textarea formControlName="purpose" rows="2" placeholder="Objet de la mission…"></textarea>
+        </div>
+
+        <div class="fl-field fl-field--full">
+          <label>Description du chargement</label>
+          <textarea formControlName="cargoDescription" rows="2" placeholder="Nature du chargement…"></textarea>
+        </div>
+
+        <div class="fl-field fl-field--full">
+          <label>Notes</label>
+          <textarea formControlName="notes" rows="3" placeholder="Observations…"></textarea>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

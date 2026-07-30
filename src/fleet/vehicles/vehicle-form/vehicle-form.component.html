@@ -1,0 +1,70 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier le véhicule' : 'Nouveau véhicule' }}</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost"  (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" class="fl-form">
+      <div class="fl-grid">
+
+        <div class="fl-field">
+          <label>Immatriculation *</label>
+          <input formControlName="immatriculation" placeholder="Ex: 123 TU 456"
+                 [class.error]="submitted && form.get('immatriculation')?.invalid"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Marque</label>
+          <input formControlName="marque" placeholder="Mercedes, Renault…"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Modèle</label>
+          <input formControlName="modele" placeholder="Sprinter, Master…"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Année</label>
+          <input type="number" formControlName="annee" min="1990" [max]="2030"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Type de carburant *</label>
+          <select formControlName="typeCarburant">
+            <option *ngFor="let c of carburants" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Statut *</label>
+          <select formControlName="statut">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Kilométrage actuel (km)</label>
+          <input type="number" formControlName="kilometrageActuel" min="0"/>
+        </div>
+
+        <div class="fl-field">
+          <label>Capacité réservoir (L)</label>
+          <input type="number" formControlName="capaciteReservoir" min="0"/>
+        </div>
+
+        <div class="fl-field fl-field--checkbox">
+          <label>
+            <input type="checkbox" formControlName="actif"/> Actif
+          </label>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier Document' : 'Nouveau Document' }}</h2>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="fl-form">
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Type de document *</label>
+          <select formControlName="typeDocument">
+            <option *ngFor="let t of typeDocuments" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Numéro de référence</label>
+          <input type="text" formControlName="referenceNumber">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Concerne (Entité) *</label>
+          <select formControlName="entityType">
+            <option value="VEHICLE">Véhicule</option>
+            <option value="MACHINE">Machine</option>
+            <option value="DRIVER">Chauffeur</option>
+          </select>
+        </div>
+        <div class="fl-col">
+          <label>Choix de l'entité *</label>
+          <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
+            <option [ngValue]="null">-- Sélectionner --</option>
+            <ng-container *ngIf="entityType === 'VEHICLE'">
+              <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
+            </ng-container>
+            <ng-container *ngIf="entityType === 'MACHINE'">
+              <option *ngFor="let m of machines" [value]="m.id">{{ m.nom }} ({{ m.numeroSerie }})</option>
+            </ng-container>
+            <ng-container *ngIf="entityType === 'DRIVER'">
+              <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.nom }} {{ c.prenom }}</option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Date d'émission</label>
+          <input type="date" formControlName="issueDate">
+        </div>
+        <div class="fl-col">
+          <label>Date d'expiration</label>
+          <input type="date" formControlName="expiryDate">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Émetteur (Assurance, Centre...)</label>
+          <input type="text" formControlName="issuer">
+        </div>
+        <div class="fl-col">
+          <label>Montant (Coût) MAD</label>
+          <input type="number" formControlName="amount" step="0.01">
+        </div>
+      </div>
+
+      <div class="fl-row">
+        <div class="fl-col">
+          <label>Fichier joint (Scan PDF/Image)</label>
+          <input type="file" #fileInput (change)="onFileChange($event)" accept="image/*,.pdf">
+          <small *ngIf="isEdit">Laissez vide pour conserver le fichier actuel.</small>
+        </div>
+        <div class="fl-col">
+          <label>Notes</label>
+          <input type="text" formControlName="notes">
+        </div>
+      </div>
+
+      <div class="fl-form-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="onCancel()">Annuler</button>
+        <button type="submit" class="fl-btn fl-btn-primary" [disabled]="loading">
+          {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

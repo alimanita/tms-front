@@ -1,0 +1,106 @@
+<div class="mission-detail-page">
+
+  <div *ngIf="loading" class="detail-loading">
+    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading && mission">
+
+    <!-- Header -->
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <button class="back-btn" (click)="retour()" type="button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h1 class="detail-title">{{ mission.reference }}</h1>
+          <span class="status-badge" [ngClass]="getStatusClass(mission.statut)">
+            {{ getStatusLabel(mission.statut) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="detail-header-actions">
+        <button *ngIf="mission.statut === statut.PLANNED" class="action-btn action-edit" (click)="editMission()">
+          <mat-icon>edit</mat-icon> Modifier
+        </button>
+        <button *ngIf="mission.statut === statut.PLANNED" class="action-btn action-start" (click)="demarrer()">
+          <mat-icon>play_circle</mat-icon> Démarrer
+        </button>
+        <button *ngIf="mission.statut === statut.IN_PROGRESS" class="action-btn action-close" (click)="cloturer()">
+          <mat-icon>flag_circle</mat-icon> Clôturer
+        </button>
+        <button *ngIf="mission.statut !== statut.COMPLETED && mission.statut !== statut.CANCELLED"
+                class="action-btn action-cancel" (click)="annuler()">
+          <mat-icon>cancel</mat-icon> Annuler
+        </button>
+        <!-- <button *ngIf="mission.statut === statut.PLANNED" class="action-btn action-delete" (click)="supprimer()">
+          <mat-icon>delete</mat-icon> Supprimer
+        </button> -->
+      </div>
+    </div>
+
+    <!-- Infos générales -->
+    <div class="detail-card">
+      <h3>Informations générales</h3>
+      <div class="detail-grid">
+        <div class="detail-field">
+          <label>Chauffeur</label>
+          <span>{{ mission.chauffeurNom || 'Chauffeur #' + mission.chauffeurId }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Véhicule</label>
+          <span>{{ mission.vehiculeRef || 'Véhicule #' + mission.vehiculeId }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Destination</label>
+          <span>{{ mission.destination || '—' }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Motif</label>
+          <span>{{ mission.motif || '—' }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Départ prévu</label>
+          <span>{{ formatDateTime(mission.plannedDeparture) }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Retour prévu</label>
+          <span>{{ formatDateTime(mission.plannedReturn) }}</span>
+        </div>
+        <div class="detail-field" *ngIf="mission.actualDeparture">
+          <label>Départ réel</label>
+          <span>{{ formatDateTime(mission.actualDeparture) }}</span>
+        </div>
+        <div class="detail-field" *ngIf="mission.actualReturn">
+          <label>Retour réel</label>
+          <span>{{ formatDateTime(mission.actualReturn) }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Coût total</label>
+          <span>{{ (mission.totalCost ?? 0) | number:'1.3-3' }} DT</span>
+        </div>
+      </div>
+
+      <div class="detail-field detail-field--full" *ngIf="mission.motifAnnulation">
+        <label>Motif d'annulation</label>
+        <span>{{ mission.motifAnnulation }}</span>
+      </div>
+    </div>
+
+    <!-- Dépenses -->
+    <div class="detail-card">
+      <app-mission-expenses
+        [missionId]="mission.id"
+        [readonly]="isReadonlyExpenses"
+      ></app-mission-expenses>
+    </div>
+
+  </ng-container>
+
+  <div *ngIf="!loading && !mission" class="detail-not-found">
+    <mat-icon>error_outline</mat-icon>
+    <p>Mission introuvable</p>
+  </div>
+
+</div>

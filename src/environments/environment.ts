@@ -1,4 +1,5 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://tms.mkmr.pro'
+  production: false,
+  baseUrl: 'http://localhost:8080/api/v1',
+  useHash: false,
 };

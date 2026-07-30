@@ -1,0 +1,235 @@
+// ─── Fix Angular Material overflow ────────────────────
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+::ng-deep .mat-drawer-content {
+  overflow-x: hidden !important;
+}
+
+// ─── Reset box-sizing ──────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// ─── Conteneur principal ───────────────────────────────
+:host {
+  padding: clamp(8px, 3vw, 24px);
+  font-family: 'Inter', sans-serif;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+// ─── Loading ───────────────────────────────────────────
+.p-y-24 {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.m-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+mat-spinner {
+  ::ng-deep circle {
+    stroke: #2563eb;
+  }
+}
+
+// ─── Cards ─────────────────────────────────────────────
+mat-card {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  background: #fff !important;
+  min-width: 0;
+}
+
+.m-b-24 {
+  margin-bottom: 20px;
+}
+
+mat-card-header {
+  padding: 14px 14px 0 14px;
+  flex-wrap: wrap;
+}
+
+mat-card-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+
+mat-card-subtitle {
+  font-size: 12px !important;
+  color: #64748b !important;
+  margin-top: 4px !important;
+}
+
+mat-card-content {
+  padding: 0 14px 14px 14px;
+}
+
+.m-t-16 {
+  margin-top: 16px;
+}
+
+.m-b-0 {
+  margin-bottom: 0;
+}
+
+// ─── KPI block (lames actuelles) ──────────────────────
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 -5px;
+
+  > div {
+    padding: 0 5px;
+  }
+}
+
+.col-sm-4 {
+  flex: 1 1 calc(33.333% - 10px);
+  min-width: 0;
+}
+
+.text-primary {
+  color: #2563eb !important;
+}
+
+.text-muted {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mat-display-1 {
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+// ─── Table wrapper — scroll horizontal ────────────────
+mat-card-content.p-0 {
+  padding: 0 !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: block;
+  width: 100%;
+}
+
+// ─── Tableau historique ────────────────────────────────
+table.mat-mdc-table,
+table[mat-table] {
+  width: 100%;
+  min-width: 620px;
+  background: transparent;
+
+  th.mat-mdc-header-cell,
+  th[mat-header-cell] {
+    text-align: left;
+    padding: 10px 14px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+  }
+
+  td.mat-mdc-cell,
+  td[mat-cell] {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  tr.mat-mdc-row,
+  tr[mat-row] {
+    transition: background 0.1s ease;
+
+    &:hover td {
+      background: #fafafa;
+    }
+  }
+
+  tr.mat-mdc-row:last-child td,
+  tr[mat-row]:last-child td {
+    border-bottom: none;
+  }
+}
+
+.mat-mdc-cell strong,
+td[mat-cell] strong {
+  font-weight: 700;
+  color: #059669;
+}
+
+// ─── Empty state ───────────────────────────────────────
+.mat-row.mat-no-data-row td,
+tr.mat-row td[colspan] {
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  padding: 32px 16px;
+  background: transparent;
+}
+
+.p-y-16 {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+// ─── Tablette (≤ 768px) ────────────────────────────────
+@media (max-width: 768px) {
+  .col-sm-4 {
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+
+// ─── Mobile (≤ 599px) ──────────────────────────────────
+@media (max-width: 599px) {
+  mat-card-header {
+    padding: 12px 12px 0 12px;
+  }
+
+  mat-card-content {
+    padding: 0 12px 12px 12px;
+  }
+
+  .col-sm-4 {
+    flex: 1 1 100%;
+  }
+
+  table.mat-mdc-table,
+  table[mat-table] {
+    min-width: 560px;
+  }
+}
+::ng-deep mat-card.mat-mdc-card {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  background: #fff !important;
+  overflow: hidden; // ← empêche le tableau de déborder des coins arrondis
+}
