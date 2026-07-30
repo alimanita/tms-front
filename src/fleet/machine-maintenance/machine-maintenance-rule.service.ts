@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { MachineMaintenanceRuleRequest, MachineMaintenanceRuleResponse } from './machine-maintenance-rule.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 
 
 @Injectable({ providedIn: 'root' })

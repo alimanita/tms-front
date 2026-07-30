@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 
 import { UtilisateurLite } from './chauffeurs/chauffeur-form/chauffeur-form.component';
 import { ChauffeurResponse } from './chauffeurs/chauffeur.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 
 // ── DTOs Rapports Entretiens & Carburant ──────────────────────────────────────
 

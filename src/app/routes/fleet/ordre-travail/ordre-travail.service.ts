@@ -9,7 +9,7 @@ import {
   PieceRechangeRequest, PieceRechangeResponse,
   StatsSyageResponse
 } from './ordre-travail.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class OrdreTravailService {

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { PageResponse } from '../models/page.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TmsApiService {

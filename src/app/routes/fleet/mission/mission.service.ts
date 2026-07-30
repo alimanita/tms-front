@@ -6,7 +6,7 @@ import {
   MissionResponse, MissionRequest, MissionRetourRequest,
   DepenseMissionRequest, DepenseMissionResponse, PageResponse
 } from './mission.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MissionService {

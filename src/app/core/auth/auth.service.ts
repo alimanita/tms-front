@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 import { AuthResponse, LoginRequest, User } from './auth.models';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 import { setEntrepriseData } from 'app/core/authentication/helpers';
 const ACCESS_TOKEN_KEY = 'tms_access_token';
 const REFRESH_TOKEN_KEY = 'tms_refresh_token';

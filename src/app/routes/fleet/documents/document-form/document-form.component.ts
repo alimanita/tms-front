@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, VehiculeResponse, MachineResponse } from '../../fleet.service';
 import { ChauffeurResponse } from '../../chauffeurs/chauffeur.model';
-import { environment } from 'environments/environments/environment';
+import { environment } from 'environments/environment';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
