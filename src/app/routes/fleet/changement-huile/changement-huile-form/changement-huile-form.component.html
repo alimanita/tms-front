@@ -8,48 +8,29 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>Type d'entité *</label>
-          <select formControlName="entityType">
-            <option value="VEHICLE">Véhicule</option>
-            <option value="MACHINE">Machine</option>
-          </select>
-        </div>
-        <div class="fl-col">
-          <label>Entité *</label>
+          <label>Véhicule *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
             <option [ngValue]="null">-- Sélectionner --</option>
-            <ng-container *ngIf="entityType === 'VEHICLE'">
-              <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
-            </ng-container>
-            <ng-container *ngIf="entityType === 'MACHINE'">
-              <option *ngFor="let m of machines" [value]="m.id">{{ m.nom }} ({{ m.numeroSerie }})</option>
-            </ng-container>
+            <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
           </select>
         </div>
-      </div>
-
-      <div class="fl-row">
         <div class="fl-col">
           <label>Type d'huile *</label>
           <select formControlName="typeHuile">
             <option *ngFor="let t of typesHuile" [value]="t">{{ t }}</option>
           </select>
         </div>
+      </div>
+
+      <div class="fl-row">
         <div class="fl-col">
           <label>Date de vidange *</label>
           <input type="date" formControlName="changeDate"
                  [ngClass]="{'is-invalid': submitted && form.controls['changeDate'].invalid}">
         </div>
-      </div>
-
-      <div class="fl-row">
         <div class="fl-col">
-          <label>Km actuels (si Véhicule)</label>
+          <label>Km actuels</label>
           <input type="number" formControlName="mileageAtChange">
-        </div>
-        <div class="fl-col">
-          <label>Heures actuelles (si Machine)</label>
-          <input type="number" formControlName="hoursAtChange">
         </div>
       </div>
 
@@ -73,10 +54,6 @@
         <div class="fl-col">
           <label>Prochain Km (estimation)</label>
           <input type="number" formControlName="nextChangeKm">
-        </div>
-        <div class="fl-col">
-          <label>Prochaines Heures (estimation)</label>
-          <input type="number" formControlName="nextChangeHours">
         </div>
         <div class="fl-col">
           <label>Prochaine Date (estimation)</label>

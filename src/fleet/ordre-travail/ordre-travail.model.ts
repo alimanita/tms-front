@@ -11,7 +11,7 @@ export interface TypeMaintenanceOption {
 
 // Doit rester synchronisé avec l'enum Java TypeMaintenance
 export const TYPES_MAINTENANCE: TypeMaintenanceOption[] = [
-  { value: 'CHANGEMENT_LAMES',     label: 'Changement de lames de coupe (syage)', categorie: 'PREVENTIVE' },
+
   { value: 'VIDANGE',              label: 'Vidange huile moteur',              categorie: 'PREVENTIVE' },
   { value: 'FILTRE_AIR',           label: 'Remplacement filtre à air',         categorie: 'PREVENTIVE' },
   { value: 'FILTRE_CARBURANT',     label: 'Remplacement filtre carburant',     categorie: 'PREVENTIVE' },

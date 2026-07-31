@@ -17,23 +17,7 @@
       <form *ngIf="!ot" [formGroup]="form" class="phase-section">
 
         <div class="field-group">
-          <label class="field-label">Type d'équipement <span class="required">*</span></label>
-          <div class="segmented">
-            <button type="button" class="segmented-btn"
-                    [class.active]="form.value.entityType === 'VEHICLE'"
-                    (click)="form.patchValue({entityType: 'VEHICLE'}); onEntityTypeChange()">
-              <mat-icon>local_shipping</mat-icon> Véhicule
-            </button>
-            <button type="button" class="segmented-btn"
-                    [class.active]="form.value.entityType === 'MACHINE'"
-                    (click)="form.patchValue({entityType: 'MACHINE'}); onEntityTypeChange()">
-              <mat-icon>precision_manufacturing</mat-icon> Machine
-            </button>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label">{{ form.value.entityType === 'VEHICLE' ? 'Véhicule' : 'Machine' }} <span class="required">*</span></label>
+          <label class="field-label">Véhicule <span class="required">*</span></label>
           <select class="field-input" formControlName="entityId">
             <option [ngValue]="null">— Sélectionner —</option>
             <option *ngFor="let e of entiteOptions" [value]="e.id">{{ e.label }}</option>
@@ -92,15 +76,9 @@
           </div>
         </div>
 
-        <div class="field-row">
-          <div class="field-group">
-            <label class="field-label">Kilométrage</label>
-            <input class="field-input" type="number" formControlName="mileageAtOrder">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Heures machine</label>
-            <input class="field-input" type="number" formControlName="hoursAtOrder">
-          </div>
+        <div class="field-group">
+          <label class="field-label">Kilométrage</label>
+          <input class="field-input" type="number" formControlName="mileageAtOrder">
         </div>
 
         <div class="field-group">
