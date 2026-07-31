@@ -181,7 +181,7 @@ export class AddUtilisateur implements OnInit {
       next: () => {
         this.saving = false;
         this.showSuccess(this.isEditMode ? 'Utilisateur modifié avec succès !' : 'Utilisateur créé avec succès !');
-        this.router.navigate(['/users']);
+        this.router.navigate(['admin/users']);
       },
       error: (err: any) => {
         this.saving = false;
@@ -192,7 +192,7 @@ export class AddUtilisateur implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/users']);
+    this.router.navigate(['admin/users']);
   }
 
   get f() { return this.utilisateurForm.controls; }
