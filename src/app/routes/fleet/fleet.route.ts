@@ -5,19 +5,19 @@ import { MissionDetailComponent } from './mission/mission-detail/mission-detail.
 
 export const routes : Routes = [
   {
-    path: 'vehicles',
+    path: 'vehicules',
     loadComponent: () =>
       import('./vehicles/vehicle-list/vehicle-list.component')
         .then(m => m.VehicleListComponent),
   },
   {
-    path: 'vehicles/new',
+    path: 'vehicules/new',
     loadComponent: () =>
       import('./vehicles/vehicle-form/vehicle-form.component')
         .then(m => m.VehicleFormComponent),
   },
   {
-    path: 'vehicles/:id/edit',
+    path: 'vehicules/:id/edit',
     loadComponent: () =>
       import('./vehicles/vehicle-form/vehicle-form.component')
         .then(m => m.VehicleFormComponent),

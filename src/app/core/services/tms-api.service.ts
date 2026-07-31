@@ -43,7 +43,7 @@ export class TmsApiService {
 
   // Paths
   readonly paths = {
-    vehicles: '/vehicles',
+    vehicles: '/vehicules',
     drivers: '/drivers',
     customers: '/customers',
     amazonPurchases: '/amazon-purchases',

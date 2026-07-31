@@ -5,7 +5,7 @@
     <p class="page-subtitle">Gérer les missions des véhicules et chauffeurs</p>
   </div>
   <div class="header-right">
-    <button class="create-btn" (click)="openAdd()">
+    <button *ngIf="isAdmin"  class="create-btn" (click)="openAdd()">
       <mat-icon>add</mat-icon>
       Créer une mission
     </button>

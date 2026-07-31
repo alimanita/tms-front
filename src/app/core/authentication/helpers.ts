@@ -99,7 +99,9 @@ export function getRolesFromToken(): string[] {
 
   try {
     const user = JSON.parse(userStr);
-    if (Array.isArray(user.roles)) return user.roles;
+    if (Array.isArray(user.roles)) {
+      return user.roles.map((r: any) => r.roleName ?? r);
+    }
     if (typeof user.role === 'string') return [user.role];
     return [];
   } catch (e) {

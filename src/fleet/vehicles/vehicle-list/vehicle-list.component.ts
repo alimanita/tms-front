@@ -43,9 +43,9 @@ isAdmin = false;
     });
   }
 
-  goAdd(): void { this.router.navigate(['/fleet/vehicles/new']); }
+  goAdd(): void { this.router.navigate(['/fleet/vehicules/new']); }
 
-  goEdit(v: VehiculeResponse): void { this.router.navigate([`/fleet/vehicles/${v.id}/edit`]); }
+  goEdit(v: VehiculeResponse): void { this.router.navigate([`/fleet/vehicules/${v.id}/edit`]); }
 
   goFuel(v: VehiculeResponse): void {
     this.router.navigate(['/fleet/fuel-fillings'], { queryParams: { vehiculeId: v.id } });

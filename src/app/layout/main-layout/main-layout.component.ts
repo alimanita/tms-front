@@ -39,7 +39,7 @@ export class MainLayoutComponent implements OnInit {
     {
       title: 'Gestion Flotte',
       items: [
-        { label: 'Véhicules', route: '/fleet/vehicles', icon: 'directions_car' },
+        { label: 'Véhicules', route: '/fleet/vehicules', icon: 'directions_car' },
         { label: 'Chauffeurs', route: '/fleet/chauffeurs', icon: 'badge' },
         { label: 'Missions', route: '/fleet/missions', icon: 'alt_route' },
         { label: 'Carburant', route: '/fleet/fuel-fillings', icon: 'local_gas_station' },

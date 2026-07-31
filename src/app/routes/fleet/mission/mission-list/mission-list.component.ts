@@ -14,6 +14,7 @@ import { MissionService } from '../mission.service';
 import { MissionResponse, StatutMission } from '../mission.model';
 import { FleetService } from '../../fleet.service';
 import { AuthService } from '@core';
+import { isAdminRole } from 'app/core/authentication/helpers';
 
 
 
@@ -62,6 +63,7 @@ export class MissionListComponent implements OnInit {
   chauffeurs: { id: number; nom: string }[] = [];
   filteredChauffeur: { id: number; nom: string }[] = [];
   showDropdown = false;
+  isAdmin = false;
   selectedChauffeurId: number | null = null;
   selectedChauffeurNom = '';
   readonly statut = StatutMission;
@@ -78,6 +80,7 @@ export class MissionListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+     this.isAdmin = isAdminRole();
     const isAdminOuSuperAdmin = this.authService.hasRole('SUPERADMIN')
       || this.authService.hasRole('ADMIN');
 
