@@ -1,0 +1,431 @@
+<page-header
+  title="Rapports Entretiens & Carburant"
+  subtitle="Analysez les coûts de maintenance (main d'œuvre + pièces) et de carburant par mois ou par année.">
+</page-header>
+
+<div class="mr-wrapper">
+
+  <!-- ═══ KPI SYNTHÈSE ════════════════════════════════════════════════════════ -->
+  @if (synthese()) {
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-global">
+        <div class="kpi-icon"><mat-icon>euro_symbol</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Coût global</span>
+          <span class="kpi-value">{{ synthese()!.coutGlobal | number:'1.0-0' }} TND</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-maintenance">
+        <div class="kpi-icon"><mat-icon>build</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total maintenance</span>
+          <span class="kpi-value">{{ synthese()!.coutTotalMaintenance | number:'1.0-0' }} TND</span>
+          <span class="kpi-sub">
+            MO: {{ synthese()!.coutMainOeuvreTotale | number:'1.0-0' }} &nbsp;|&nbsp;
+            Pièces: {{ synthese()!.coutPiecesTotales | number:'1.0-0' }}
+          </span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-carburant">
+        <div class="kpi-icon"><mat-icon>local_gas_station</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Total carburant</span>
+          <span class="kpi-value">{{ synthese()!.coutTotalCarburant | number:'1.0-0' }} TND</span>
+          <span class="kpi-sub">{{ synthese()!.litresTotaux | number:'1.0-0' }} L — {{ synthese()!.nombrePleins }} pleins</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-ot">
+        <div class="kpi-icon"><mat-icon>assignment</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Ordres de travail</span>
+          <span class="kpi-value">{{ synthese()!.nombreOT }}</span>
+          <span class="kpi-sub">OT clôturés sur la période</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══ FILTRES ════════════════════════════════════════════════════════════ -->
+  <div class="filters-bar">
+    <div class="filters-left">
+      <!-- Tab principal -->
+      <div class="tab-group">
+        <button class="tab-btn" [class.active]="activeTab() === 'entretiens'" (click)="switchTab('entretiens')">
+          <mat-icon>build</mat-icon> Entretiens
+        </button>
+        <button class="tab-btn" [class.active]="activeTab() === 'carburant'" (click)="switchTab('carburant')">
+          <mat-icon>local_gas_station</mat-icon> Carburant
+        </button>
+      </div>
+      <!-- Vue mensuelle / annuelle -->
+      <div class="tab-group mode-group">
+        <button class="tab-btn sm" [class.active]="viewMode() === 'mensuel'" (click)="switchMode('mensuel')">
+          Par mois
+        </button>
+        <button class="tab-btn sm" [class.active]="viewMode() === 'annuel'" (click)="switchMode('annuel')">
+          Par année
+        </button>
+      </div>
+    </div>
+
+    <div class="filters-right">
+      @if (activeTab() === 'entretiens') {
+        <div class="filter-field">
+          <label>Type</label>
+          <select [(ngModel)]="entityType" (change)="load()">
+            <option value="">Tous</option>
+            <option value="VEHICLE">Véhicules</option>
+            <option value="MACHINE">Machines</option>
+          </select>
+        </div>
+      }
+      @if (viewMode() === 'mensuel') {
+        <div class="filter-field">
+          <label>Du</label>
+          <input type="date" [(ngModel)]="dateDebut" (change)="load()" />
+        </div>
+        <div class="filter-field">
+          <label>Au</label>
+          <input type="date" [(ngModel)]="dateFin" (change)="load()" />
+        </div>
+      } @else {
+        <div class="filter-field">
+          <label>De</label>
+          <input type="number" [(ngModel)]="anDebut" min="2000" max="2100" (change)="load()" style="width:80px"/>
+        </div>
+        <div class="filter-field">
+          <label>À</label>
+          <input type="number" [(ngModel)]="anFin" min="2000" max="2100" (change)="load()" style="width:80px"/>
+        </div>
+      }
+      <button class="btn-ghost" (click)="clearFilters()">
+        <mat-icon>refresh</mat-icon> Réinitialiser
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENU ═══════════════════════════════════════════════════════════ -->
+  @if (loading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des données…</p>
+    </div>
+  } @else {
+
+    <!-- ── ENTRETIENS ─────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'entretiens') {
+
+      @if (viewMode() === 'mensuel') {
+        <!-- Graphique barres mensuel entretiens -->
+        @if (entretiensMensuel().length > 0) {
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <mat-icon>bar_chart</mat-icon>
+              Coûts d'entretien par mois
+            </h3>
+            <div class="bar-chart">
+              @for (row of entretiensMensuel(); track row.mois) {
+                <div class="bar-group">
+                  <div class="bar-stack-wrapper">
+                    <div class="bar-label-top">{{ row.coutTotal | number:'1.0-0' }}</div>
+                    <div class="bar-stack" [style.height]="barWidth(row.coutTotal, maxEntretiensMois())">
+                      <div class="bar-seg bar-labour"
+                           [style.height]="pctLabour(row) + '%'"
+                           title="Main d'œuvre: {{ row.coutMainOeuvre | number:'1.0-0' }} TND">
+                      </div>
+                      <div class="bar-seg bar-pieces"
+                           [style.height]="pctPieces(row) + '%'"
+                           title="Pièces: {{ row.coutPieces | number:'1.0-0' }} TND">
+                      </div>
+                    </div>
+                  </div>
+                  <span class="bar-label-x">{{ row.moisLabel }}</span>
+                  <span class="bar-ot-count">{{ row.nombreOT }} OT</span>
+                </div>
+              }
+            </div>
+            <!-- Légende -->
+            <div class="chart-legend">
+              <span class="legend-dot dot-labour"></span> Main d'œuvre
+              <span class="legend-dot dot-pieces"></span> Pièces de rechange
+            </div>
+          </div>
+
+          <!-- Tableau mensuel entretiens -->
+          <div class="table-card">
+            <h3 class="chart-title">
+              <mat-icon>table_chart</mat-icon>
+              Détail par mois
+            </h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Période</th>
+                    <th class="num">Main d'œuvre</th>
+                    <th class="num">Pièces</th>
+                    <th class="num">Total</th>
+                    <th class="num">Nb OT</th>
+                    <th>Répartition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of entretiensMensuel(); track row.mois) {
+                    <tr>
+                      <td class="period-cell">{{ row.moisLabel }}</td>
+                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} TND</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.nombreOT }}</td>
+                      <td>
+                        <div class="mini-bar-wrap">
+                          <div class="mini-seg mini-labour" [style.width]="pctLabour(row) + '%'"></div>
+                          <div class="mini-seg mini-pieces" [style.width]="pctPieces(row) + '%'"></div>
+                        </div>
+                        <span class="mini-pct">MO {{ pctLabour(row) }}% / PR {{ pctPieces(row) }}%</span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Aucun entretien terminé sur cette période.</p>
+          </div>
+        }
+
+        <!-- Tableau détail OT -->
+        @if (entretiensDetail().length > 0) {
+          <div class="table-card">
+            <h3 class="chart-title">
+              <mat-icon>list_alt</mat-icon>
+              Détail des ordres de travail
+            </h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Référence</th>
+                    <th>Entité</th>
+                    <th>Type</th>
+                    <th>Priorité</th>
+                    <th>Date clôture</th>
+                    <th class="num">MO</th>
+                    <th class="num">Pièces</th>
+                    <th class="num">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (ot of entretiensDetail(); track ot.id) {
+                    <tr>
+                      <td><code>{{ ot.reference }}</code></td>
+                      <td>
+                        <span class="entity-chip" [class.chip-vehicle]="ot.entityType === 'VEHICLE'" [class.chip-machine]="ot.entityType === 'MACHINE'">
+                          <mat-icon>{{ ot.entityType === 'VEHICLE' ? 'directions_car' : 'precision_manufacturing' }}</mat-icon>
+                          {{ ot.entityRef }}
+                        </span>
+                      </td>
+                      <td>{{ ot.typeMaintenance }}</td>
+                      <td><span class="badge" [class]="prioriteClass(ot.priorite)">{{ ot.priorite }}</span></td>
+                      <td>{{ ot.completedAt | date:'dd/MM/yyyy' }}</td>
+                      <td class="num">{{ ot.coutMainOeuvre | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ ot.coutPieces | number:'1.0-0' }} TND</td>
+                      <td class="num total-cell">{{ ot.coutTotal | number:'1.0-0' }} TND</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+
+      } @else {
+        <!-- Vue annuelle entretiens -->
+        @if (entretiensAnnuel().length > 0) {
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <mat-icon>bar_chart</mat-icon>
+              Coûts d'entretien par année
+            </h3>
+            <div class="bar-chart">
+              @for (row of entretiensAnnuel(); track row.annee) {
+                <div class="bar-group">
+                  <div class="bar-stack-wrapper">
+                    <div class="bar-label-top">{{ row.coutTotal | number:'1.0-0' }}</div>
+                    <div class="bar-stack" [style.height]="barWidth(row.coutTotal, maxEntretiensAn())">
+                      <div class="bar-seg bar-labour" [style.height]="pctLabour(row) + '%'"></div>
+                      <div class="bar-seg bar-pieces" [style.height]="pctPieces(row) + '%'"></div>
+                    </div>
+                  </div>
+                  <span class="bar-label-x">{{ row.annee }}</span>
+                  <span class="bar-ot-count">{{ row.nombreOT }} OT</span>
+                </div>
+              }
+            </div>
+            <div class="chart-legend">
+              <span class="legend-dot dot-labour"></span> Main d'œuvre
+              <span class="legend-dot dot-pieces"></span> Pièces de rechange
+            </div>
+          </div>
+
+          <div class="table-card">
+            <h3 class="chart-title"><mat-icon>table_chart</mat-icon> Récapitulatif annuel</h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Année</th>
+                    <th class="num">Main d'œuvre</th>
+                    <th class="num">Pièces</th>
+                    <th class="num">Total</th>
+                    <th class="num">Nb OT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of entretiensAnnuel(); track row.annee) {
+                    <tr>
+                      <td class="period-cell">{{ row.annee }}</td>
+                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} TND</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.nombreOT }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Aucune donnée pour cette période.</p>
+          </div>
+        }
+      }
+    }
+
+    <!-- ── CARBURANT ──────────────────────────────────────────────────────── -->
+    @if (activeTab() === 'carburant') {
+
+      @if (viewMode() === 'mensuel') {
+        @if (carburantMensuel().length > 0) {
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <mat-icon>local_gas_station</mat-icon>
+              Coût carburant par mois
+            </h3>
+            <div class="bar-chart">
+              @for (row of carburantMensuel(); track row.mois) {
+                <div class="bar-group">
+                  <div class="bar-stack-wrapper">
+                    <div class="bar-label-top">{{ row.coutTotal | number:'1.0-0' }}</div>
+                    <div class="bar-single" [style.height]="barWidth(row.coutTotal, maxCarburantMois())">
+                    </div>
+                  </div>
+                  <span class="bar-label-x">{{ row.moisLabel }}</span>
+                  <span class="bar-ot-count">{{ row.litresTotaux | number:'1.0-0' }} L</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="table-card">
+            <h3 class="chart-title"><mat-icon>table_chart</mat-icon> Détail carburant par mois</h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Période</th>
+                    <th class="num">Litres</th>
+                    <th class="num">Coût total</th>
+                    <th class="num">Nb pleins</th>
+                    <th class="num">Conso. moy.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of carburantMensuel(); track row.mois) {
+                    <tr>
+                      <td class="period-cell">{{ row.moisLabel }}</td>
+                      <td class="num">{{ row.litresTotaux | number:'1.1-1' }} L</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.nombrePleins }}</td>
+                      <td class="num">
+                        @if (row.consommationMoyenne) {
+                          {{ row.consommationMoyenne | number:'1.1-1' }} L/100km
+                        } @else {
+                          —
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Aucun plein enregistré sur cette période.</p>
+          </div>
+        }
+
+      } @else {
+        <!-- Vue annuelle carburant -->
+        @if (carburantAnnuel().length > 0) {
+          <div class="chart-card">
+            <h3 class="chart-title">
+              <mat-icon>local_gas_station</mat-icon>
+              Coût carburant par année
+            </h3>
+            <div class="bar-chart">
+              @for (row of carburantAnnuel(); track row.annee) {
+                <div class="bar-group">
+                  <div class="bar-stack-wrapper">
+                    <div class="bar-label-top">{{ row.coutTotal | number:'1.0-0' }}</div>
+                    <div class="bar-single" [style.height]="barWidth(row.coutTotal, maxCarburantAn())"></div>
+                  </div>
+                  <span class="bar-label-x">{{ row.annee }}</span>
+                  <span class="bar-ot-count">{{ row.litresTotaux | number:'1.0-0' }} L</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="table-card">
+            <h3 class="chart-title"><mat-icon>table_chart</mat-icon> Récapitulatif annuel carburant</h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Année</th>
+                    <th class="num">Litres</th>
+                    <th class="num">Coût total</th>
+                    <th class="num">Nb pleins</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of carburantAnnuel(); track row.annee) {
+                    <tr>
+                      <td class="period-cell">{{ row.annee }}</td>
+                      <td class="num">{{ row.litresTotaux | number:'1.1-1' }} L</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.nombrePleins }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Aucune donnée pour cette période.</p>
+          </div>
+        }
+      }
+    }
+  }
+</div>

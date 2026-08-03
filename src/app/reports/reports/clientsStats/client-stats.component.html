@@ -1,0 +1,231 @@
+<div class="stats-root">
+
+  <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+  @if (loading()) {
+    <div class="stats-loading">
+      <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+      <span>Chargement des statistiques…</span>
+    </div>
+  }
+
+  <!-- ── Erreur ────────────────────────────────────────────────────────────── -->
+  @if (error() && !loading()) {
+    <div class="stats-error">
+      <mat-icon>error_outline</mat-icon> {{ error() }}
+    </div>
+  }
+
+  <!-- ── Contenu principal ─────────────────────────────────────────────────── -->
+  @if (stats(); as s) {
+
+    <!-- ── KPI Cards ──────────────────────────────────────────────────────── -->
+    <div class="kpi-grid">
+
+      <div class="kpi-card kpi-bls">
+        <mat-icon class="kpi-icon">receipt_long</mat-icon>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ s.nombreBlsTotal }}</span>
+          <span class="kpi-label">Bons de livraison</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-ca">
+        <mat-icon class="kpi-icon">trending_up</mat-icon>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ s.totalTtc | number:'1.3-3' }} DT</span>
+          <span class="kpi-label">CA TTC total</span>
+          <span class="kpi-sub">HT : {{ s.totalHt | number:'1.3-3' }} DT</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-enc">
+        <mat-icon class="kpi-icon">payments</mat-icon>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ s.totalEncaissements | number:'1.3-3' }} DT</span>
+          <span class="kpi-label">Total encaissements</span>
+          <span class="kpi-sub">Taux : {{ tauxRecouvrement() }}%</span>
+        </div>
+      </div>
+
+      <div class="kpi-card"
+           [class.kpi-solde-neg]="s.solde < 0"
+           [class.kpi-solde-pos]="s.solde >= 0">
+        <mat-icon class="kpi-icon">account_balance_wallet</mat-icon>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ s.solde | number:'1.3-3' }} DT</span>
+          <span class="kpi-label">Solde actuel</span>
+          @if (s.soldeDepart !== 0) {
+            <span class="kpi-sub">Départ : {{ s.soldeDepart | number:'1.3-3' }} DT</span>
+          }
+        </div>
+      </div>
+
+      @if (clientSolde) {
+        <div class="kpi-card kpi-risk">
+          <mat-icon class="kpi-icon">security</mat-icon>
+          <div class="kpi-body">
+            <span class="kpi-value risk-val">
+              <span class="score-badge" [ngClass]="scoreLabelClass(clientSolde.scoreLabel)">
+                {{ clientSolde.scoreLabel }}
+              </span>
+              <span class="risk-num">{{ clientSolde.score }}/100</span>
+            </span>
+            <span class="kpi-label">Score de risque</span>
+            @if (clientSolde.joursDebt > 0) {
+              <span class="kpi-sub">Créance : {{ clientSolde.joursDebt }} j</span>
+            }
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-freq">
+          <mat-icon class="kpi-icon">autorenew</mat-icon>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ clientSolde.frequenceMensuelle }}</span>
+            <span class="kpi-label">BL / mois (moy.)</span>
+          </div>
+        </div>
+      }
+
+    </div><!-- /kpi-grid -->
+
+    <!-- ── Jauge recouvrement ──────────────────────────────────────────────── -->
+    <div class="gauge-card">
+      <div class="gauge-header">
+        <mat-icon>donut_large</mat-icon>
+        <span>Taux de recouvrement</span>
+        <strong class="gauge-pct">{{ tauxRecouvrement() }}%</strong>
+      </div>
+      <div class="gauge-track">
+        <div
+          class="gauge-fill"
+          [style.width.%]="tauxRecouvrement()"
+          [class.gauge-ok]    ="tauxRecouvrement() >= 80"
+          [class.gauge-warn]  ="tauxRecouvrement() >= 50 && tauxRecouvrement() < 80"
+          [class.gauge-danger]="tauxRecouvrement() < 50">
+        </div>
+        <span class="gauge-marker" style="left:50%">50%</span>
+        <span class="gauge-marker" style="left:80%">80%</span>
+      </div>
+      <div class="gauge-legend">
+        <span class="gl-item">
+          <span class="gl-dot gl-enc"></span>
+          Encaissé : {{ s.totalEncaissements | number:'1.3-3' }} DT
+        </span>
+        <span class="gl-item">
+          <span class="gl-dot gl-rest"></span>
+          Restant : {{ (s.totalTtc - s.totalEncaissements) | number:'1.3-3' }} DT
+        </span>
+      </div>
+    </div>
+
+    <!-- ── BL par période ─────────────────────────────────────────────────── -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">
+          <mat-icon>bar_chart</mat-icon> Bons de livraison
+        </div>
+        <div class="period-tabs">
+          <button [class.active]="activePeriod() === 'mois'"    (click)="setPeriod('mois')">Mois</button>
+          <button [class.active]="activePeriod() === 'semaine'" (click)="setPeriod('semaine')">Sem.</button>
+          <button [class.active]="activePeriod() === 'annee'"   (click)="setPeriod('annee')">Année</button>
+        </div>
+      </div>
+
+      @if (blSeries().length === 0) {
+        <div class="chart-empty">
+          <mat-icon>inbox</mat-icon> Aucune donnée
+        </div>
+      } @else {
+        <div class="bar-chart-scroll">
+          <div class="bar-chart">
+            @for (b of blSeries(); track b.periode) {
+              <div class="bar-col"
+                   [title]="b.nombreBls + ' BL — ' + (b.totalTtc | number:'1.3-3') + ' DT'">
+                <span class="bar-value">{{ b.nombreBls }}</span>
+                <div class="bar-outer">
+                  <div class="bar-inner bar-bl"
+                       [style.height.%]="barHeight(b.nombreBls, blMax())">
+                  </div>
+                </div>
+                <span class="bar-label">{{ formatPeriodeLabel(b.periode, activePeriod()) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="chart-footer">
+          <span><strong>Périodes :</strong> {{ blSeries().length }}</span>
+          <span><strong>CA TTC :</strong> {{ blTotalGlobal() | number:'1.3-3' }} DT</span>
+        </div>
+      }
+    </div>
+
+    <!-- ── Paiements mensuels ─────────────────────────────────────────────── -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">
+          <mat-icon>payments</mat-icon> Paiements mensuels
+        </div>
+      </div>
+
+      @if (s.paiementsParMois.length === 0) {
+        <div class="chart-empty">
+          <mat-icon>inbox</mat-icon> Aucun paiement enregistré
+        </div>
+      } @else {
+        <div class="bar-chart-scroll">
+          <div class="bar-chart">
+            @for (p of s.paiementsParMois; track p.periode) {
+              <div class="bar-col"
+                   [title]="p.nombrePaiements + ' paiement(s) — ' + (p.montantTotal | number:'1.3-3') + ' DT'">
+                <span class="bar-value">{{ p.montantTotal | number:'1.0-0' }}</span>
+                <div class="bar-outer">
+                  <div class="bar-inner bar-pay"
+                       [style.height.%]="barHeight(p.montantTotal, paiementsMax())">
+                  </div>
+                </div>
+                <span class="bar-label">{{ formatPeriodeLabel(p.periode, 'mois') }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ── Deux colonnes ──────────────────────────────────────────────────── -->
+    <div class="two-col-grid">
+
+
+      <!-- Top articles -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">
+            <mat-icon>inventory_2</mat-icon> Top articles
+          </div>
+        </div>
+        @if (s.topArticles.length === 0) {
+          <div class="chart-empty"><mat-icon>inbox</mat-icon> Aucune donnée</div>
+        } @else {
+          <div class="top-articles">
+            @for (a of s.topArticles; track a.nom; let i = $index) {
+              <div class="article-row">
+                <span class="article-rank">#{{ i + 1 }}</span>
+                <span class="article-nom">{{ a.nom }}</span>
+                <span class="article-qty">×{{ a.quantite }}</span>
+                <span class="article-ht">{{ a.totalHt | number:'1.3-3' }} DT</span>
+              </div>
+              <div class="article-bar-track">
+                <div
+                  class="article-bar-fill"
+                  [style.width.%]="barHeight(a.quantite, s.topArticles[0].quantite)">
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div><!-- /two-col-grid -->
+
+  }<!-- end @if stats -->
+
+</div>

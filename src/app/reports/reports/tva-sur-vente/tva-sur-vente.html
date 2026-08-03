@@ -1,0 +1,55 @@
+<div class="report-page">
+  <button class="back-btn" routerLink="../"><mat-icon>arrow_back</mat-icon> Retour</button>
+  <div class="report-header">
+    <div><h1>TVA sur ventes</h1><p>Suivez les montants de TVA collectée sur vos documents de vente, ventilés par taux.</p></div>
+    <button class="export-btn"><mat-icon>download</mat-icon> Exporter</button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-title"><mat-icon>filter_list</mat-icon> Filtres</div>
+    <div class="filter-row">
+      <div class="filter-field">
+        <label>Du</label>
+        <div class="date-input"><mat-icon>calendar_today</mat-icon><input type="date" [(ngModel)]="dateDebut"></div>
+      </div>
+      <div class="filter-field">
+        <label>Au</label>
+        <div class="date-input"><mat-icon>calendar_today</mat-icon><input type="date" [(ngModel)]="dateFin"></div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="load()">Appliquer</button>
+        <button class="btn-reset" (click)="reset()"><mat-icon>refresh</mat-icon> Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-wrap" *ngIf="loading"><mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner></div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="report-table">
+      <thead><tr>
+        <th>Réf</th><th>Date</th><th>Contact</th>
+        <th class="num">Total HT</th><th class="num">TVA 19%</th><th class="num">TVA totale</th>
+      </tr></thead>
+      <tbody>
+        <tr *ngIf="lignes.length===0"><td colspan="6" class="empty">Aucun résultat.</td></tr>
+        <tr *ngFor="let l of lignes">
+          <td class="ref-cell">{{l.reference}}</td>
+          <td>{{formatDate(l.date)}}</td>
+          <td>{{l.contact}}</td>
+          <td class="num">{{l.totalHt  | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.tva19    | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.tvaTotale| number:'1.3-3':'fr'}} DT</td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="totaux && lignes.length>0">
+        <tr class="totals-row">
+          <td colspan="3"><strong>Totaux</strong></td>
+          <td class="num"><strong>{{totaux.totalHt       | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"><strong>{{totaux.totalTva19    | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"><strong>{{totaux.totalTvaTotale| number:'1.3-3':'fr'}} DT</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

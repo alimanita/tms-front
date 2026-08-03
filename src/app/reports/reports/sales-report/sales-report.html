@@ -1,0 +1,125 @@
+<div class="report-page">
+
+  <button class="back-btn" routerLink="../">
+    <mat-icon>arrow_back</mat-icon> Retour
+  </button>
+
+  <div class="report-header">
+    <div>
+      <h1>Rapport ventes par client</h1>
+      <p>Analysez les montants facturés, les taxes et les soldes restants par client.</p>
+    </div>
+    <button class="export-btn"><mat-icon>download</mat-icon> Exporter</button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filter-card">
+    <div class="filter-title"><mat-icon>filter_list</mat-icon> Filtres</div>
+    <div class="filter-row">
+
+      <div class="filter-field">
+        <label>Du</label>
+        <div class="date-input">
+          <mat-icon>calendar_today</mat-icon>
+          <input type="date" [(ngModel)]="dateDebut" placeholder="Toutes les dates">
+        </div>
+      </div>
+
+      <div class="filter-field">
+        <label>Au</label>
+        <div class="date-input">
+          <mat-icon>calendar_today</mat-icon>
+          <input type="date" [(ngModel)]="dateFin">
+        </div>
+      </div>
+
+      <div class="filter-field client-field">
+        <label>Client</label>
+        <div class="client-autocomplete">
+          <input
+            type="text"
+            [(ngModel)]="clientSearch"
+            (focus)="showClientDropdown = true"
+            (blur)="onBlur()"
+            placeholder="Tous les clients"
+          >
+          <mat-icon>expand_more</mat-icon>
+          <div class="client-dropdown" *ngIf="showClientDropdown">
+            <div class="client-option" (mousedown)="selectClient(null)">
+              Tous les clients
+            </div>
+            <div
+              class="client-option"
+              *ngFor="let c of filteredClients"
+              (mousedown)="selectClient(c)"
+            >
+              {{ c.nom }} {{ c.prenom }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="load()">Appliquer</button>
+        <button class="btn-reset" (click)="reset()">
+          <mat-icon>refresh</mat-icon> Réinitialiser
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" *ngIf="loading">
+    <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="!loading">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Réf</th>
+          <th>Date</th>
+          <th>Contact</th>
+          <th class="num">HT</th>
+          <th class="num">FODEC 1%</th>
+          <th class="num">TVA 19%</th>
+          <th class="num">Timbre fiscal</th>
+          <th class="num">TTC</th>
+          <th class="num">Reste à payer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="lignes.length === 0">
+          <td colspan="9" class="empty">Aucune facture ne correspond à vos filtres.</td>
+        </tr>
+        <tr *ngFor="let l of lignes" [class.avoir-row]="isAvoir(l.reference)">
+          <td class="ref-cell" [class.avoir-ref]="isAvoir(l.reference)">
+            {{ l.reference }}
+          </td>
+          <td>{{ formatDate(l.date) }}</td>
+          <td>{{ l.contact }}</td>
+          <td class="num" [class.neg]="l.ht < 0">{{ l.ht       | number:'1.3-3':'fr' }} DT</td>
+          <td class="num" [class.neg]="l.fodec < 0">{{ l.fodec  | number:'1.3-3':'fr' }} DT</td>
+          <td class="num" [class.neg]="l.tva < 0">{{ l.tva      | number:'1.3-3':'fr' }} DT</td>
+          <td class="num">{{ l.timbre                            | number:'1.3-3':'fr' }} DT</td>
+          <td class="num" [class.neg]="l.ttc < 0">{{ l.ttc      | number:'1.3-3':'fr' }} DT</td>
+          <td class="num">{{ l.resteAPayer                       | number:'1.3-3':'fr' }} DT</td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="totaux && lignes.length > 0">
+        <tr class="totals-row">
+          <td colspan="3"><strong>Totaux</strong></td>
+          <td class="num"><strong>{{ totaux.totalHt          | number:'1.3-3':'fr' }} DT</strong></td>
+          <td class="num"><strong>{{ totaux.totalFodec       | number:'1.3-3':'fr' }} DT</strong></td>
+          <td class="num"><strong>{{ totaux.totalTva         | number:'1.3-3':'fr' }} DT</strong></td>
+          <td class="num"><strong>{{ totaux.totalTimbre      | number:'1.3-3':'fr' }} DT</strong></td>
+          <td class="num"><strong>{{ totaux.totalTtc         | number:'1.3-3':'fr' }} DT</strong></td>
+          <td class="num"><strong>{{ totaux.totalResteAPayer | number:'1.3-3':'fr' }} DT</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+</div>

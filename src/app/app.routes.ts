@@ -30,6 +30,8 @@ export const routes: Routes = [
       { path: 'amazon-purchases', loadComponent: () => import('./features/amazon-purchases/amazon-purchase-list.component').then((m) => m.AmazonPurchaseListComponent) },
       { path: 'customers', loadComponent: () => import('./features/customers/customer-list.component').then((m) => m.CustomerListComponent) },
       { path: 'orders', loadComponent: () => import('./features/orders/order-list.component').then((m) => m.OrderListComponent) },
+   // ✅ Rapports
+      { path: 'reports', loadChildren: () => import('./reports/reports.routes').then(m => m.routes) },
 
       // ── Finance & Administration ──────────────────────────────────────
       { path: 'finance', loadComponent: () => import('./features/finance/finance-list.component').then((m) => m.FinanceListComponent) },

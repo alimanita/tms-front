@@ -1,0 +1,174 @@
+<div class="rapport-container">
+
+  <!-- En-tête avec KPIs -->
+  <div class="kpi-bar">
+    <div class="kpi-card">
+      <span class="kpi-value">{{ totalBlocsAvecStock() }}</span>
+      <span class="kpi-label">Blocs avec stock</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value">{{ totalPlaquesEnStock() }}</span>
+      <span class="kpi-label">Références plaques</span>
+    </div>
+    <div class="kpi-card accent">
+      <span class="kpi-value">{{ totalSurfaceEnStock() | number:'1.2-2' }} m²</span>
+      <span class="kpi-label">Surface totale en stock</span>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button [class.active]="activeTab() === 'blocs'"
+            (click)="activeTab.set('blocs')">
+      📦 Blocs fabriqués & plaques
+    </button>
+    <button [class.active]="activeTab() === 'granit'"
+            (click)="activeTab.set('granit')">
+      🪨 Granit / Quartz par désignation
+    </button>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="loading()" class="loading">Chargement...</div>
+
+  <!-- ═══════════════════════════════════════════
+       ONGLET 1 : Blocs avec plaques en stock
+       ═══════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab() === 'blocs' && !loading()">
+
+    <div *ngIf="blocsRapport().length === 0" class="empty-state">
+      Aucun bloc avec des plaques en stock.
+    </div>
+
+    <div class="bloc-card" *ngFor="let bloc of blocsRapport()">
+
+      <!-- En-tête du bloc (cliquable pour déplier) -->
+      <div class="bloc-header" (click)="toggleBloc(bloc)">
+        <div class="bloc-info">
+          <span class="bloc-code">{{ bloc.codeBloc }}</span>
+          <span class="bloc-designation">{{ bloc.designationBloc }}</span>
+          <span class="bloc-materiau badge">{{ bloc.typeMateriau }}</span>
+        </div>
+        <div class="bloc-dims">
+          <span>{{ bloc.longueur }}×{{ bloc.largeur }}×{{ bloc.hauteur }} m</span>
+          <span class="sep">|</span>
+          <span>{{ bloc.poids }} T</span>
+        </div>
+        <div class="bloc-stats">
+          <span class="stat-pill">{{ bloc.nombreTotalPlaques }} plaques</span>
+          <span class="stat-pill accent">{{ bloc.surfaceTotaleEnStock | number:'1.2-2' }} m²</span>
+          <span class="chevron">{{ bloc.expanded ? '▲' : '▼' }}</span>
+        </div>
+      </div>
+
+      <!-- Hint scroll mobile (visible seulement quand déplié) -->
+      <div class="scroll-hint" *ngIf="bloc.expanded" aria-hidden="true">
+        ← Faites défiler pour voir toutes les colonnes →
+      </div>
+
+      <!-- Tableau des plaques (dépliable) -->
+      <div class="plaques-table-wrap" *ngIf="bloc.expanded">
+        <table class="plaques-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Désignation</th>
+              <th>Ép.</th>
+              <th>Finition</th>
+              <th>Dim. (L×l)</th>
+              <th class="right">Surface unit.</th>
+              <th class="right">Stock</th>
+              <th class="right">Surface totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of bloc.plaquesEnStock">
+              <td class="code">{{ p.codePlaque }}</td>
+              <td class="truncate">{{ p.designationPlaque }}</td>
+              <td class="center">
+                <span class="epaisseur-badge ep-{{ p.epaisseur }}cm">
+                  {{ epaisseurLabel(p.epaisseur) }}
+                </span>
+              </td>
+              <td>{{ p.finition ?? '—' }}</td>
+              <td class="center nowrap">{{ p.longueur }}×{{ p.largeur }}</td>
+              <td class="right nowrap">{{ p.surface | number:'1.3-3' }} m²</td>
+              <td class="right highlight">{{ p.stockDisponible | number:'1.0-0' }}</td>
+              <td class="right bold nowrap">{{ p.surfaceTotaleStock | number:'1.2-2' }} m²</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="6">Total bloc</td>
+              <td class="right">{{ bloc.nombreTotalPlaques }}</td>
+              <td class="right bold">{{ bloc.surfaceTotaleEnStock | number:'1.2-2' }} m²</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- ═══════════════════════════════════════════
+       ONGLET 2 : Granit / Quartz par désignation
+       ═══════════════════════════════════════════ -->
+  <ng-container *ngIf="activeTab() === 'granit' && !loading()">
+
+    <div *ngIf="granitRapport().length === 0" class="empty-state">
+      Aucune plaque Granit / Quartz en stock.
+    </div>
+
+    <div *ngFor="let matKey of granitMateriauKeys()" class="materiau-section">
+
+      <div class="materiau-header">
+        <h3>🪨 {{ matKey }}</h3>
+        <span class="stat-pill accent">
+          Total : {{ totalSurfaceGranit(matKey) | number:'1.2-2' }} m²
+        </span>
+      </div>
+
+      <!-- Hint scroll mobile -->
+      <div class="scroll-hint" aria-hidden="true">
+        ← Faites défiler pour voir toutes les colonnes →
+      </div>
+
+      <div class="plaques-table-wrap">
+        <table class="plaques-table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Désignation</th>
+              <th>Ép.</th>
+              <th>Dimensions</th>
+              <th class="right">Surface unit.</th>
+              <th class="right">Stock</th>
+              <th class="right">Surface totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of granitByMateriau(matKey)">
+              <td class="code">{{ p.codeArticle }}</td>
+              <td class="bold truncate">{{ p.designation }}</td>
+              <td class="center">
+                <span class="epaisseur-badge">{{ epaisseurLabel(p.epaisseur) }}</span>
+              </td>
+              <td class="center nowrap">{{ p.longueur }}×{{ p.largeur }}</td>
+              <td class="right nowrap">{{ p.surface | number:'1.3-3' }} m²</td>
+              <td class="right highlight">{{ p.stockDisponible | number:'1.0-0' }}</td>
+              <td class="right bold nowrap">{{ p.surfaceTotaleStock | number:'1.2-2' }} m²</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="6">Total {{ matKey }}</td>
+              <td class="right bold">{{ totalSurfaceGranit(matKey) | number:'1.2-2' }} m²</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+    </div>
+  </ng-container>
+
+</div>

@@ -1,0 +1,210 @@
+<div class="fr-wrapper">
+
+  <!-- Top bar -->
+  <div class="fr-topbar">
+    <button class="btn-back" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </button>
+  </div>
+
+  <!-- Title row -->
+  <div class="fr-title-row">
+    <div class="fr-title-left">
+      <h1>{{ activeTab() === 'recus' ? 'Paiements reçus' : 'Paiements émis' }}</h1>
+      <span class="count-badge" *ngIf="rapport()">
+        {{ rapport()!.nombrePaiements }}
+      </span>
+    </div>
+    <!-- <div class="fr-title-right">
+      <button class="btn-export">
+        <mat-icon>file_download</mat-icon> Exporter <mat-icon>expand_more</mat-icon>
+      </button>
+    </div> -->
+  </div>
+
+  <!-- Tabs -->
+  <div class="fr-tabs">
+    <button [class.active]="activeTab() === 'recus'" (click)="switchTab('recus')">
+      💰 Paiements reçus
+    </button>
+    <button [class.active]="activeTab() === 'emis'" (click)="switchTab('emis')">
+      💸 Paiements émis
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="fr-filters-card">
+    <h3 class="filters-title">Filtres</h3>
+    <div class="filters-row">
+
+ <!-- Date début -->
+<div class="fb-field">
+  <label class="fb-label">Date de début</label>
+  <div class="fb-date-wrap">
+    <svg class="fb-cal-icon" viewBox="0 0 24 24" fill="none" 
+         stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8"  y1="2" x2="8"  y2="6"/>
+      <line x1="3"  y1="10" x2="21" y2="10"/>
+    </svg>
+    <input type="date" class="fb-date-input"
+           [(ngModel)]="dateDebut"
+           (change)="load()">
+  </div>
+</div>
+
+<!-- Date fin -->
+<div class="fb-field">
+  <label class="fb-label">Date de fin</label>
+  <div class="fb-date-wrap">
+    <svg class="fb-cal-icon" viewBox="0 0 24 24" fill="none" 
+         stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8"  y1="2" x2="8"  y2="6"/>
+      <line x1="3"  y1="10" x2="21" y2="10"/>
+    </svg>
+    <input type="date" class="fb-date-input"
+           [(ngModel)]="dateFin"
+           (change)="load()">
+  </div>
+</div>
+
+      <!-- Mode paiement -->
+      <div class="filter-field">
+        <label>Méthode de paiement</label>
+        <select class="mode-select" [(ngModel)]="modePaiement">
+          <option *ngFor="let m of MODES" [value]="m.value">{{ m.label }}</option>
+        </select>
+      </div>
+
+      <!-- Actions -->
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="load()">Appliquer</button>
+        <button class="btn-clear" (click)="clearFilters()">Effacer les filtres</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="loading()" class="loading-bar">Chargement...</div>
+
+  <ng-container *ngIf="!loading() && rapport() as r">
+
+    <!-- KPI Cards -->
+    <div class="kpi-row">
+      <div class="kpi-card green">
+        <div class="kpi-icon"><mat-icon>attach_money</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Montant total reçu</span>
+          <span class="kpi-value">{{ r.montantTotalRecu | number:'1.3-3' }} DT</span>
+        </div>
+        <span class="kpi-count">{{ r.nombrePaiements }}</span>
+      </div>
+
+      <div class="kpi-card teal">
+        <div class="kpi-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Montant total encaissé</span>
+          <span class="kpi-value">{{ r.montantTotalEncaisse | number:'1.3-3' }} DT</span>
+        </div>
+      </div>
+
+      <div class="kpi-card slate">
+        <div class="kpi-icon"><mat-icon>receipt_long</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Montant retenue à la source</span>
+          <span class="kpi-value">{{ r.montantTotalRetenue | number:'1.3-3' }} DT</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donut chart -->
+    <div class="chart-card" *ngIf="donutSegments().length > 0">
+      <h3>Répartition par méthode de paiement</h3>
+      <div class="chart-body">
+        <svg viewBox="0 0 140 140" class="donut-svg">
+          <circle cx="70" cy="70" r="54"
+                  fill="none" stroke="#f1f5f9" stroke-width="20"/>
+          <circle *ngFor="let seg of donutSegments()"
+                  cx="70" cy="70" r="54"
+                  fill="none"
+                  [attr.stroke]="seg.color"
+                  stroke-width="20"
+                  [attr.stroke-dasharray]="(seg.pct / 100) * CIRCUMFERENCE + ' ' + CIRCUMFERENCE"
+                  [attr.stroke-dashoffset]="-seg.offset"
+                  style="transform: rotate(-90deg); transform-origin: 70px 70px;"/>
+        </svg>
+
+        <div class="donut-legend">
+          <div class="legend-row" *ngFor="let seg of donutSegments()">
+            <span class="legend-dot" [style.background]="seg.color"></span>
+            <span class="legend-label">{{ modeLabel(seg.mode) }}</span>
+            <span class="legend-count">({{ r.lignes | modeCount:seg.mode }})</span>
+            <span class="legend-amount">{{ seg.montant | number:'1.3-3' }} DT</span>
+            <span class="legend-pct">{{ seg.pct | number:'1.1-1' }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <table class="fr-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Contact</th>
+            <th>Montant</th>
+            <th>Méthode de paiement</th>
+            <th>Référence</th>
+            <th>État</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of lignesPaged()">
+            <td>{{ p.datePaiement | date:'dd MMM yyyy, HH:mm' }}</td>
+            <td class="contact">{{ p.contact || '—' }}</td>
+            <td class="montant">{{ p.montant | number:'1.3-3' }} DT</td>
+            <td>
+              <span class="mode-badge"
+                    [style.background]="modeColor(p.modePaiement) + '22'"
+                    [style.color]="modeColor(p.modePaiement)">
+                {{ modeLabel(p.modePaiement) }}
+              </span>
+            </td>
+            <td class="ref">{{ p.reference || '—' }}</td>
+            <td>
+              <span class="etat-badge" [class]="'etat-' + (p.etatPaiement | lowercase)">
+                {{ p.etatPaiement }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="r.lignes.length === 0">
+            <td colspan="6" class="empty">Aucun paiement trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="r.lignes.length > pageSize">
+        <span class="page-info">
+          Affichage de {{ displayStart }} à {{ displayEnd }} sur {{ r.lignes.length }} résultats
+        </span>
+        <div class="page-controls">
+          <button (click)="prevPage()" [disabled]="pageIndex === 0">
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="page-num">Page {{ pageIndex + 1 }} sur {{ totalPages() }}</span>
+          <button (click)="nextPage()" [disabled]="pageIndex >= totalPages() - 1">
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

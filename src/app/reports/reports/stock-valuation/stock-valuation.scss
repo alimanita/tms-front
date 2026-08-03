@@ -1,0 +1,458 @@
+// ─── Fix Angular Material overflow ────────────────────
+// Important : mat-drawer-container force overflow:hidden sur son contenu.
+// On surcharge au niveau :host pour garantir que le composant
+// ne déborde pas horizontalement.
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden; // ← ajouté : bloque le débordement au niveau du composant
+}
+
+// Surcharge globale mat-drawer (à mettre dans styles.scss)
+// On permet le scroll uniquement aux wrappers de tableau,
+// pas à tout le drawer-content.
+::ng-deep .mat-drawer-content {
+  overflow-x: hidden !important;
+}
+
+// ─── Reset box-sizing ──────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// ─── Conteneur principal ───────────────────────────────
+.rapport-container {
+  padding: clamp(8px, 3vw, 24px);
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; // ← sécurité supplémentaire
+}
+
+// ─── KPI Bar ───────────────────────────────────────────
+.kpi-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  flex: 1 1 120px;
+  min-width: 0; // ← évite que le contenu force la largeur
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  &.accent {
+    background: #eef2ff;
+    border-color: #6366f1;
+  }
+
+  .kpi-value {
+    display: block;
+    font-size: clamp(16px, 4vw, 26px); // ← réduit légèrement pour éviter le débordement
+    font-weight: 700;
+    color: #1e293b;
+    word-break: break-word; // ← évite que "1 243,50 m²" casse la carte
+  }
+
+  .kpi-label {
+    display: block;
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
+// ─── Tabs ──────────────────────────────────────────────
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+
+  button {
+    padding: 10px 14px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+    white-space: nowrap;
+
+    &.active {
+      color: #6366f1;
+      border-bottom-color: #6366f1;
+      font-weight: 600;
+    }
+
+    &:hover:not(.active) {
+      color: #334155;
+    }
+  }
+}
+
+// ─── Bloc card ─────────────────────────────────────────
+.bloc-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  // Pas de overflow:hidden ici — bloque le scroll horizontal du tableau
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  min-width: 0; // ← important dans un flex/grid context
+}
+
+// ─── En-tête bloc ──────────────────────────────────────
+.bloc-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: #f8fafc;
+  border-radius: 10px 10px 0 0;
+  transition: background 0.1s;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+
+  .bloc-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1 1 0;
+    min-width: 0; // ← clé : permet à l'ellipsis de fonctionner
+  }
+
+  .bloc-code {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .bloc-designation {
+    color: #475569;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0; // ← nécessaire pour ellipsis dans un flex child
+    flex: 1 1 80px; // ← flex-basis minimal pour ne pas disparaître trop tôt
+  }
+
+  .badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .bloc-dims {
+    color: #94a3b8;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    .sep {
+      margin: 0 4px;
+    }
+  }
+
+  .bloc-stats {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .chevron {
+    color: #94a3b8;
+    font-size: 11px;
+  }
+}
+
+// ─── Stat pills ────────────────────────────────────────
+.stat-pill {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.accent {
+    background: #eef2ff;
+    color: #4f46e5;
+  }
+}
+
+// ─── Hint de scroll mobile ─────────────────────────────
+// Visible seulement sur mobile pour indiquer le scroll horizontal
+.scroll-hint {
+  display: none; // masqué par défaut
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 6px 14px 0;
+  letter-spacing: 0.02em;
+}
+
+// ─── Wrapper tableau — FIX PRINCIPAL ──────────────────
+// C'est ici que se joue la responsivité des tableaux.
+// display:block + overflow-x:auto est la combinaison qui fonctionne
+// même dans un contexte mat-drawer.
+.plaques-table-wrap {
+  display: block;            // ← CRITIQUE : sans ça, overflow-x est ignoré
+  width: 100%;
+  overflow-x: auto;          // ← scroll horizontal activé
+  -webkit-overflow-scrolling: touch; // ← scroll momentum sur iOS
+  // Pas de border-radius, pas d'overflow:hidden sur le parent (.bloc-card)
+  // pour ne pas créer un stacking context qui bloquerait le scroll
+}
+
+// ─── Tableaux ──────────────────────────────────────────
+.plaques-table {
+  width: 100%;
+  min-width: 540px; // ← largeur minimale avant scroll horizontal
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: auto;
+
+  th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    padding: 9px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: #fafafa;
+  }
+
+  // Classes utilitaires cellules
+  .code {
+    font-family: monospace;
+    color: #6366f1;
+    white-space: nowrap;
+  }
+
+  .center {
+    text-align: center;
+  }
+
+  .right {
+    text-align: right;
+  }
+
+  .bold {
+    font-weight: 600;
+  }
+
+  .highlight {
+    color: #059669;
+    font-weight: 700;
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  // Désignation : peut être tronquée sur petits écrans
+  .truncate {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  tfoot .total-row td {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #1e293b;
+    border-top: 2px solid #e2e8f0;
+    white-space: nowrap;
+  }
+}
+
+// ─── Badges épaisseur ──────────────────────────────────
+.epaisseur-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #92400e;
+  white-space: nowrap;
+
+  &.ep-2cm {
+    background: #d1fae5;
+    color: #065f46;
+  }
+
+  &.ep-3cm {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  &.ep-4cm {
+    background: #ede9fe;
+    color: #5b21b6;
+  }
+}
+
+// ─── Sections granit ───────────────────────────────────
+.materiau-section {
+  margin-bottom: 24px;
+}
+
+.materiau-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 6px; // ← réduit pour laisser place au scroll-hint
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+}
+
+// ─── États vide / chargement ───────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 40px 16px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6366f1;
+  font-size: 15px;
+}
+
+// ─── Tablette (≤ 768px) ────────────────────────────────
+@media (max-width: 768px) {
+  .bloc-header .bloc-dims {
+    display: none; // masque les dimensions L×l×H sur tablette
+  }
+}
+
+// ─── Mobile (≤ 599px) ─────────────────────────────────
+@media (max-width: 599px) {
+  // KPI : 2 colonnes
+  .kpi-card {
+    flex: 1 1 calc(50% - 5px);
+  }
+
+  // Tabs : style boutons empilés
+  .tabs {
+    border-bottom: none;
+    flex-direction: column;
+
+    button {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 0;
+      text-align: left;
+
+      &.active {
+        background: #eef2ff;
+        border-color: #6366f1;
+      }
+    }
+  }
+
+  // En-tête bloc : réorganisation sur 2 lignes
+  .bloc-header {
+    padding: 10px 12px;
+
+    .bloc-info {
+      flex: 1 1 100%; // prend toute la largeur sur mobile
+    }
+
+    .bloc-stats {
+      width: 100%;
+      justify-content: space-between;
+      margin-left: 0;
+    }
+  }
+
+  // Hint scroll : visible sur mobile
+  .scroll-hint {
+    display: block;
+  }
+
+  .materiau-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  // Tableau : réduire la largeur minimale pour déclencher le scroll plus tôt
+  .plaques-table {
+    min-width: 480px;
+
+    // Masquer la colonne finition sur très petit mobile (optionnel)
+    // .col-finition { display: none; }
+  }
+}
+
+// ─── Très petit mobile (≤ 380px) ──────────────────────
+@media (max-width: 380px) {
+  // KPI : 1 colonne
+  .kpi-card {
+    flex: 1 1 100%;
+  }
+
+  // Masquer le badge type matériau
+  .bloc-header .badge {
+    display: none;
+  }
+}

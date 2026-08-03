@@ -1,0 +1,144 @@
+.reports-hub {
+  padding: 24px;
+  font-family: 'Inter', sans-serif;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 680px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.report-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e2e8f0;
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &.fleet      { background: #fffbeb; }
+  &.missions   { background: #eef2ff; }
+  &.amazon     { background: #fff7ed; }
+  &.finance    { background: #f0fdf4; }
+  &.commercial { background: #f0f9ff; }
+}
+
+.card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .fleet &      { background: #fef3c7; color: #d97706; }
+  .missions &   { background: #e0e7ff; color: #4f46e5; }
+  .amazon &     { background: #ffedd5; color: #ea580c; }
+  .finance &    { background: #dcfce7; color: #16a34a; }
+  .commercial & { background: #e0f2fe; color: #0284c7; }
+}
+
+.report-links {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.report-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  color: #475569;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #cbd5e1;
+    transition: color 0.12s, transform 0.12s;
+  }
+
+  &:hover {
+    background: #f8fafc;
+    color: #1e293b;
+
+    mat-icon {
+      color: #6366f1;
+      transform: translateX(2px);
+    }
+  }
+
+  // ── Liens désactivés (modules en développement) ──
+  &--disabled {
+    cursor: not-allowed;
+    color: #94a3b8;
+    justify-content: space-between;
+
+    mat-icon {
+      color: #e2e8f0;
+    }
+
+    &:hover {
+      background: transparent;
+      color: #94a3b8;
+
+      mat-icon {
+        color: #e2e8f0;
+        transform: none;
+      }
+    }
+  }
+}
+
+.badge-soon {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+}

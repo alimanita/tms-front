@@ -19,7 +19,16 @@ export class ChangementHuileFormComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  readonly typesHuile = ['MOTEUR_5W30', 'MOTEUR_10W40', 'MOTEUR_15W40', 'HYDRAULIQUE_46', 'HYDRAULIQUE_68', 'TRANSMISSION_80W90'];
+ readonly typesHuile = [
+  'W5_30',
+  'W5_40',
+  'W10_40',
+  'W15_40',
+  'W20_50',
+  'SYNTHETIQUE',
+  'SEMI_SYNTHETIQUE',
+  'MINERALE',
+];
   vehicules: VehiculeResponse[] = [];
   machines: MachineResponse[] = [];
 

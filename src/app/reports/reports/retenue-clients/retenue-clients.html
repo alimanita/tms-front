@@ -1,0 +1,59 @@
+<div class="report-page">
+  <button class="back-btn" routerLink="../"><mat-icon>arrow_back</mat-icon> Retour</button>
+  <div class="report-header">
+    <div><h1>Retenue clients</h1><p>Suivez les retenues à la source opérées par vos clients, avec le montant brut, le taux appliqué et le net à payer.</p></div>
+    <button class="export-btn"><mat-icon>download</mat-icon> Exporter</button>
+  </div>
+
+  <div class="filter-card">
+    <div class="filter-title"><mat-icon>filter_list</mat-icon> Filtres</div>
+    <div class="filter-row">
+      <div class="filter-field">
+        <label>Du</label>
+        <div class="date-input"><mat-icon>calendar_today</mat-icon><input type="date" [(ngModel)]="dateDebut"></div>
+      </div>
+      <div class="filter-field">
+        <label>Au</label>
+        <div class="date-input"><mat-icon>calendar_today</mat-icon><input type="date" [(ngModel)]="dateFin"></div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-apply" (click)="load()">Appliquer</button>
+        <button class="btn-reset" (click)="reset()"><mat-icon>refresh</mat-icon> Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-wrap" *ngIf="loading"><mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner></div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="report-table">
+      <thead><tr>
+        <th>Réf</th><th>Contact</th><th>Matricule fiscal</th><th>Date</th>
+        <th class="num">Montant brut</th><th class="num">Taux</th>
+        <th class="num">Montant retenu</th><th class="num">Net à payer</th>
+      </tr></thead>
+      <tbody>
+        <tr *ngIf="lignes.length===0"><td colspan="8" class="empty">Aucune retenue à la source ne correspond à vos filtres.</td></tr>
+        <tr *ngFor="let l of lignes">
+          <td class="ref-cell">{{l.reference}}</td>
+          <td>{{l.contact}}</td>
+          <td>{{l.matriculeFiscal}}</td>
+          <td>{{formatDate(l.date)}}</td>
+          <td class="num">{{l.montantBrut   | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.taux          | number:'1.2-2':'fr'}} %</td>
+          <td class="num">{{l.montantRetenu | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.netAPayer     | number:'1.3-3':'fr'}} DT</td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="lignes.length>0">
+        <tr class="totals-row">
+          <td colspan="4"><strong>Totaux</strong></td>
+          <td class="num"><strong>{{totalBrut   | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"></td>
+          <td class="num"><strong>{{totalRetenu | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"><strong>{{totalNet    | number:'1.3-3':'fr'}} DT</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
