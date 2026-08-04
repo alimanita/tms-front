@@ -1,0 +1,89 @@
+﻿<div class="report-container">
+  <div class="header">
+    <button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </button>
+    <h2>Rapport : Missions &amp; Chauffeurs</h2>
+  </div>
+
+  @if (loading()) {
+    <div class="state-msg">
+      <mat-icon class="spin">refresh</mat-icon>
+      <span>Chargement des donnees...</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-msg error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button class="retry-btn" (click)="load()">Reessayer</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <mat-icon>assignment</mat-icon>
+        <div>
+          <div class="kpi-value">{{ totalMissions() }}</div>
+          <div class="kpi-label">Total Missions</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <mat-icon>people</mat-icon>
+        <div>
+          <div class="kpi-value">{{ missionsParChauffeur().length }}</div>
+          <div class="kpi-label">Chauffeurs actifs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+      <div class="card">
+        <h3>Missions &amp; Kilometrage par Chauffeur</h3>
+        @if (missionsParChauffeur().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Chauffeur</th>
+                <th>Missions</th>
+                <th class="text-right">Kilometrage (km)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of missionsParChauffeur(); track item.chauffeur) {
+                <tr>
+                  <td>{{ item.chauffeur }}</td>
+                  <td class="text-center font-bold">{{ item.missions }}</td>
+                  <td class="text-right">{{ item.km | number:'1.0-0' }} km</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <div class="card">
+        <h3>Missions par Statut</h3>
+        @if (missionsParStatut().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <div class="stats-list">
+            @for (item of missionsParStatut(); track item.statut) {
+              <div class="stat-item">
+                <span class="label">{{ item.statut }}</span>
+                <span class="value">{{ item.count }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+</div>

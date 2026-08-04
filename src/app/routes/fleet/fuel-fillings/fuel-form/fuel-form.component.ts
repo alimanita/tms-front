@@ -21,9 +21,9 @@ export class FuelFormComponent implements OnInit {
   loading   = false;
   submitted = false;
   vehicules: VehiculeResponse[] = [];
-selectedFile: File | null = null;
-previewUrl: string | null = null;
-existingProofUrl: string | null = null;
+  selectedFile: File | null = null;
+  previewUrl: string | null = null;
+  existingProofUrl: string | null = null;
   readonly fuelTypes = ['DIESEL', 'ESSENCE', 'GPL', 'ELECTRIQUE'];
 
   constructor(
@@ -63,21 +63,27 @@ existingProofUrl: string | null = null;
       if (p['id']) {
         this.isEdit  = true;
         this.pleinId = +p['id'];
-        this.fleetService.getPleinById(this.pleinId).subscribe({
-          next: data => this.form.patchValue({
-            vehiculeId:     data.vehicule?.id,
-            fillingDate:    data.fillingDate?.slice(0, 16),
-            fuelType:       data.fuelType,
-            quantityLiters: data.quantityLiters,
-            pricePerLiter:  data.pricePerLiter,
-            mileageBefore:  data.mileageBefore,
-            mileageAfter:   data.mileageAfter,
-            isFullTank:     data.isFullTank,
-            receiptNumber:  data.receiptNumber,
-            notes:          data.notes,
-          }),
-          error: () => this.snackBar.open('Erreur chargement plein', 'Fermer', { duration: 3000 })
-        });
+      this.fleetService.getPleinById(this.pleinId).subscribe({
+  next: data => {
+    this.form.patchValue({
+      vehiculeId: (data as any).vehiculeId,
+      fillingDate:    data.fillingDate?.slice(0, 16),
+      fuelType:       data.fuelType,
+      quantityLiters: data.quantityLiters,
+      pricePerLiter:  data.pricePerLiter,
+      mileageBefore:  data.mileageBefore,
+      mileageAfter:   data.mileageAfter,
+      isFullTank:     data.isFullTank,
+      receiptNumber:  data.receiptNumber,
+      notes:          data.notes,
+    });
+    // ✅ Fix : proofUrl, pas proofFilePath — et directement utilisable
+    if (data.proofUrl) {
+      this.existingProofUrl = data.proofUrl;
+    }
+  },
+  error: () => this.snackBar.open('Erreur chargement plein', 'Fermer', { duration: 3000 })
+});
       }
     });
   }
@@ -108,38 +114,39 @@ existingProofUrl: string | null = null;
       notes:          fv.notes          || undefined,
     };
 
- this.fleetService.savePlein(request, this.selectedFile ?? undefined).subscribe({
-  next: () => {
-    this.snackBar.open('Plein enregistré', 'Fermer', { duration: 3000 });
-    this.router.navigate(['/fleet/fuel-fillings']);
-  },
-  error: () => {
-    this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
-    this.loading = false;
-  }
-});
+    this.fleetService.savePlein(request, this.selectedFile ?? undefined).subscribe({
+      next: () => {
+        this.loading = false; // ✅ Fix : débloque le bouton avant/pendant la navigation
+        this.snackBar.open('Plein enregistré', 'Fermer', { duration: 3000 });
+        this.router.navigate(['/fleet/fuel-fillings']);
+      },
+      error: () => {
+        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+        this.loading = false;
+      }
+    });
   }
 
   onCancel(): void { this.router.navigate(['/fleet/fuel-fillings']); }
 
   onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
-  this.selectedFile = file;
+    this.selectedFile = file;
 
-  if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = () => (this.previewUrl = reader.result as string);
-    reader.readAsDataURL(file);
-  } else {
-    this.previewUrl = null; // pas d'aperçu pour un PDF par ex.
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => (this.previewUrl = reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      this.previewUrl = null; // pas d'aperçu pour un PDF par ex.
+    }
   }
-}
 
-removeFile(): void {
-  this.selectedFile = null;
-  this.previewUrl = null;
-}
+  removeFile(): void {
+    this.selectedFile = null;
+    this.previewUrl = null;
+  }
 }

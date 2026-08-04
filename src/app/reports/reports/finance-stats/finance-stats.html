@@ -1,0 +1,103 @@
+﻿<div class="report-container">
+  <div class="header">
+    <button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </button>
+    <h2>Rapport : Finance &amp; Comptabilite</h2>
+  </div>
+
+  @if (loading()) {
+    <div class="state-msg">
+      <mat-icon class="spin">refresh</mat-icon>
+      <span>Chargement des donnees...</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-msg error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button class="retry-btn" (click)="load()">Reessayer</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="kpi-row">
+      <div class="kpi-card kpi-green">
+        <mat-icon>trending_up</mat-icon>
+        <div>
+          <div class="kpi-value">{{ totalCA() | number:'1.2-2' }} &euro;</div>
+          <div class="kpi-label">Chiffre d'affaires total</div>
+        </div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <mat-icon>trending_down</mat-icon>
+        <div>
+          <div class="kpi-value">{{ totalCharges() | number:'1.2-2' }} &euro;</div>
+          <div class="kpi-label">Charges totales</div>
+        </div>
+      </div>
+      <div class="kpi-card" [class.kpi-green]="totalResultat() >= 0" [class.kpi-red]="totalResultat() < 0">
+        <mat-icon>account_balance</mat-icon>
+        <div>
+          <div class="kpi-value">{{ totalResultat() | number:'1.2-2' }} &euro;</div>
+          <div class="kpi-label">Resultat net</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h3>Resultat Mensuel</h3>
+        @if (resultatMensuel().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th class="text-right">Recettes (&euro;)</th>
+                <th class="text-right">Charges (&euro;)</th>
+                <th class="text-right">Resultat (&euro;)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of resultatMensuel(); track item.mois) {
+                <tr>
+                  <td>{{ item.mois }}</td>
+                  <td class="text-right text-green">{{ item.chiffreAffaires | number:'1.2-2' }}</td>
+                  <td class="text-right text-red">{{ item.charges | number:'1.2-2' }}</td>
+                  <td class="text-right font-bold" [class.text-green]="item.resultat >= 0" [class.text-red]="item.resultat < 0">{{ item.resultat | number:'1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td><strong>Total</strong></td>
+                <td class="text-right text-green"><strong>{{ totalCA() | number:'1.2-2' }}</strong></td>
+                <td class="text-right text-red"><strong>{{ totalCharges() | number:'1.2-2' }}</strong></td>
+                <td class="text-right font-bold" [class.text-green]="totalResultat() >= 0" [class.text-red]="totalResultat() < 0"><strong>{{ totalResultat() | number:'1.2-2' }}</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        }
+      </div>
+
+      <div class="card">
+        <h3>Charges d'exploitation flotte</h3>
+        @if (chargesExploitation().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <div class="stats-list">
+            @for (item of chargesExploitation(); track item.categorie) {
+              <div class="stat-item">
+                <span class="label">{{ item.categorie }}</span>
+                <span class="value text-red">{{ item.montant | number:'1.2-2' }} &euro;</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

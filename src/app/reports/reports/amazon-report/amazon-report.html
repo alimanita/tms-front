@@ -1,0 +1,90 @@
+﻿<div class="report-container">
+  <div class="header">
+    <button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </button>
+    <h2>Rapport : Achats Amazon</h2>
+  </div>
+
+  @if (loading()) {
+    <div class="state-msg">
+      <mat-icon class="spin">refresh</mat-icon>
+      <span>Chargement des donnees...</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="state-msg error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error() }}</span>
+      <button class="retry-btn" (click)="load()">Reessayer</button>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <mat-icon>shopping_cart</mat-icon>
+        <div>
+          <div class="kpi-value">{{ totalDepenses() | number:'1.2-2' }} &euro;</div>
+          <div class="kpi-label">Total depenses Amazon</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <mat-icon>category</mat-icon>
+        <div>
+          <div class="kpi-value">{{ depensesParCategorie().length }}</div>
+          <div class="kpi-label">Fournisseurs / Categories</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <h3>Depenses par Mois</h3>
+        @if (depensesParMois().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th class="text-right">Montant (&euro;)</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of depensesParMois(); track item.mois) {
+                <tr>
+                  <td>{{ item.mois }}</td>
+                  <td class="text-right text-red font-bold">{{ item.montant | number:'1.2-2' }} &euro;</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td><strong>Total</strong></td>
+                <td class="text-right"><strong>{{ totalDepenses() | number:'1.2-2' }} &euro;</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        }
+      </div>
+
+      <div class="card">
+        <h3>Depenses par Fournisseur / Categorie</h3>
+        @if (depensesParCategorie().length === 0) {
+          <p class="empty">Aucune donnee disponible.</p>
+        } @else {
+          <div class="stats-list">
+            @for (item of depensesParCategorie(); track item.categorie) {
+              <div class="stat-item">
+                <span class="label">{{ item.categorie }}</span>
+                <span class="value text-red">{{ item.montant | number:'1.2-2' }} &euro;</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

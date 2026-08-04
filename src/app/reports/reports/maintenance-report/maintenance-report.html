@@ -12,14 +12,14 @@
         <div class="kpi-icon"><mat-icon>euro_symbol</mat-icon></div>
         <div class="kpi-body">
           <span class="kpi-label">Co√ªt global</span>
-          <span class="kpi-value">{{ synthese()!.coutGlobal | number:'1.0-0' }} TND</span>
+          <span class="kpi-value">{{ synthese()!.coutGlobal | number:'1.0-0' }} Ä</span>
         </div>
       </div>
       <div class="kpi-card kpi-maintenance">
         <div class="kpi-icon"><mat-icon>build</mat-icon></div>
         <div class="kpi-body">
           <span class="kpi-label">Total maintenance</span>
-          <span class="kpi-value">{{ synthese()!.coutTotalMaintenance | number:'1.0-0' }} TND</span>
+          <span class="kpi-value">{{ synthese()!.coutTotalMaintenance | number:'1.0-0' }} Ä</span>
           <span class="kpi-sub">
             MO: {{ synthese()!.coutMainOeuvreTotale | number:'1.0-0' }} &nbsp;|&nbsp;
             Pi√®ces: {{ synthese()!.coutPiecesTotales | number:'1.0-0' }}
@@ -30,7 +30,7 @@
         <div class="kpi-icon"><mat-icon>local_gas_station</mat-icon></div>
         <div class="kpi-body">
           <span class="kpi-label">Total carburant</span>
-          <span class="kpi-value">{{ synthese()!.coutTotalCarburant | number:'1.0-0' }} TND</span>
+          <span class="kpi-value">{{ synthese()!.coutTotalCarburant | number:'1.0-0' }} Ä</span>
           <span class="kpi-sub">{{ synthese()!.litresTotaux | number:'1.0-0' }} L ‚Äî {{ synthese()!.nombrePleins }} pleins</span>
         </div>
       </div>
@@ -131,11 +131,11 @@
                     <div class="bar-stack" [style.height]="barWidth(row.coutTotal, maxEntretiensMois())">
                       <div class="bar-seg bar-labour"
                            [style.height]="pctLabour(row) + '%'"
-                           title="Main d'≈ìuvre: {{ row.coutMainOeuvre | number:'1.0-0' }} TND">
+                           title="Main d'≈ìuvre: {{ row.coutMainOeuvre | number:'1.0-0' }} Ä">
                       </div>
                       <div class="bar-seg bar-pieces"
                            [style.height]="pctPieces(row) + '%'"
-                           title="Pi√®ces: {{ row.coutPieces | number:'1.0-0' }} TND">
+                           title="Pi√®ces: {{ row.coutPieces | number:'1.0-0' }} Ä">
                       </div>
                     </div>
                   </div>
@@ -173,9 +173,9 @@
                   @for (row of entretiensMensuel(); track row.mois) {
                     <tr>
                       <td class="period-cell">{{ row.moisLabel }}</td>
-                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} TND</td>
-                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} TND</td>
-                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} Ä</td>
+                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} Ä</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} Ä</td>
                       <td class="num">{{ row.nombreOT }}</td>
                       <td>
                         <div class="mini-bar-wrap">
@@ -231,9 +231,9 @@
                       <td>{{ ot.typeMaintenance }}</td>
                       <td><span class="badge" [class]="prioriteClass(ot.priorite)">{{ ot.priorite }}</span></td>
                       <td>{{ ot.completedAt | date:'dd/MM/yyyy' }}</td>
-                      <td class="num">{{ ot.coutMainOeuvre | number:'1.0-0' }} TND</td>
-                      <td class="num">{{ ot.coutPieces | number:'1.0-0' }} TND</td>
-                      <td class="num total-cell">{{ ot.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ ot.coutMainOeuvre | number:'1.0-0' }} Ä</td>
+                      <td class="num">{{ ot.coutPieces | number:'1.0-0' }} Ä</td>
+                      <td class="num total-cell">{{ ot.coutTotal | number:'1.0-0' }} Ä</td>
                     </tr>
                   }
                 </tbody>
@@ -288,9 +288,9 @@
                   @for (row of entretiensAnnuel(); track row.annee) {
                     <tr>
                       <td class="period-cell">{{ row.annee }}</td>
-                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} TND</td>
-                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} TND</td>
-                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num">{{ row.coutMainOeuvre | number:'1.0-0' }} Ä</td>
+                      <td class="num">{{ row.coutPieces | number:'1.0-0' }} Ä</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} Ä</td>
                       <td class="num">{{ row.nombreOT }}</td>
                     </tr>
                   }
@@ -350,7 +350,7 @@
                     <tr>
                       <td class="period-cell">{{ row.moisLabel }}</td>
                       <td class="num">{{ row.litresTotaux | number:'1.1-1' }} L</td>
-                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} Ä</td>
                       <td class="num">{{ row.nombrePleins }}</td>
                       <td class="num">
                         @if (row.consommationMoyenne) {
@@ -411,7 +411,7 @@
                     <tr>
                       <td class="period-cell">{{ row.annee }}</td>
                       <td class="num">{{ row.litresTotaux | number:'1.1-1' }} L</td>
-                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} TND</td>
+                      <td class="num total-cell">{{ row.coutTotal | number:'1.0-0' }} Ä</td>
                       <td class="num">{{ row.nombrePleins }}</td>
                     </tr>
                   }

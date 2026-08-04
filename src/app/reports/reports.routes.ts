@@ -8,7 +8,9 @@ import { ClientBalancesComponent } from './reports/balances-report/client-balanc
 import { ReportsReportsRetenueClients } from './reports/retenue-clients/retenue-clients';
 import { ReportsReportsTvaSurVente } from './reports/tva-sur-vente/tva-sur-vente';
 import { MaintenanceReportComponent } from './reports/maintenance-report/maintenance-report';
-
+import { MissionsReportComponent } from './reports/missions-report/missions-report';
+import { AmazonReportComponent } from './reports/amazon-report/amazon-report';
+import { FinanceStatsComponent } from './reports/finance-stats/finance-stats';
 
 export const routes: Routes = [
   { path: '', component: ReportsIndex },
@@ -21,4 +23,7 @@ export const routes: Routes = [
   { path: 'financial-report', component: ReportsReportsFinancialReport },
   { path: 'client-balances', component: ClientBalancesComponent },
   { path: 'maintenance-report', component: MaintenanceReportComponent },
+  { path: 'missions-report', component: MissionsReportComponent },
+  { path: 'amazon-report', component: AmazonReportComponent },
+  { path: 'finance-stats', component: FinanceStatsComponent },
 ];
