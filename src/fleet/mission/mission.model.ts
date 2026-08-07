@@ -21,6 +21,7 @@ export interface MissionResponse {
   kilometrageDepart?: number;
   kilometrageRetour?: number;
   totalCost?: number;
+  revenue?: number;
   motifRejet?: string;
   motifAnnulation?: string;
   createdAt?: string;
@@ -40,6 +41,7 @@ export interface MissionRequest {
   cargoDescription?: string;
   cargoWeight?: number;
   notes?: string;
+  revenue?: number;
 }
 
 

@@ -48,6 +48,7 @@ export class MissionFormComponent implements OnInit {
       cargoDescription:  [''],
       cargoWeight:       [null, Validators.min(0)],
       notes:             [''],
+      revenue:           [null, [Validators.min(0)]],
     });
 
     this.loadVehicules();
@@ -91,6 +92,7 @@ export class MissionFormComponent implements OnInit {
         cargoDescription:  (m as any).cargoDescription ?? '',
         cargoWeight:       (m as any).cargoWeight ?? null,
         notes:             (m as any).notes ?? '',
+        revenue:           m.revenue ?? null,
       }),
       error: () => this.snackBar.open('Erreur chargement mission', 'Fermer', { duration: 3000 })
     });
@@ -119,6 +121,7 @@ export class MissionFormComponent implements OnInit {
       cargoDescription:  fv.cargoDescription || undefined,
       cargoWeight:       fv.cargoWeight ?? undefined,
       notes:             fv.notes || undefined,
+      revenue:           fv.revenue ?? undefined,
     };
 
     const req$ = this.isEdit && this.missionId

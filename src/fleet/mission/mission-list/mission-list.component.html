@@ -108,6 +108,7 @@
         <th class="col-client">Chauffeur / Véhicule</th>
         <th class="col-date">Départ prévu</th>
         <th class="col-status">Statut</th>
+        <th class="col-revenue">Tarif</th>
         <th class="col-amount">Coût</th>
         <th class="col-actions">Actions</th>
       </tr>
@@ -116,7 +117,7 @@
     <tbody>
 
       <tr *ngIf="missions.length === 0">
-        <td colspan="7">
+        <td colspan="8">
           <div class="empty-state">
             <mat-icon>route</mat-icon>
             <p>Aucune mission trouvée</p>
@@ -155,6 +156,10 @@
               {{ getStatusLabel(m.statut) }}
             </span>
           </div>
+        </td>
+
+        <td class="col-revenue">
+          <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.3-3' }} DT</span>
         </td>
 
         <td class="col-amount">

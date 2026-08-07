@@ -67,6 +67,11 @@
           <input type="number" formControlName="cargoWeight" min="0"/>
         </div>
 
+        <div class="fl-field">
+          <label>Tarif / Prix de la mission (DT)</label>
+          <input type="number" step="0.001" formControlName="revenue" min="0" placeholder="Ex: 450.000"/>
+        </div>
+
         <div class="fl-field fl-field--full">
           <label>Motif / objet de la mission</label>
           <textarea formControlName="purpose" rows="2" placeholder="Objet de la mission…"></textarea>

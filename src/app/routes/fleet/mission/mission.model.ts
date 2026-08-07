@@ -21,6 +21,7 @@ export interface MissionResponse {
   kilometrageDepart?: number;
   kilometrageRetour?: number;
   totalCost?: number;
+  revenue?: number;
   motifRejet?: string;
   motifAnnulation?: string;
   createdAt?: string;
@@ -40,6 +41,7 @@ export interface MissionRequest {
   cargoDescription?: string;
   cargoWeight?: number;
   notes?: string;
+  revenue?: number;
 }
 
 
@@ -83,7 +85,7 @@ export enum TypeDepense {
 export interface DepenseMissionRequest {
   expenseType: TypeDepense;
   montant: number;
-  currency?: string;         // défaut '�' côté backend si omis
+  currency?: string;         // dÃ©faut '€' cÃ´tÃ© backend si omis
   expenseDate: string;       // ISO LocalDateTime, ex: "2026-07-04T10:00:00"
   description?: string;
   receiptPath?: string;
