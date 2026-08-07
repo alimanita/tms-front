@@ -46,7 +46,6 @@ export class TmsApiService {
     vehicles: '/vehicules',
     drivers: '/drivers',
     customers: '/customers',
-    amazonPurchases: '/amazon-purchases',
     customerOrders: '/customer-orders',
     missions: '/missions',
     fuelRecords: '/fuel-records',

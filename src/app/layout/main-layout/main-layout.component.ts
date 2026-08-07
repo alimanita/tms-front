@@ -31,7 +31,6 @@ export class MainLayoutComponent implements OnInit {
     {
       title: 'Commercial',
       items: [
-        { label: 'Achats Amazon', route: '/amazon-purchases', icon: 'shopping_cart' },
         { label: 'Clients', route: '/customers', icon: 'people' },
         { label: 'Commandes', route: '/orders', icon: 'receipt_long' }
       ]
@@ -51,6 +50,7 @@ export class MainLayoutComponent implements OnInit {
       title: 'Finance & système',
       items: [
         { label: 'Comptabilité', route: '/finance', icon: 'account_balance_wallet' },
+        { label: 'Tableau de bord (Comptable)', route: '/accountant-dashboard', icon: 'insert_chart' },
         { label: 'Notifications', route: '/fleet/notifications', icon: 'notifications' },
         { label: 'Documents', route: '/fleet/documents', icon: 'description' },
         { label: 'Administration', route: '/admin', icon: 'admin_panel_settings' }
@@ -63,6 +63,8 @@ export class MainLayoutComponent implements OnInit {
     commercial: true,
     finance_admin: false
   });
+
+  protected readonly sidebarOpen = signal<boolean>(false);
 
   ngOnInit(): void {
     this.menuService.loadMenu().subscribe();
@@ -81,6 +83,10 @@ export class MainLayoutComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update(v => !v);
   }
 
   getPrimaryRoleName(): string {

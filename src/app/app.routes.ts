@@ -27,7 +27,6 @@ export const routes: Routes = [
       },
 
       // ── Commercial ───────────────────────────────────────────────────
-      { path: 'amazon-purchases', loadComponent: () => import('./features/amazon-purchases/amazon-purchase-list.component').then((m) => m.AmazonPurchaseListComponent) },
       { path: 'customers', loadComponent: () => import('./features/customers/customer-list.component').then((m) => m.CustomerListComponent) },
       { path: 'orders', loadComponent: () => import('./features/orders/order-list.component').then((m) => m.OrderListComponent) },
    // ✅ Rapports
@@ -35,6 +34,7 @@ export const routes: Routes = [
 
       // ── Finance & Administration ──────────────────────────────────────
       { path: 'finance', loadComponent: () => import('./features/finance/finance-list.component').then((m) => m.FinanceListComponent) },
+      { path: 'accountant-dashboard', loadComponent: () => import('./features/accountant-dashboard/accountant-dashboard.component').then((m) => m.AccountantDashboardComponent) },
       { 
         path: 'admin', 
         loadComponent: () => import('./features/admin/admin.component').then(m => m.AdminComponent),

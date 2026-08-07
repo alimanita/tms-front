@@ -39,19 +39,7 @@ export interface Customer {
   active: boolean;
 }
 
-export interface AmazonPurchase {
-  id: number;
-  amazonOrderNumber: string;
-  purchaseDate: string;
-  supplier?: string;
-  amountHt?: number;
-  amountTtc?: number;
-  shippingCost?: number;
-  currency?: string;
-  status?: string;
-  totalPurchaseCost?: number;
-  averageItemCost?: number;
-}
+
 
 export interface DashboardData {
   kpis: {

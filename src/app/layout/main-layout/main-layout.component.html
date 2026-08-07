@@ -1,4 +1,8 @@
-<div class="layout">
+<div class="layout" [class.sidebar-open]="sidebarOpen()">
+  
+  <!-- Backdrop for mobile -->
+  <div class="sidebar-backdrop" *ngIf="sidebarOpen()" (click)="toggleSidebar()"></div>
+
   <aside class="sidebar">
     <div class="sidebar-brand">
       <div class="logo">TMS</div>
@@ -55,7 +59,7 @@
           <p>{{ section.title }}</p>
           <nav>
             @for (item of section.items; track item.route) {
-              <a [routerLink]="item.route" routerLinkActive="active">
+              <a [routerLink]="item.route" routerLinkActive="active" (click)="toggleSidebar()">
                 <mat-icon>{{ item.icon }}</mat-icon>
                 <span>{{ item.label }}</span>
               </a>
@@ -68,9 +72,14 @@
 
   <div class="content-area">
     <header class="topbar">
-      <div>
-        <p class="welcome">Plateforme TMS</p>
-        <h2>{{ user()?.fullName ?? user()?.username }}</h2>
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" (click)="toggleSidebar()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <div>
+          <p class="welcome">Plateforme TMS</p>
+          <h2>{{ user()?.fullName ?? user()?.username }}</h2>
+        </div>
       </div>
       <div class="topbar-actions">
         @if (user()?.roles?.length) {

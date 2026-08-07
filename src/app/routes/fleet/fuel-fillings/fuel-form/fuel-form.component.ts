@@ -134,15 +134,31 @@ export class FuelFormComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    this.selectedFile = file;
+    // Sur mobile/camera, le fichier peut avoir un nom vide ou générique.
+    // On génère un nom unique pour garantir l'upload.
+    const ext = file.type.split('/')[1] || 'jpg';
+    const safeName = file.name && file.name !== 'image' && file.name !== 'blob'
+      ? file.name
+      : `photo_${Date.now()}.${ext}`;
 
-    if (file.type.startsWith('image/')) {
+    // Recréer un File avec le bon nom si nécessaire
+    this.selectedFile = safeName !== file.name
+      ? new File([file], safeName, { type: file.type, lastModified: file.lastModified })
+      : file;
+
+    if (this.selectedFile.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = () => (this.previewUrl = reader.result as string);
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(this.selectedFile);
     } else {
-      this.previewUrl = null; // pas d'aperçu pour un PDF par ex.
+      this.previewUrl = null;
     }
+
+    // Réinitialise les deux inputs pour éviter les conflits lors d'une 2ème sélection
+    (document.getElementById('proofFile') as HTMLInputElement | null)?.value !== undefined &&
+      ((document.getElementById('proofFile') as HTMLInputElement).value = '');
+    (document.getElementById('proofCamera') as HTMLInputElement | null)?.value !== undefined &&
+      ((document.getElementById('proofCamera') as HTMLInputElement).value = '');
   }
 
   removeFile(): void {

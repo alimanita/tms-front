@@ -58,6 +58,19 @@
             <input type="checkbox" formControlName="actif"/> Actif
           </label>
         </div>
+        
+        <div class="fl-field">
+          <label>Type de salaire</label>
+          <select formControlName="typeSalaire">
+            <option [ngValue]="null">— Non défini —</option>
+            <option *ngFor="let t of typesSalaire" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="fl-field">
+          <label>Valeur du salaire (Montant ou %)</label>
+          <input type="number" formControlName="valeurSalaire" placeholder="0.00"/>
+        </div>
 
         <!-- ── Compte utilisateur lié ─────────────────────────────────────── -->
         <div class="fl-field fl-field--full">

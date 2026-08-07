@@ -30,6 +30,7 @@ export class ChauffeurFormComponent implements OnInit {
   private idEntreprise = getEntrepriseId() ?? 0;
 
   readonly statuts = ['DISPONIBLE', 'EN_MISSION', 'INDISPONIBLE'];
+  readonly typesSalaire = ['MENSUEL', 'POURCENTAGE', 'PARTAGE'];
 
   // ── Comptes utilisateurs (rôle CHAUFFEUR) ─────────────────────────────────
   utilisateursDisponibles: UtilisateurLite[] = [];
@@ -54,6 +55,8 @@ ngOnInit(): void {
     statut: ['DISPONIBLE', Validators.required],
     actif: [true],
     idUtilisateur: [null],
+    typeSalaire: [null],
+    valeurSalaire: [null]
   });
 
   this.loadUtilisateursDisponibles();
@@ -80,6 +83,8 @@ ngOnInit(): void {
           statut: c.statut ?? 'DISPONIBLE',
           actif: c.actif ?? true,
           idUtilisateur: c.idUtilisateur ?? null,
+          typeSalaire: c.typeSalaire ?? null,
+          valeurSalaire: c.valeurSalaire ?? null
         }),
         error: () => this.snackBar.open('Erreur chargement', 'Fermer', { duration: 3000 })
       });

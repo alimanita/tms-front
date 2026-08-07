@@ -42,6 +42,8 @@ export class ChauffeurListComponent implements OnInit {
 
   goEdit(c: ChauffeurResponse): void { this.router.navigate([`/fleet/chauffeurs/${c.id}/edit`]); }
 
+  goPayslips(c: ChauffeurResponse): void { this.router.navigate([`/fleet/chauffeurs/${c.id}/payslips`]); }
+
   toggle(c: ChauffeurResponse): void {
     this.fleetService.toggleChauffeurActif(c.id).subscribe({
       next: () => this.load(),

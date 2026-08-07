@@ -21,6 +21,8 @@ export interface ChauffeurResponse {
   updatedAt?: string;
   idUtilisateur?: number | null;
   utilisateurEmail?: string | null;
+  typeSalaire?: string | null;
+  valeurSalaire?: number | null;
 }
 
 export interface ChauffeurRequest {

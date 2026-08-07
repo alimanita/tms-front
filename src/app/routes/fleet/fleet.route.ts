@@ -85,6 +85,12 @@ export const routes : Routes = [
         .then(m => m.ChauffeurFormComponent),
   },
   {
+    path: 'chauffeurs/:id/payslips',
+    loadComponent: () =>
+      import('./chauffeurs/payslips/payslips.component')
+        .then(m => m.PayslipsComponent),
+  },
+  {
     path: 'notifications',
     loadComponent: () =>
       import('./notifications/notification-list/notification-list.component')

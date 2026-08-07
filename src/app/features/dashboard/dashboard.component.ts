@@ -57,8 +57,17 @@ private redirectIfChauffeur(): boolean {
       r === 'CHAUFFEUR' || r === 'ROLE_CHAUFFEUR' || r.replace('ROLE_', '') === 'CHAUFFEUR'
     );
 
+    const isComptable = roles.some(r =>
+      r === 'COMPTABLE' || r === 'ROLE_COMPTABLE' || r.replace('ROLE_', '') === 'COMPTABLE'
+    );
+
     if (isChauffeur) {
       this.router.navigate(['/fleet/chauffeur-dashboard']);
+      return true;
+    }
+
+    if (isComptable) {
+      this.router.navigate(['/accountant-dashboard']);
       return true;
     }
 
