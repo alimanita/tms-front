@@ -29,6 +29,11 @@ export class TmsApiService {
     return this.http.post<T>(`${this.baseUrl}${path}`, body);
   }
 
+  /** Crée une ressource en multipart/form-data (ex: plein carburant avec photo) */
+  createMultipart<T>(path: string, formData: FormData): Observable<T> {
+    return this.http.post<T>(`${this.baseUrl}${path}`, formData);
+  }
+
   update<T>(path: string, id: number, body: unknown): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${path}/${id}`, body);
   }
@@ -41,24 +46,24 @@ export class TmsApiService {
     return this.http.patch<T>(`${this.baseUrl}${path}/${id}${subPath}`, {});
   }
 
-  // Paths
+  // Paths — correspondent aux routes réelles du backend Spring Boot
   readonly paths = {
-    vehicles: '/vehicules',
-    drivers: '/drivers',
+    vehicles: '/fleet/vehicules',
+    drivers: '/fleet/chauffeurs',
     customers: '/customers',
     customerOrders: '/customer-orders',
-    missions: '/missions',
-    fuelRecords: '/fuel-records',
-    maintenanceRecords: '/maintenance-records',
-    spareParts: '/spare-parts',
+    missions: '/fleet/missions',
+    fuelRecords: '/fleet/pleins-carburant',
+    maintenanceRecords: '/fleet/changements-huile',
+    spareParts: '/fleet/pieces-rechange',
     financialEntries: '/financial-entries',
     notifications: '/notifications',
-    machines: '/machines',
-    workOrders: '/work-orders',
-    tires: '/tires',
-    tireAssignments: '/tires/assignments',
-    oilChanges: '/oil-changes',
-    fleetDocuments: '/fleet-documents',
-    maintenancePlans: '/maintenance-plans'
+    machines: '/fleet/machines',
+    workOrders: '/fleet/ordres-travail',
+    tires: '/fleet/pneus',
+    tireAssignments: '/fleet/pneus/assignments',
+    oilChanges: '/fleet/changements-huile',
+    fleetDocuments: '/fleet/documents',
+    maintenancePlans: '/fleet/plans-maintenance'
   };
 }

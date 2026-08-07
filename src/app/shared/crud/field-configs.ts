@@ -181,26 +181,38 @@ export function mapMissionBody(v: Record<string, unknown>) {
 
 export function fuelFields(vehicleOptions: FormFieldOption[], driverOptions: FormFieldOption[]): FormField[] {
   return [
-    { key: 'vehicleId', label: 'Vehicule', type: 'select', required: true, options: vehicleOptions },
-    { key: 'driverId', label: 'Chauffeur', type: 'select', options: driverOptions },
-    { key: 'fillDate', label: 'Date', type: 'datetime-local', required: true },
-    { key: 'mileage', label: 'Kilometrage', type: 'number', required: true },
-    { key: 'station', label: 'Station', type: 'text' },
-    { key: 'liters', label: 'Litres', type: 'number', required: true },
-    { key: 'pricePerLiter', label: 'Prix/litre', type: 'number', required: true }
+    { key: 'vehiculeId', label: 'Vehicule', type: 'select', required: true, options: vehicleOptions },
+    { key: 'chauffeurId', label: 'Chauffeur', type: 'select', options: driverOptions },
+    { key: 'fillingDate', label: 'Date', type: 'datetime-local', required: true },
+    { key: 'fuelType', label: 'Type carburant', type: 'select', required: true, options: [
+      { value: 'DIESEL', label: 'Diesel' },
+      { value: 'ESSENCE', label: 'Essence' },
+      { value: 'GPL', label: 'GPL' },
+      { value: 'ELECTRIQUE', label: 'Electrique' }
+    ]},
+    { key: 'quantityLiters', label: 'Litres', type: 'number', required: true },
+    { key: 'pricePerLiter', label: 'Prix/litre', type: 'number', required: true },
+    { key: 'mileageAfter', label: 'Kilometrage apres', type: 'number' },
+    { key: 'receiptNumber', label: 'N° ticket', type: 'text' },
+    { key: 'notes', label: 'Notes', type: 'textarea' }
   ];
 }
 
 export function mapFuelBody(v: Record<string, unknown>) {
-  return {
-    vehicleId: v['vehicleId'],
-    driverId: v['driverId'] || null,
-    fillDate: v['fillDate'] ? new Date(String(v['fillDate'])).toISOString() : null,
-    mileage: v['mileage'],
-    station: v['station'],
-    liters: v['liters'],
-    pricePerLiter: v['pricePerLiter']
-  };
+  const formData = new FormData();
+  const data = JSON.stringify({
+    vehiculeId: v['vehiculeId'],
+    chauffeurId: v['chauffeurId'] || null,
+    fillingDate: v['fillingDate'] ? new Date(String(v['fillingDate'])).toISOString().slice(0, 19) : null,
+    fuelType: v['fuelType'],
+    quantityLiters: v['quantityLiters'],
+    pricePerLiter: v['pricePerLiter'],
+    mileageAfter: v['mileageAfter'] || null,
+    receiptNumber: v['receiptNumber'] || null,
+    notes: v['notes'] || null
+  });
+  formData.append('data', new Blob([data], { type: 'application/json' }));
+  return formData;
 }
 
 export function maintenanceFields(vehicleOptions: FormFieldOption[]): FormField[] {
