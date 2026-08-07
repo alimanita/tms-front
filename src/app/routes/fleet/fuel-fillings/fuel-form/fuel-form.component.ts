@@ -134,17 +134,8 @@ export class FuelFormComponent implements OnInit {
     const file = input.files?.[0];
     if (!file) return;
 
-    // Sur mobile/camera, le fichier peut avoir un nom vide ou générique.
-    // On génère un nom unique pour garantir l'upload.
-    const ext = file.type.split('/')[1] || 'jpg';
-    const safeName = file.name && file.name !== 'image' && file.name !== 'blob'
-      ? file.name
-      : `photo_${Date.now()}.${ext}`;
-
-    // Recréer un File avec le bon nom si nécessaire
-    this.selectedFile = safeName !== file.name
-      ? new File([file], safeName, { type: file.type, lastModified: file.lastModified })
-      : file;
+    // On garde le fichier d'origine tel quel. Le service gérera le nom.
+    this.selectedFile = file;
 
     if (this.selectedFile.type.startsWith('image/')) {
       const reader = new FileReader();

@@ -623,7 +623,11 @@ savePlein(request: PleinCarburantRequest, proof?: File) {
     new Blob([JSON.stringify(request)], { type: 'application/json' })
   );
   if (proof) {
-    formData.append('proof', proof, proof.name);
+    let fileName = proof.name;
+    if (!fileName || fileName === 'image' || fileName === 'blob') {
+      fileName = `photo_${Date.now()}.${proof.type.split('/')[1] || 'jpg'}`;
+    }
+    formData.append('proof', proof, fileName);
   }
   return this.http.post<PleinCarburantResponse>(
     `${this.base}/pleins-carburant`,
