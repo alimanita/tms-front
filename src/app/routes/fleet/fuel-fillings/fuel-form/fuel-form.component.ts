@@ -120,8 +120,14 @@ export class FuelFormComponent implements OnInit {
         this.snackBar.open('Plein enregistré', 'Fermer', { duration: 3000 });
         this.router.navigate(['/fleet/fuel-fillings']);
       },
-      error: () => {
-        this.snackBar.open('Erreur lors de la sauvegarde', 'Fermer', { duration: 3000 });
+      error: (err) => {
+        const status = err?.status || 'Unknown';
+        const msg = err?.message || JSON.stringify(err);
+        const backendError = err?.error ? JSON.stringify(err.error) : '';
+        const fullError = `Status: ${status} | Msg: ${msg} | Backend: ${backendError}`;
+        
+        alert("Erreur technique : " + fullError);
+        this.snackBar.open('Erreur: ' + status, 'Fermer', { duration: 5000 });
         this.loading = false;
       }
     });
