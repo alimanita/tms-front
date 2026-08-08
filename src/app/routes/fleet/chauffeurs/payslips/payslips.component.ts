@@ -19,14 +19,20 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
       <div class="fleet-body">
         
         <form [formGroup]="form" (ngSubmit)="onCalculate()" class="fl-form" style="margin-bottom: 20px;">
-          <div class="fl-grid" style="grid-template-columns: 1fr 1fr auto; align-items: end;">
-            <div class="fl-field">
+          <div class="fl-grid" style="grid-template-columns: 1fr auto auto; align-items: end; gap: 10px;">
+            <div class="fl-field" style="margin: 0;">
               <label>Mois (YYYY-MM)</label>
               <input formControlName="moisAnnee" type="month" />
             </div>
             <div>
               <button class="fl-btn fl-btn-primary" type="submit" [disabled]="loading || form.invalid">
                 Calculer & Générer
+              </button>
+            </div>
+            <div>
+              <input type="file" #manualUpload style="display: none" (change)="onUploadManual($event)" accept="application/pdf,image/*" />
+              <button class="fl-btn fl-btn-secondary" type="button" (click)="manualUpload.click()" [disabled]="loading || form.invalid" title="Importer une fiche de paie sans calcul">
+                Importer (Manuel)
               </button>
             </div>
           </div>
@@ -114,6 +120,30 @@ export class PayslipsComponent implements OnInit {
         },
         error: () => {
           this.snackBar.open('Erreur lors du calcul', 'Fermer', { duration: 3000 });
+          this.loading = false;
+        }
+      });
+  }
+
+  onUploadManual(event: any): void {
+    if (this.form.invalid) return;
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.loading = true;
+    const formData = new FormData();
+    formData.append('file', file);
+    const mois = this.form.value.moisAnnee;
+
+    this.http.post(`${environment.baseUrl}/fleet/fiches-paie/upload-manuel?chauffeurId=${this.chauffeurId}&moisAnnee=${mois}`, formData)
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Fiche de paie importée avec succès', 'Fermer', { duration: 3000 });
+          this.loadPayslips();
+          this.loading = false;
+        },
+        error: () => {
+          this.snackBar.open('Erreur lors de l\'importation', 'Fermer', { duration: 3000 });
           this.loading = false;
         }
       });

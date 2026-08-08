@@ -6,17 +6,27 @@ import { FleetService, VehiculeResponse } from '../../fleet.service';
 import { isAdminRole } from 'app/core/authentication/helpers';
 
 
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule],
   templateUrl: './vehicle-list.component.html',
   styleUrls: ['./vehicle-list.component.scss'],
 })
 export class VehicleListComponent implements OnInit {
+  allVehicules: VehiculeResponse[] = [];
   vehicules: VehiculeResponse[] = [];
+  
+  searchText = '';
+  selectedStatut = '';
+  selectedCarburant = '';
+  selectedActif = '';
+  
   loading = false;
-isAdmin = false;
+  isAdmin = false;
   constructor(
     private fleetService: FleetService,
     private router: Router,
@@ -30,9 +40,10 @@ isAdmin = false;
 
   load(): void {
     this.loading = true;
-    this.fleetService.getVehicules().subscribe({
+    this.fleetService.getVehicules({ page: 0, size: 2000 }).subscribe({
       next: (page: any) => {
-        this.vehicules = page.content ?? page;
+        this.allVehicules = page.content ?? page;
+        this.applyFilters();
         this.loading = false;
       },
       error: () => {
@@ -40,6 +51,43 @@ isAdmin = false;
         this.loading = false;
       }
     });
+  }
+
+  applyFilters(): void {
+    let filtered = [...this.allVehicules];
+
+    if (this.searchText) {
+      const lowerSearch = this.searchText.toLowerCase();
+      filtered = filtered.filter(v => 
+        v.immatriculation?.toLowerCase().includes(lowerSearch) ||
+        v.marque?.toLowerCase().includes(lowerSearch) ||
+        v.modele?.toLowerCase().includes(lowerSearch) ||
+        v.reference?.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    if (this.selectedStatut) {
+      filtered = filtered.filter(v => v.statut === this.selectedStatut);
+    }
+
+    if (this.selectedCarburant) {
+      filtered = filtered.filter(v => v.typeCarburant === this.selectedCarburant);
+    }
+
+    if (this.selectedActif !== '') {
+      const isActif = this.selectedActif === 'true';
+      filtered = filtered.filter(v => v.actif === isActif);
+    }
+
+    this.vehicules = filtered;
+  }
+
+  resetFilters(): void {
+    this.searchText = '';
+    this.selectedStatut = '';
+    this.selectedCarburant = '';
+    this.selectedActif = '';
+    this.applyFilters();
   }
 
   goAdd(): void { this.router.navigate(['/fleet/vehicules/new']); }

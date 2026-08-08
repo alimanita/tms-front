@@ -31,9 +31,13 @@ $radius     : 8px;
                &:hover:not(:disabled) { background: #1d4ed8; } }
 }
 
-.fl-select {
+.fl-select, .fl-input {
   padding: 7px 10px; border: 1px solid $border; border-radius: $radius;
   font-size: 13px; background: #fff; color: $text-main; cursor: pointer;
+}
+
+.fl-filters {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-right: 15px;
 }
 
 .fl-table {

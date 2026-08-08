@@ -50,11 +50,19 @@ findMesMissions(): Observable<MissionResponse[]> {
   }
 
 
-demarrer(id: number) {
-  return this.http.patch<MissionResponse>(`${this.baseUrl}/${id}/demarrer`, {});
+demarrer(id: number, mileageAtDeparture?: number) {
+  let params = new HttpParams();
+  if (mileageAtDeparture != null) {
+    params = params.set('mileageAtDeparture', mileageAtDeparture.toString());
+  }
+  return this.http.patch<MissionResponse>(`${this.baseUrl}/${id}/demarrer`, {}, { params });
 }
-  cloturer(id: number): Observable<MissionResponse> {
-    return this.http.patch<MissionResponse>(`${this.baseUrl}/${id}/cloturer`, {});
+  cloturer(id: number, mileageAtReturn?: number): Observable<MissionResponse> {
+    let params = new HttpParams();
+    if (mileageAtReturn != null) {
+      params = params.set('mileageAtReturn', mileageAtReturn.toString());
+    }
+    return this.http.patch<MissionResponse>(`${this.baseUrl}/${id}/cloturer`, {}, { params });
   }
 
   annuler(id: number, motif: string): Observable<MissionResponse> {

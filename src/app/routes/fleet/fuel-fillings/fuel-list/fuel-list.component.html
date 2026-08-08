@@ -2,13 +2,29 @@
   <div class="fleet-topbar">
     <h2 class="fleet-title">Pleins carburant</h2>
     <div class="fl-topbar-actions">
-      <select class="fl-select" (change)="onVehiculeFilter($event)">
-        <option value="">Tous les véhicules</option>
-        <option *ngFor="let v of vehicules" [value]="v.id"
-                [selected]="v.id === selectedVehiculeId">
-          {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
-        </option>
-      </select>
+      <div class="fl-filters">
+        <select class="fl-select" [(ngModel)]="selectedVehiculeId" (change)="onFilterChange()">
+          <option value="">Tous les véhicules</option>
+          <option *ngFor="let v of vehicules" [value]="v.id">
+            {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+          </option>
+        </select>
+        
+        <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
+          <option value="">Tous les chauffeurs</option>
+          <option *ngFor="let c of chauffeurs" [value]="c.id">
+            {{ c.nom }} {{ c.prenom }}
+          </option>
+        </select>
+
+        <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
+        <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
+        
+        <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
+        </button>
+      </div>
+      
       <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
     </div>
   </div>
@@ -21,6 +37,7 @@
     <tr>
       <th>Référence</th>
       <th>Véhicule</th>
+      <th>Chauffeur</th>
       <th>Date</th>
       <th>Carburant</th>
       <th>Quantité (L)</th>
@@ -35,7 +52,8 @@
   <tbody>
     <tr *ngFor="let p of pleins">
       <td>{{ p.reference }}</td>
-      <td>{{ p.vehicule?.immatriculation }}</td>
+      <td>{{ p.vehiculeImmatriculation || '—' }}</td>
+      <td>{{ p.chauffeurNom || '—' }}</td>
       <td>{{ p.fillingDate | date:'dd/MM/yyyy HH:mm' }}</td>
       <td>{{ p.fuelType }}</td>
       <td>{{ p.quantityLiters | number:'1.3-3' }}</td>
@@ -65,7 +83,7 @@
       </td>
     </tr>
     <tr *ngIf="pleins.length === 0">
-      <td colspan="11" class="fl-empty">Aucun plein enregistré</td>
+      <td colspan="12" class="fl-empty">Aucun plein enregistré</td>
     </tr>
   </tbody>
 </table>

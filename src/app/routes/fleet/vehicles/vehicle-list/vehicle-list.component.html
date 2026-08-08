@@ -1,7 +1,38 @@
 <div class="fleet-page">
-  <div  class="fleet-topbar">
+  <div class="fleet-topbar">
     <h2 class="fleet-title">Parc de véhicules</h2>
-    <button  *ngIf="isAdmin" class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+    <div class="fl-topbar-actions">
+      <div class="fl-filters">
+        <input type="text" class="fl-input" placeholder="Recherche (Immat, Marque...)" [(ngModel)]="searchText" (input)="applyFilters()">
+        
+        <select class="fl-select" [(ngModel)]="selectedStatut" (change)="applyFilters()">
+          <option value="">Tous les statuts</option>
+          <option value="DISPONIBLE">Disponible</option>
+          <option value="EN_SERVICE">En service</option>
+          <option value="HORS_SERVICE">Hors service</option>
+        </select>
+        
+        <select class="fl-select" [(ngModel)]="selectedCarburant" (change)="applyFilters()">
+          <option value="">Tous les carburants</option>
+          <option value="DIESEL">Diesel</option>
+          <option value="ESSENCE">Essence</option>
+          <option value="GPL">GPL</option>
+          <option value="ELECTRIQUE">Electrique</option>
+        </select>
+
+        <select class="fl-select" [(ngModel)]="selectedActif" (change)="applyFilters()">
+          <option value="">Tous (Actif/Inactif)</option>
+          <option value="true">Actifs</option>
+          <option value="false">Inactifs</option>
+        </select>
+
+        <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
+        </button>
+      </div>
+
+      <button *ngIf="isAdmin" class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+    </div>
   </div>
 
   <div class="fleet-body">

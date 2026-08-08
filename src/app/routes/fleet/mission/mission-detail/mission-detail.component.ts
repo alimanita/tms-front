@@ -70,7 +70,14 @@ export class MissionDetailComponent implements OnInit {
 
   demarrer(): void {
     if (!this.mission) return;
-    this.missionService.demarrer(this.mission.id).subscribe({
+    const input = window.prompt('Kilométrage actuel du véhicule au départ (km) :');
+    if (input === null) return; // annulé
+    const km = input.trim() ? parseFloat(input) : undefined;
+    if (km !== undefined && isNaN(km)) {
+      this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
+      return;
+    }
+    this.missionService.demarrer(this.mission.id, km).subscribe({
       next: (updated) => this.zone.run(() => {
         this.mission = updated;
         this.snackBar.open('Mission démarrée', 'Fermer', { duration: 2500 });
@@ -85,7 +92,14 @@ export class MissionDetailComponent implements OnInit {
 
   cloturer(): void {
     if (!this.mission) return;
-    this.missionService.cloturer(this.mission.id).subscribe({
+    const input = window.prompt('Kilométrage actuel du véhicule au retour (km) :');
+    if (input === null) return; // annulé
+    const km = input.trim() ? parseFloat(input) : undefined;
+    if (km !== undefined && isNaN(km)) {
+      this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
+      return;
+    }
+    this.missionService.cloturer(this.mission.id, km).subscribe({
       next: (updated) => this.zone.run(() => {
         this.mission = updated;
         this.snackBar.open('Mission clôturée', 'Fermer', { duration: 2500 });

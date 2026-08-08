@@ -119,10 +119,23 @@ onUtilisateurSelected(idUtilisateur: number | null): void {
   // ── Charge les utilisateurs ayant le rôle CHAUFFEUR pour cette entreprise ──
   loadUtilisateursDisponibles(): void {
     this.loadingUtilisateurs = true;
-    this.fleetService.getUtilisateursByRole('CHAUFFEUR', this.idEntreprise).subscribe({
-      next: (data: UtilisateurLite[]) => {
-        this.utilisateursDisponibles = data;
-        this.loadingUtilisateurs = false;
+    this.fleetService.getUtilisateursByRole('ROLE_CHAUFFEUR', this.idEntreprise).subscribe({
+      next: (users: UtilisateurLite[]) => {
+        this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
+          next: (res: any) => {
+            const chauffeurs = res.content || res;
+            const linkedUserIds = chauffeurs
+              .filter((c: any) => c.idUtilisateur != null && c.id !== this.chauffeurId)
+              .map((c: any) => c.idUtilisateur);
+
+            this.utilisateursDisponibles = users.filter(u => !linkedUserIds.includes(u.id));
+            this.loadingUtilisateurs = false;
+          },
+          error: () => {
+            this.utilisateursDisponibles = users;
+            this.loadingUtilisateurs = false;
+          }
+        });
       },
       error: () => {
         this.loadingUtilisateurs = false;

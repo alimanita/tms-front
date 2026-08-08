@@ -3,19 +3,29 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, PleinCarburantResponse, VehiculeResponse } from '../../fleet.service';
+import { ChauffeurResponse } from '../../chauffeurs/chauffeur.model';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-fuel-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule],
   templateUrl: './fuel-list.component.html',
   styleUrls: ['./fuel-list.component.scss'],
 })
 export class FuelListComponent implements OnInit {
+  allPleins: PleinCarburantResponse[] = [];
   pleins: PleinCarburantResponse[] = [];
   vehicules: VehiculeResponse[]    = [];
-  selectedVehiculeId?: number;
+  chauffeurs: ChauffeurResponse[]  = [];
+  
+  selectedVehiculeId?: number | '';
+  selectedChauffeurId?: number | '';
+  startDate?: string;
+  endDate?: string;
+  
   loading = false;
 proofModalOpen = false;
 proofLoading = false;
@@ -33,26 +43,33 @@ private currentProofBlobUrl: string | null = null;
   ) {}
 
   ngOnInit(): void {
-    this.fleetService.getVehicules().subscribe({
+    this.fleetService.getVehicules({ size: 1000 }).subscribe({
       next: (page: any) => this.vehicules = page.content ?? page,
+      error: () => {}
+    });
+    
+    this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
+      next: (page: any) => this.chauffeurs = page.content ?? page,
       error: () => {}
     });
 
     this.route.queryParams.subscribe(qp => {
-      this.selectedVehiculeId = qp['vehiculeId'] ? +qp['vehiculeId'] : undefined;
+      this.selectedVehiculeId = qp['vehiculeId'] ? +qp['vehiculeId'] : '';
+      this.selectedChauffeurId = qp['chauffeurId'] ? +qp['chauffeurId'] : '';
+      this.startDate = qp['startDate'] || '';
+      this.endDate = qp['endDate'] || '';
       this.load();
     });
   }
 
   load(): void {
     this.loading = true;
-    const obs = this.selectedVehiculeId
-      ? this.fleetService.getPleinsByVehicule(this.selectedVehiculeId)
-      : this.fleetService.getPleins();
-
-    obs.subscribe({
+    // We load all to allow local filtering, or we could use the backend if it supported it.
+    // For now we get a larger set of pleins to filter locally.
+    this.fleetService.getPleins({ page: 0, size: 2000 }).subscribe({
       next: (data: any) => {
-        this.pleins = Array.isArray(data) ? data : (data.content ?? []);
+        this.allPleins = Array.isArray(data) ? data : (data.content ?? []);
+        this.applyFilters();
         this.loading = false;
       },
       error: () => {
@@ -62,12 +79,49 @@ private currentProofBlobUrl: string | null = null;
     });
   }
 
-  onVehiculeFilter(event: Event): void {
-    const id = (event.target as HTMLSelectElement).value;
+  applyFilters(): void {
+    let filtered = [...this.allPleins];
+
+    if (this.selectedVehiculeId) {
+      filtered = filtered.filter(p => p.vehiculeId == this.selectedVehiculeId);
+    }
+    
+    if (this.selectedChauffeurId) {
+      filtered = filtered.filter(p => p.chauffeurId == this.selectedChauffeurId);
+    }
+
+    if (this.startDate) {
+      const start = new Date(this.startDate).getTime();
+      filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() >= start);
+    }
+
+    if (this.endDate) {
+      // Add 24h to include the end date fully
+      const end = new Date(this.endDate).getTime() + 86400000 - 1;
+      filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() <= end);
+    }
+
+    this.pleins = filtered;
+  }
+
+  onFilterChange(): void {
     this.router.navigate([], {
-      queryParams: { vehiculeId: id || null },
+      queryParams: { 
+        vehiculeId: this.selectedVehiculeId || null,
+        chauffeurId: this.selectedChauffeurId || null,
+        startDate: this.startDate || null,
+        endDate: this.endDate || null
+      },
       queryParamsHandling: 'merge'
     });
+  }
+
+  resetFilters(): void {
+    this.selectedVehiculeId = '';
+    this.selectedChauffeurId = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.onFilterChange();
   }
 
   goAdd(): void {

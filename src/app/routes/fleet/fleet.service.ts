@@ -118,7 +118,11 @@ export interface PleinCarburantRequest {
 export interface PleinCarburantResponse {
   id: number;
   reference?: string;
-  vehicule?: VehiculeResponse;
+  vehiculeId?: number;
+  vehiculeRef?: string;
+  vehiculeImmatriculation?: string;
+  chauffeurId?: number;
+  chauffeurNom?: string;
   fillingDate?: string;
   fuelType?: string;
   quantityLiters?: number;
@@ -433,10 +437,14 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
   getCoutsMensuels(mois = 12): Observable<any> {
     return this.http.get(`${this.base}/dashboard/couts-mensuels`, { params: { mois } });
   }
-getUtilisateursByRole(role: string, idEntreprise: number): Observable<UtilisateurLite[]> {
+getUtilisateursByRole(role: string, idEntreprise?: number): Observable<UtilisateurLite[]> {
+  const params: any = { role };
+  if (idEntreprise && idEntreprise > 0) {
+    params['idEntreprise'] = idEntreprise;
+  }
   return this.http.get<UtilisateurLite[]>(
     `${environment.baseUrl}/utilisateurs/by-role`,
-    { params: { role, idEntreprise } }
+    { params }
   );
 }
   getConsommationCarburant(mois = 12): Observable<any> {

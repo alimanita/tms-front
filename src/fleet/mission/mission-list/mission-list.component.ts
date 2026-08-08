@@ -181,7 +181,14 @@ export class MissionListComponent implements OnInit {
   editMission(m: MissionResponse): void { this.router.navigate(['/fleet/missions', m.id, 'edit']); }
 
  demarrer(m: MissionResponse): void {
-  this.missionService.demarrer(m.id).subscribe({
+  const input = window.prompt('Kilométrage actuel du véhicule au départ (km) :');
+  if (input === null) return;
+  const km = input.trim() ? parseFloat(input) : undefined;
+  if (km !== undefined && isNaN(km)) {
+    this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
+    return;
+  }
+  this.missionService.demarrer(m.id, km).subscribe({
     next: (updated) => {
       this.updateMissionInList(updated);
       this.snackBar.open('Mission démarrée', 'Fermer', { duration: 2500 });
@@ -191,7 +198,14 @@ export class MissionListComponent implements OnInit {
 }
 
 cloturer(m: MissionResponse): void {
-  this.missionService.cloturer(m.id).subscribe({
+  const input = window.prompt('Kilométrage actuel du véhicule au retour (km) :');
+  if (input === null) return;
+  const km = input.trim() ? parseFloat(input) : undefined;
+  if (km !== undefined && isNaN(km)) {
+    this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
+    return;
+  }
+  this.missionService.cloturer(m.id, km).subscribe({
     next: (updated) => {
       this.updateMissionInList(updated);
       this.snackBar.open('Mission clôturée', 'Fermer', { duration: 2500 });
