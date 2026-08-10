@@ -1,10 +1,10 @@
-<div class="fleet-page">
+﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier Document' : 'Nouveau Document' }}</h2>
     <div class="fl-topbar-actions">
-      <button class="fl-btn fl-btn-ghost" (click)="onCancel()" [disabled]="loading">← Retour</button>
+      <button class="fl-btn fl-btn-ghost" (click)="onCancel()" [disabled]="loading">â† Retour</button>
       <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
-        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+        {{ loading ? 'Enregistrementâ€¦' : 'Enregistrer' }}
       </button>
     </div>
   </div>
@@ -21,23 +21,23 @@
         </div>
 
         <div class="fl-field">
-          <label>Numéro de référence</label>
+          <label>NumÃ©ro de rÃ©fÃ©rence</label>
           <input type="text" formControlName="referenceNumber">
         </div>
 
         <div class="fl-field">
-          <label>Concerne (Entité) *</label>
+          <label>Concerne (EntitÃ©) *</label>
           <select formControlName="entityType">
-            <option value="VEHICLE">Véhicule</option>
+            <option value="VEHICLE">VÃ©hicule</option>
             <option value="MACHINE">Machine</option>
             <option value="DRIVER">Chauffeur</option>
           </select>
         </div>
 
         <div class="fl-field">
-          <label>Choix de l'entité *</label>
+          <label>Choix de l'entitÃ© *</label>
           <select formControlName="entityId" [class.error]="submitted && form.get('entityId')?.invalid">
-            <option [ngValue]="null">-- Sélectionner --</option>
+            <option [ngValue]="null">-- SÃ©lectionner --</option>
             <ng-container *ngIf="entityType === 'VEHICLE'">
               <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
             </ng-container>
@@ -51,7 +51,7 @@
         </div>
 
         <div class="fl-field">
-          <label>Date d'émission</label>
+          <label>Date d'Ã©mission</label>
           <input type="date" formControlName="issueDate">
         </div>
 
@@ -61,12 +61,12 @@
         </div>
 
         <div class="fl-field">
-          <label>Émetteur (Assurance, Centre...)</label>
+          <label>Ã‰metteur (Assurance, Centre...)</label>
           <input type="text" formControlName="issuer">
         </div>
 
         <div class="fl-field">
-          <label>Montant (Coût) MAD</label>
+          <label>Montant (CoÃ»t) €</label>
           <input type="number" formControlName="amount" step="0.01">
         </div>
 
@@ -75,7 +75,7 @@
           
           <div class="fl-upload-zone" [class.has-file]="!!selectedFile">
             <input type="file" id="proofFile" accept="image/*,.pdf" (change)="onFileChange($event)" hidden/>
-            <!-- Input spécifique pour forcer l'appareil photo sur mobile -->
+            <!-- Input spÃ©cifique pour forcer l'appareil photo sur mobile -->
             <input type="file" id="proofCamera" accept="image/*" capture="environment" (change)="onFileChange($event)" hidden/>
             
             <ng-container *ngIf="!selectedFile && !existingProofUrl">
@@ -92,17 +92,17 @@
 
             <span *ngIf="selectedFile" class="fl-file-name">
               {{ selectedFile.name }}
-              <button type="button" class="fl-file-remove" (click)="removeFile()" title="Supprimer">✕</button>
+              <button type="button" class="fl-file-remove" (click)="removeFile()" title="Supprimer">âœ•</button>
             </span>
 
             <span *ngIf="!selectedFile && existingProofUrl" class="fl-file-name">
               Justificatif existant
               <a [href]="existingProofUrl" target="_blank">Voir</a>
-              <button type="button" class="fl-file-remove" (click)="existingProofUrl = null" title="Remplacer">✕</button>
+              <button type="button" class="fl-file-remove" (click)="existingProofUrl = null" title="Remplacer">âœ•</button>
             </span>
           </div>
           
-          <img *ngIf="previewUrl" [src]="previewUrl" alt="Aperçu" class="fl-preview-img"/>
+          <img *ngIf="previewUrl" [src]="previewUrl" alt="AperÃ§u" class="fl-preview-img"/>
         </div>
 
         <div class="fl-field fl-field--full">
@@ -114,3 +114,4 @@
     </form>
   </div>
 </div>
+

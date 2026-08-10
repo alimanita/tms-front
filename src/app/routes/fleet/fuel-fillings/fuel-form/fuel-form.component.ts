@@ -44,6 +44,8 @@ export class FuelFormComponent implements OnInit {
       mileageBefore:  [null],
       mileageAfter:   [null],
       isFullTank:     [true],
+      tvaRate:        [20, Validators.required],
+      isTvaRecoverable:[true],
       receiptNumber:  [''],
       notes:          [''],
     });
@@ -74,6 +76,8 @@ export class FuelFormComponent implements OnInit {
       mileageBefore:  data.mileageBefore,
       mileageAfter:   data.mileageAfter,
       isFullTank:     data.isFullTank,
+      tvaRate:        data.tvaRate ?? 20,
+      isTvaRecoverable: data.isTvaRecoverable ?? true,
       receiptNumber:  data.receiptNumber,
       notes:          data.notes,
     });
@@ -94,6 +98,24 @@ export class FuelFormComponent implements OnInit {
     return +(q * p).toFixed(3);
   }
 
+  get tvaRateValue(): number {
+    return +(this.form.get('tvaRate')?.value ?? 0);
+  }
+
+  get totalHT(): number {
+    if (this.tvaRateValue === 0) return this.totalEstime;
+    return +(this.totalEstime / (1 + this.tvaRateValue / 100)).toFixed(3);
+  }
+
+  get tvaAmountValue(): number {
+    return +(this.totalEstime - this.totalHT).toFixed(3);
+  }
+
+  get recoverableTvaAmountValue(): number {
+    const recoverable = this.form.get('isTvaRecoverable')?.value;
+    return recoverable ? this.tvaAmountValue : 0;
+  }
+
   onSubmit(): void {
     this.submitted = true;
     if (this.form.invalid) return;
@@ -110,6 +132,13 @@ export class FuelFormComponent implements OnInit {
       mileageBefore:  fv.mileageBefore  ?? undefined,
       mileageAfter:   fv.mileageAfter   ?? undefined,
       isFullTank:     fv.isFullTank,
+      amountHT:       this.totalHT as any,
+      amountTTC:      this.totalEstime as any,
+      tvaRate:        fv.tvaRate,
+      tvaAmount:      this.tvaAmountValue as any,
+      isTvaRecoverable: fv.isTvaRecoverable,
+      recoverableTvaAmount: this.recoverableTvaAmountValue as any,
+      acciseAmount:   0 as any,
       receiptNumber:  fv.receiptNumber  || undefined,
       notes:          fv.notes          || undefined,
     };

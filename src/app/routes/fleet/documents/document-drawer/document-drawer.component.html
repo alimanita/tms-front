@@ -1,0 +1,117 @@
+﻿<div class="panel-overlay" *ngIf="open" (click)="onBackdropClick()">
+  <div class="drawer" (click)="$event.stopPropagation()">
+
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <mat-icon>description</mat-icon>
+        <h2>Nouveau document</h2>
+      </div>
+      <button type="button" class="drawer-close" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <div class="drawer-body">
+      <form [formGroup]="form" class="phase-section">
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Type de document <span class="required">*</span></label>
+            <select class="field-input" formControlName="typeDocument">
+              <option *ngFor="let t of typeDocuments" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">NumÃ©ro de rÃ©fÃ©rence</label>
+            <input class="field-input" formControlName="referenceNumber" placeholder="Ex: DOC-2026..."/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Concerne (EntitÃ©) <span class="required">*</span></label>
+            <select class="field-input" formControlName="entityType">
+              <option value="VEHICLE">VÃ©hicule</option>
+              <option value="MACHINE">Machine</option>
+              <option value="DRIVER">Chauffeur</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Choix de l'entitÃ© <span class="required">*</span></label>
+            <select class="field-input" formControlName="entityId" [class.error]="submitted && form.get('entityId')?.invalid">
+              <option [ngValue]="null">-- SÃ©lectionner --</option>
+              <ng-container *ngIf="entityType === 'VEHICLE'">
+                <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
+              </ng-container>
+              <ng-container *ngIf="entityType === 'MACHINE'">
+                <option *ngFor="let m of machines" [value]="m.id">{{ m.nom }} ({{ m.numeroSerie }})</option>
+              </ng-container>
+              <ng-container *ngIf="entityType === 'DRIVER'">
+                <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.nom }} {{ c.prenom }}</option>
+              </ng-container>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Date d'Ã©mission</label>
+            <input class="field-input" type="date" formControlName="issueDate"/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Date d'expiration</label>
+            <input class="field-input" type="date" formControlName="expiryDate"/>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Ã‰metteur</label>
+            <input class="field-input" formControlName="issuer" placeholder="Ex: Comptable, Assurance..."/>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Montant (€)</label>
+            <input class="field-input" type="number" step="0.01" min="0" formControlName="amount"/>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Fichier joint (Scan PDF/Image)</label>
+          <div class="fl-upload-zone" [class.has-file]="!!selectedFile">
+            <input type="file" id="proofFileDrawer" accept="image/*,.pdf" (change)="onFileChange($event)" hidden/>
+            
+            <ng-container *ngIf="!selectedFile && !existingProofUrl">
+              <div class="upload-actions" style="margin-top: 8px;">
+                <label for="proofFileDrawer" class="btn-outline" style="cursor: pointer; padding: 6px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                  <mat-icon style="font-size: 18px; width: 18px; height: 18px;">attach_file</mat-icon> Parcourir
+                </label>
+              </div>
+            </ng-container>
+
+            <span *ngIf="selectedFile" class="fl-file-name" style="margin-top: 8px; display: block;">
+              {{ selectedFile.name }}
+              <button type="button" (click)="removeFile()" title="Supprimer" style="background: none; border: none; cursor: pointer; color: red;">âœ•</button>
+            </span>
+          </div>
+          <img *ngIf="previewUrl" [src]="previewUrl" alt="AperÃ§u" style="max-height: 100px; margin-top: 10px; border-radius: 4px;"/>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Notes</label>
+          <textarea class="field-input" formControlName="notes" rows="2" placeholder="Observations..."></textarea>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="drawer-footer">
+      <button type="button" class="btn-outline" (click)="close()">Annuler</button>
+      <button type="button" class="btn-primary" [disabled]="form.invalid || loading" (click)="onSubmit()">
+        <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner" style="display: inline-block; margin-right: 8px; vertical-align: middle;"></mat-spinner>
+        <span *ngIf="!loading">CrÃ©er</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+

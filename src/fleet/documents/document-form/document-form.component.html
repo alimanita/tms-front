@@ -1,4 +1,4 @@
-<div class="fleet-page">
+﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier Document' : 'Nouveau Document' }}</h2>
   </div>
@@ -10,28 +10,28 @@
         <div class="fl-col">
           <label>Type de document *</label>
           <select formControlName="typeDocument">
-            <option *ngFor="let t of typeDocuments" [value]="t">{{ t }}</option>
+            <option *ngFor="let t of typeDocuments" [value]="t.value">{{ t.label }}</option>
           </select>
         </div>
         <div class="fl-col">
-          <label>Numéro de référence</label>
+          <label>NumÃ©ro de rÃ©fÃ©rence</label>
           <input type="text" formControlName="referenceNumber">
         </div>
       </div>
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>Concerne (Entité) *</label>
+          <label>Concerne (EntitÃ©) *</label>
           <select formControlName="entityType">
-            <option value="VEHICLE">Véhicule</option>
+            <option value="VEHICLE">VÃ©hicule</option>
             <option value="MACHINE">Machine</option>
             <option value="DRIVER">Chauffeur</option>
           </select>
         </div>
         <div class="fl-col">
-          <label>Choix de l'entité *</label>
+          <label>Choix de l'entitÃ© *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
-            <option [ngValue]="null">-- Sélectionner --</option>
+            <option [ngValue]="null">-- SÃ©lectionner --</option>
             <ng-container *ngIf="entityType === 'VEHICLE'">
               <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
             </ng-container>
@@ -47,7 +47,7 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>Date d'émission</label>
+          <label>Date d'Ã©mission</label>
           <input type="date" formControlName="issueDate">
         </div>
         <div class="fl-col">
@@ -58,11 +58,11 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>Émetteur (Assurance, Centre...)</label>
+          <label>Ã‰metteur (Assurance, Centre...)</label>
           <input type="text" formControlName="issuer">
         </div>
         <div class="fl-col">
-          <label>Montant (Coût) MAD</label>
+          <label>Montant (CoÃ»t) €</label>
           <input type="number" formControlName="amount" step="0.01">
         </div>
       </div>
@@ -88,3 +88,4 @@
     </form>
   </div>
 </div>
+

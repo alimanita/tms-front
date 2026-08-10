@@ -20,7 +20,15 @@ export class DocumentFormComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  readonly typeDocuments = ['ASSURANCE', 'VISITE_TECHNIQUE', 'VIGNETTE', 'CARTE_GRISE', 'PERMIS', 'AUTRE'];
+  readonly typeDocuments = [
+    { value: 'INSURANCE', label: 'Assurance' },
+    { value: 'REGISTRATION', label: 'Carte grise' },
+    { value: 'TECHNICAL_CONTROL', label: 'Visite technique' },
+    { value: 'PERMIT', label: 'Autorisation / Permis' },
+    { value: 'CONTRACT', label: 'Contrat' },
+    { value: 'PAYSLIP', label: 'Fiche de paie' },
+    { value: 'OTHER', label: 'Autre' }
+  ];
   vehicules: VehiculeResponse[] = [];
   machines: MachineResponse[] = [];
   chauffeurs: ChauffeurResponse[] = [];

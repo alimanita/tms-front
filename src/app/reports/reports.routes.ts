@@ -12,6 +12,8 @@ import { MissionsReportComponent } from './reports/missions-report/missions-repo
 import { AmazonReportComponent } from './reports/amazon-report/amazon-report';
 import { FinanceStatsComponent } from './reports/finance-stats/finance-stats';
 
+import { TvaReportComponent } from './tva-report/tva-report.component';
+
 export const routes: Routes = [
   { path: '', component: ReportsIndex },
   { path: 'sales-report', component: ReportsReportsSalesReport },
@@ -26,4 +28,5 @@ export const routes: Routes = [
   { path: 'missions-report', component: MissionsReportComponent },
   { path: 'amazon-report', component: AmazonReportComponent },
   { path: 'finance-stats', component: FinanceStatsComponent },
+  { path: 'tva-report', component: TvaReportComponent },
 ];

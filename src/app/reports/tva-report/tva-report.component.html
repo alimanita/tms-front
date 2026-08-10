@@ -1,0 +1,178 @@
+<page-header
+  title="Bilan TVA & Fiscalité"
+  subtitle="Analyse globale de la TVA collectée, déductible et de la fiscalité carburant."
+/>
+
+<div class="tva-wrapper">
+
+  <!-- ═══ PERIOD FILTERS ═══ -->
+  <div class="filter-bar">
+    <div class="filter-tabs">
+      <button [class.active]="periodMode === 'month'" (click)="onPeriodChange('month')">
+        <mat-icon>calendar_month</mat-icon> Par mois
+      </button>
+      <button [class.active]="periodMode === 'year'" (click)="onPeriodChange('year')">
+        <mat-icon>date_range</mat-icon> Par année
+      </button>
+      <button [class.active]="periodMode === 'all'" (click)="onPeriodChange('all')">
+        <mat-icon>all_inclusive</mat-icon> Tout
+      </button>
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-input" *ngIf="periodMode === 'month'">
+        <mat-icon>event</mat-icon>
+        <input type="month" [(ngModel)]="selectedMonth" (change)="onMonthChange()" />
+      </div>
+      <div class="filter-input" *ngIf="periodMode === 'year'">
+        <mat-icon>calendar_today</mat-icon>
+        <select [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filter-badge">
+      <mat-icon>filter_alt</mat-icon>
+      <span>{{ periodLabel }}</span>
+    </div>
+  </div>
+
+  <ng-container *ngIf="reportData">
+    <!-- ═══ NET TVA & FISCALITE (Summary) ═══ -->
+    <div class="summary-grid">
+      <div class="kpi-card" [ngClass]="reportData.netTva.status === 'A_PAYER' ? 'kpi-danger' : 'kpi-success'">
+        <div class="kpi-icon">
+          <mat-icon>{{ reportData.netTva.status === 'A_PAYER' ? 'warning' : 'task_alt' }}</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Bilan TVA ({{ reportData.netTva.status === 'A_PAYER' ? 'À Payer' : 'Crédit' }})</span>
+          <span class="kpi-value">{{ reportData.netTva.netAmount | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">Collectée : {{ reportData.netTva.tvaCollectee | number:'1.2-2' }} € | Déductible : {{ reportData.netTva.tvaDeductible | number:'1.2-2' }} €</span>
+        </div>
+      </div>
+
+      <div class="kpi-card kpi-accise">
+        <div class="kpi-icon">
+          <mat-icon>local_gas_station</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <span class="kpi-label">Remboursement Accise Estimé</span>
+          <span class="kpi-value">{{ reportData.fiscaliteCarburant.estimatedReimbursement | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">{{ reportData.fiscaliteCarburant.totalLiters | number:'1.2-2' }} Litres consommés</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DETAILS TABS ═══ -->
+    <div class="tabs-container">
+      <div class="tab-headers">
+        <button [class.active]="activeTab === 'deductible'" (click)="activeTab = 'deductible'">
+          TVA Déductible (Achats & Frais)
+        </button>
+        <button [class.active]="activeTab === 'collectee'" (click)="activeTab = 'collectee'">
+          TVA Collectée (Ventes)
+        </button>
+      </div>
+
+      <!-- ═══ TVA DEDUCTIBLE ═══ -->
+      <div class="tab-content" *ngIf="activeTab === 'deductible'">
+        <div class="categories-grid">
+          <div class="category-card" *ngFor="let cat of reportData.tvaDeductible.categories">
+            <h4>{{ cat.name }}</h4>
+            <div class="cat-values">
+              <div class="val">
+                <label>TVA</label>
+                <span>{{ cat.tvaAmount | number:'1.2-2' }} €</span>
+              </div>
+              <div class="val">
+                <label>HT</label>
+                <span>{{ cat.amountHT | number:'1.2-2' }} €</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Catégorie</th>
+                <th>Référence</th>
+                <th class="text-right">Montant HT</th>
+                <th class="text-right">TVA</th>
+                <th class="text-right">Montant TTC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of reportData.tvaDeductible.details; let i = index" [class.row-alt]="i % 2 === 1">
+                <td>{{ row.date | date:'dd/MM/yyyy' }}</td>
+                <td><span class="badge badge-ded">{{ row.category }}</span></td>
+                <td>{{ row.reference }}</td>
+                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} €</td>
+                <td class="text-right mono text-accent">{{ row.tvaAmount | number:'1.2-2' }} €</td>
+                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} €</td>
+              </tr>
+              <tr *ngIf="reportData.tvaDeductible.details.length === 0">
+                <td colspan="6" class="text-center empty-msg">Aucune donnée sur cette période.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═══ TVA COLLECTEE ═══ -->
+      <div class="tab-content" *ngIf="activeTab === 'collectee'">
+        <div class="categories-grid">
+          <div class="category-card" *ngFor="let cat of reportData.tvaCollectee.categories">
+            <h4>{{ cat.name }}</h4>
+            <div class="cat-values">
+              <div class="val">
+                <label>TVA</label>
+                <span>{{ cat.tvaAmount | number:'1.2-2' }} €</span>
+              </div>
+              <div class="val">
+                <label>HT</label>
+                <span>{{ cat.amountHT | number:'1.2-2' }} €</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Catégorie</th>
+                <th>Référence</th>
+                <th class="text-right">Montant HT</th>
+                <th class="text-right">TVA</th>
+                <th class="text-right">Montant TTC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of reportData.tvaCollectee.details; let i = index" [class.row-alt]="i % 2 === 1">
+                <td>{{ row.date | date:'dd/MM/yyyy' }}</td>
+                <td><span class="badge badge-col">{{ row.category }}</span></td>
+                <td>{{ row.reference }}</td>
+                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} €</td>
+                <td class="text-right mono text-accent-col">{{ row.tvaAmount | number:'1.2-2' }} €</td>
+                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} €</td>
+              </tr>
+              <tr *ngIf="reportData.tvaCollectee.details.length === 0">
+                <td colspan="6" class="text-center empty-msg">Aucune donnée sur cette période.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <div class="loading-state" *ngIf="loading">
+    <mat-icon class="spin">sync</mat-icon>
+    <span>Calcul des agrégations TVA en cours...</span>
+  </div>
+</div>

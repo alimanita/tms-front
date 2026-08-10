@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, DocumentFlotteResponse } from '../../fleet.service';
@@ -9,13 +10,22 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 @Component({
   selector: 'app-document-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatIconModule],
   templateUrl: './document-list.component.html',
   styleUrls: ['./document-list.component.scss'],
 })
 export class DocumentListComponent implements OnInit {
+  allDocuments: DocumentFlotteResponse[] = [];
   documents: DocumentFlotteResponse[] = [];
   loading = false;
+
+  // Filtres
+  filterType = '';
+  filterEntityType = '';
+  filterIssuer = '';
+  filterDateFrom = '';
+  filterDateTo = '';
+  filterSearch = '';
 
   proofModalOpen = false;
   proofLoading = false;
@@ -31,6 +41,7 @@ export class DocumentListComponent implements OnInit {
     'REGISTRATION': 'Carte Grise',
     'PERMIT': 'Permis / Autorisation',
     'CONTRACT': 'Contrat',
+    'PAYSLIP': 'Fiche de paie',
     'OTHER': 'Autre'
   };
 
@@ -53,7 +64,8 @@ export class DocumentListComponent implements OnInit {
     this.loading = true;
     this.fleetService.getDocumentsFlotte().subscribe({
       next: (page: any) => {
-        this.documents = page.content ?? page;
+        this.allDocuments = page.content ?? page;
+        this.applyFilters();
         this.loading = false;
       },
       error: () => {
@@ -61,6 +73,53 @@ export class DocumentListComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  applyFilters(): void {
+    let result = [...this.allDocuments];
+
+    if (this.filterType) {
+      result = result.filter(d => d.typeDocument === this.filterType);
+    }
+    if (this.filterEntityType) {
+      result = result.filter(d => d.entityType === this.filterEntityType);
+    }
+    if (this.filterIssuer.trim()) {
+      const term = this.filterIssuer.trim().toLowerCase();
+      result = result.filter(d => (d.issuer ?? '').toLowerCase().includes(term));
+    }
+    if (this.filterDateFrom) {
+      result = result.filter(d => d.issueDate && d.issueDate >= this.filterDateFrom);
+    }
+    if (this.filterDateTo) {
+      result = result.filter(d => d.issueDate && d.issueDate <= this.filterDateTo);
+    }
+    if (this.filterSearch.trim()) {
+      const term = this.filterSearch.trim().toLowerCase();
+      result = result.filter(d =>
+        (d.referenceNumber ?? '').toLowerCase().includes(term) ||
+        (d.issuer ?? '').toLowerCase().includes(term) ||
+        (d.entityRef ?? '').toLowerCase().includes(term) ||
+        (d.notes ?? '').toLowerCase().includes(term)
+      );
+    }
+
+    this.documents = result;
+  }
+
+  resetFilters(): void {
+    this.filterType = '';
+    this.filterEntityType = '';
+    this.filterIssuer = '';
+    this.filterDateFrom = '';
+    this.filterDateTo = '';
+    this.filterSearch = '';
+    this.applyFilters();
+  }
+
+  get hasActiveFilters(): boolean {
+    return !!(this.filterType || this.filterEntityType || this.filterIssuer ||
+              this.filterDateFrom || this.filterDateTo || this.filterSearch);
   }
 
   goAdd(): void { this.router.navigate(['/fleet/documents/new']); }

@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FleetService,  } from '../../fleet.service';
+import { FleetService } from '../../fleet.service';
 import { ChauffeurResponse } from '../chauffeur.model';
+import { DocumentDrawerComponent } from '../../documents/document-drawer/document-drawer.component';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
   selector: 'app-chauffeur-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule],
+  imports: [CommonModule, MatSnackBarModule, DocumentDrawerComponent],
   templateUrl: './chauffeur-list.component.html',
   styleUrls: ['./chauffeur-list.component.scss'],
 })
@@ -16,10 +18,24 @@ export class ChauffeurListComponent implements OnInit {
   chauffeurs: ChauffeurResponse[] = [];
   loading = false;
 
+  isDrawerOpen = false;
+  selectedChauffeurId: number | null = null;
+
+  get isAdmin(): boolean {
+    return this.authService.hasRole('ADMIN') ||
+           this.authService.hasRole('SUPERADMIN') ||
+           this.authService.hasRole('SUPER_ADMIN');
+  }
+
+  get isComptable(): boolean {
+    return this.authService.hasRole('COMPTABLE');
+  }
+
   constructor(
     private fleetService: FleetService,
     private router: Router,
     private snackBar: MatSnackBar,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void { this.load(); }
@@ -42,7 +58,15 @@ export class ChauffeurListComponent implements OnInit {
 
   goEdit(c: ChauffeurResponse): void { this.router.navigate([`/fleet/chauffeurs/${c.id}/edit`]); }
 
-  goPayslips(c: ChauffeurResponse): void { this.router.navigate([`/fleet/chauffeurs/${c.id}/payslips`]); }
+  goPayslips(c: ChauffeurResponse): void {
+    this.selectedChauffeurId = c.id;
+    this.isDrawerOpen = true;
+  }
+
+  onDrawerClosed(): void {
+    this.isDrawerOpen = false;
+    this.selectedChauffeurId = null;
+  }
 
   toggle(c: ChauffeurResponse): void {
     this.fleetService.toggleChauffeurActif(c.id).subscribe({

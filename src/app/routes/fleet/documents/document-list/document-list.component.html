@@ -4,6 +4,81 @@
     <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Nouveau Document</button>
   </div>
 
+  <!-- Barre de filtres -->
+  <div class="filters-bar">
+    <!-- Recherche libre -->
+    <div class="filter-search-wrap">
+      <svg class="filter-search-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="9" cy="9" r="6" stroke="#94a3b8" stroke-width="1.5"/>
+        <path d="M15 15l-3-3" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input
+        type="text"
+        class="filter-input"
+        placeholder="Rechercher (réf, émetteur, entité...)"
+        [(ngModel)]="filterSearch"
+        (input)="applyFilters()"
+      />
+    </div>
+
+    <!-- Type de document -->
+    <select class="filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
+      <option value="">Tous les types</option>
+      <option value="INSURANCE">Assurance</option>
+      <option value="TECHNICAL_CONTROL">Visite Technique</option>
+      <option value="REGISTRATION">Carte Grise</option>
+      <option value="PERMIT">Permis / Autorisation</option>
+      <option value="CONTRACT">Contrat</option>
+      <option value="PAYSLIP">Fiche de paie</option>
+      <option value="OTHER">Autre</option>
+    </select>
+
+    <!-- Entité -->
+    <select class="filter-select" [(ngModel)]="filterEntityType" (change)="applyFilters()">
+      <option value="">Toutes entités</option>
+      <option value="VEHICLE">Véhicule</option>
+      <option value="MACHINE">Machine</option>
+      <option value="DRIVER">Chauffeur</option>
+    </select>
+
+    <!-- Émetteur -->
+    <input
+      type="text"
+      class="filter-input filter-input--sm"
+      placeholder="Émetteur..."
+      [(ngModel)]="filterIssuer"
+      (input)="applyFilters()"
+    />
+
+    <!-- Date de -->
+    <div class="filter-date-group">
+      <label class="filter-date-label">Du</label>
+      <input type="date" class="filter-input filter-input--date" [(ngModel)]="filterDateFrom" (change)="applyFilters()"/>
+    </div>
+
+    <!-- Date à -->
+    <div class="filter-date-group">
+      <label class="filter-date-label">Au</label>
+      <input type="date" class="filter-input filter-input--date" [(ngModel)]="filterDateTo" (change)="applyFilters()"/>
+    </div>
+
+    <!-- Bouton Reset -->
+    <button
+      class="filter-reset-btn"
+      *ngIf="hasActiveFilters"
+      (click)="resetFilters()"
+      title="Réinitialiser les filtres"
+    >
+      ✕ Réinitialiser
+    </button>
+  </div>
+
+  <!-- Compteur résultats -->
+  <div class="results-count" *ngIf="!loading">
+    <span>{{ documents.length }} document(s) trouvé(s)</span>
+    <span *ngIf="hasActiveFilters" class="results-filtered"> — filtres actifs</span>
+  </div>
+
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
@@ -53,7 +128,7 @@
           </td>
         </tr>
         <tr *ngIf="documents.length === 0">
-          <td colspan="9" class="fl-empty">Aucun document enregistré</td>
+          <td colspan="9" class="fl-empty">Aucun document trouvé</td>
         </tr>
       </tbody>
     </table>

@@ -28,6 +28,7 @@ export class DocumentFormComponent implements OnInit {
     { value: 'REGISTRATION', label: 'Carte Grise' },
     { value: 'PERMIT', label: 'Permis / Autorisation' },
     { value: 'CONTRACT', label: 'Contrat' },
+    { value: 'PAYSLIP', label: 'Fiche de paie' },
     { value: 'OTHER', label: 'Autre (Vignette, etc.)' }
   ];
   vehicules: VehiculeResponse[] = [];
@@ -59,6 +60,16 @@ export class DocumentFormComponent implements OnInit {
       amount: [0],
       status: ['ACTIVE'],
       notes: [''],
+    });
+
+    this.form.get('typeDocument')?.valueChanges.subscribe(type => {
+      if (type === 'PAYSLIP') {
+        const today = new Date().toISOString().split('T')[0];
+        this.form.patchValue({
+          entityType: 'DRIVER',
+          issueDate: today
+        });
+      }
     });
 
     this.loadEntities();

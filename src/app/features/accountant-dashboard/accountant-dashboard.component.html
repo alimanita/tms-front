@@ -1,4 +1,4 @@
-<div class="dashboard-container">
+﻿<div class="dashboard-container">
   <h2>Dashboard Comptable - Suivi TVA</h2>
   
   <div *ngIf="loading" class="loading-spinner">
@@ -20,11 +20,11 @@
       <mat-card-content>
         <div class="stat-row">
           <span>Total Revenus:</span>
-          <strong>{{ dashboardData.totalRevenue | number:'1.2-2' }} MAD</strong>
+          <strong>{{ dashboardData.totalRevenue | number:'1.2-2' }} €</strong>
         </div>
         <div class="stat-row highlight-vat">
-          <span>TVA Collectée (Est. 20%):</span>
-          <strong>{{ dashboardData.estimatedVatOnRevenue | number:'1.2-2' }} MAD</strong>
+          <span>TVA CollectÃ©e (Est. 20%):</span>
+          <strong>{{ dashboardData.estimatedVatOnRevenue | number:'1.2-2' }} €</strong>
         </div>
       </mat-card-content>
     </mat-card>
@@ -38,29 +38,29 @@
       <mat-card-content>
         <div class="stat-row">
           <span>Total Carburant:</span>
-          <strong>{{ dashboardData.totalFuelExpenses | number:'1.2-2' }} MAD</strong>
+          <strong>{{ dashboardData.totalFuelExpenses | number:'1.2-2' }} €</strong>
         </div>
         <div class="stat-row highlight-vat">
-          <span>TVA Récupérable (Est. 20%):</span>
-          <strong>{{ dashboardData.estimatedVatOnFuel | number:'1.2-2' }} MAD</strong>
+          <span>TVA RÃ©cupÃ©rable (Est. 20%):</span>
+          <strong>{{ dashboardData.estimatedVatOnFuel | number:'1.2-2' }} €</strong>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- Péage -->
+    <!-- PÃ©age -->
     <mat-card class="dashboard-card expense">
       <mat-card-header>
         <mat-icon>toll</mat-icon>
-        <mat-card-title>Péages</mat-card-title>
+        <mat-card-title>PÃ©ages</mat-card-title>
       </mat-card-header>
       <mat-card-content>
         <div class="stat-row">
-          <span>Total Péage:</span>
-          <strong>{{ dashboardData.totalTollExpenses | number:'1.2-2' }} MAD</strong>
+          <span>Total PÃ©age:</span>
+          <strong>{{ dashboardData.totalTollExpenses | number:'1.2-2' }} €</strong>
         </div>
         <div class="stat-row highlight-vat">
-          <span>TVA Récupérable (Est. 20%):</span>
-          <strong>{{ dashboardData.estimatedVatOnToll | number:'1.2-2' }} MAD</strong>
+          <span>TVA RÃ©cupÃ©rable (Est. 20%):</span>
+          <strong>{{ dashboardData.estimatedVatOnToll | number:'1.2-2' }} €</strong>
         </div>
       </mat-card-content>
     </mat-card>
@@ -74,11 +74,11 @@
       <mat-card-content>
         <div class="stat-row">
           <span>Total Maintenance:</span>
-          <strong>{{ dashboardData.totalMaintenanceExpenses | number:'1.2-2' }} MAD</strong>
+          <strong>{{ dashboardData.totalMaintenanceExpenses | number:'1.2-2' }} €</strong>
         </div>
         <div class="stat-row highlight-vat">
-          <span>TVA Récupérable (Est. 20%):</span>
-          <strong>{{ dashboardData.estimatedVatOnMaintenance | number:'1.2-2' }} MAD</strong>
+          <span>TVA RÃ©cupÃ©rable (Est. 20%):</span>
+          <strong>{{ dashboardData.estimatedVatOnMaintenance | number:'1.2-2' }} €</strong>
         </div>
       </mat-card-content>
     </mat-card>
@@ -92,11 +92,12 @@
         <mat-card-title>Bilan TVA</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <h3 class="net-value">{{ dashboardData.netVatToPay | number:'1.2-2' }} MAD</h3>
-        <p *ngIf="dashboardData.netVatToPay > 0">TVA à payer</p>
-        <p *ngIf="dashboardData.netVatToPay <= 0">Crédit de TVA</p>
+        <h3 class="net-value">{{ dashboardData.netVatToPay | number:'1.2-2' }} €</h3>
+        <p *ngIf="dashboardData.netVatToPay > 0">TVA Ã  payer</p>
+        <p *ngIf="dashboardData.netVatToPay <= 0">CrÃ©dit de TVA</p>
       </mat-card-content>
     </mat-card>
 
   </div>
 </div>
+

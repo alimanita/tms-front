@@ -1,23 +1,23 @@
-<div class="fleet-page">
+﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">Historique des Vidanges (Changement d'Huile)</h2>
     <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Nouvelle Vidange</button>
   </div>
 
   <div class="fleet-body">
-    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+    <div *ngIf="loading" class="fleet-loading">Chargementâ€¦</div>
 
     <table *ngIf="!loading" class="fl-table">
       <thead>
         <tr>
-          <th>Référence</th>
-          <th>Type Entité</th>
-          <th>Entité</th>
+          <th>RÃ©fÃ©rence</th>
+          <th>Type EntitÃ©</th>
+          <th>EntitÃ©</th>
           <th>Type Huile</th>
           <th>Date</th>
           <th>Km/H au changement</th>
-          <th>Quantité (L)</th>
-          <th>Coût Total</th>
+          <th>QuantitÃ© (L)</th>
+          <th>CoÃ»t Total</th>
           <th>Prochain Km/H</th>
           <th></th>
         </tr>
@@ -31,17 +31,18 @@
           <td>{{ c.changeDate | date:'dd/MM/yyyy' }}</td>
           <td>{{ c.mileageAtChange || c.hoursAtChange }}</td>
           <td>{{ c.quantityLiters }} L</td>
-          <td>{{ c.totalCost | currency:'MAD' }}</td>
+          <td>{{ c.totalCost | currency:'€' }}</td>
           <td>{{ c.nextChangeKm || c.nextChangeHours }}</td>
           <td class="fl-actions">
-            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎</button>
-            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(c.id)" style="color: red;" title="Supprimer">🗑</button>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">âœŽ</button>
+            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(c.id)" style="color: red;" title="Supprimer">ðŸ—‘</button>
           </td>
         </tr>
         <tr *ngIf="changements.length === 0">
-          <td colspan="10" class="fl-empty">Aucune vidange enregistrée</td>
+          <td colspan="10" class="fl-empty">Aucune vidange enregistrÃ©e</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+

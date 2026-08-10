@@ -17,6 +17,59 @@ $radius     : 8px;
 .fleet-body   { padding: 24px; }
 .fleet-loading { text-align: center; padding: 40px; color: $text-muted; }
 
+// ── Barre de filtres ──────────────────────────────────────────────────────────
+.filters-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  padding: 12px 24px; background: #fff; border-bottom: 1px solid $border;
+}
+
+.filter-search-wrap {
+  position: relative; display: flex; align-items: center; flex: 1; min-width: 200px;
+}
+
+.filter-search-icon {
+  position: absolute; left: 10px; width: 16px; height: 16px; pointer-events: none;
+}
+
+.filter-input {
+  height: 36px; padding: 0 12px 0 34px; border: 1px solid $border; border-radius: $radius;
+  font-size: 13px; color: $text-main; background: #f8fafc; min-width: 180px; flex: 1;
+  box-sizing: border-box; transition: border-color .15s, box-shadow .15s;
+  &::placeholder { color: #94a3b8; }
+  &:focus { outline: none; border-color: $primary; box-shadow: 0 0 0 3px rgba($primary,.1); background: #fff; }
+  &--sm  { padding-left: 12px; min-width: 130px; flex: 0 1 130px; }
+  &--date { padding-left: 12px; min-width: 140px; flex: 0 1 140px; }
+}
+
+.filter-select {
+  height: 36px; padding: 0 30px 0 10px; border: 1px solid $border; border-radius: $radius;
+  font-size: 13px; color: $text-main; background: #f8fafc; cursor: pointer;
+  appearance: none; min-width: 140px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  box-sizing: border-box; transition: border-color .15s;
+  &:focus { outline: none; border-color: $primary; }
+}
+
+.filter-date-group {
+  display: flex; align-items: center; gap: 6px;
+  .filter-date-label { font-size: 12px; font-weight: 600; color: $text-muted; white-space: nowrap; }
+}
+
+.filter-reset-btn {
+  height: 36px; padding: 0 14px; border-radius: $radius; border: 1px solid #fca5a5;
+  background: #fef2f2; color: #dc2626; font-size: 12px; font-weight: 600;
+  cursor: pointer; white-space: nowrap; transition: background .15s;
+  &:hover { background: #fee2e2; }
+}
+
+.results-count {
+  padding: 6px 24px; font-size: 12px; color: $text-muted;
+  .results-filtered { color: $primary; font-weight: 600; }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 .fl-btn {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 7px 14px; border-radius: $radius; font-size: 13px;

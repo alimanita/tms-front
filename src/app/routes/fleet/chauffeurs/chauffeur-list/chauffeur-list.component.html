@@ -1,7 +1,7 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">Chauffeurs</h2>
-    <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+    <button *ngIf="isAdmin" class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
   </div>
 
   <div class="fleet-body">
@@ -36,9 +36,11 @@
             </span>
           </td>
           <td class="fl-actions">
+            <!-- Icône fiche de paie : accessible à tous (comptable inclus) -->
             <button class="fl-btn fl-btn-ghost" (click)="goPayslips(c)" title="Fiches de paie">📄</button>
-            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎</button>
-            <button class="fl-btn fl-btn-ghost" (click)="toggle(c)"
+            <!-- Modifier et activer/désactiver : réservé Admin / SuperAdmin -->
+            <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎</button>
+            <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="toggle(c)"
                     [title]="c.actif ? 'Désactiver' : 'Activer'">
               {{ c.actif ? '🔴' : '🟢' }}
             </button>
@@ -51,3 +53,11 @@
     </table>
   </div>
 </div>
+
+<!-- Drawer : Nouveau document (Fiche de paie) -->
+<app-document-drawer
+  [open]="isDrawerOpen"
+  [chauffeurId]="selectedChauffeurId"
+  (closed)="onDrawerClosed()"
+  (saved)="onDrawerClosed()"
+></app-document-drawer>

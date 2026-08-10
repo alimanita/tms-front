@@ -113,6 +113,13 @@ export interface PleinCarburantRequest {
   isFullTank?: boolean;
   receiptNumber?: string;
   notes?: string;
+  amountHT?: number;
+  amountTTC?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
+  recoverableTvaAmount?: number;
+  acciseAmount?: number;
 }
 
 export interface PleinCarburantResponse {
@@ -135,6 +142,13 @@ export interface PleinCarburantResponse {
   proofUrl?: string;
   notes?: string;
   totalAmount?: number;
+  amountHT?: number;
+  amountTTC?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
+  recoverableTvaAmount?: number;
+  acciseAmount?: number;
 }
 
 export interface DashboardOverviewResponse {
