@@ -1,15 +1,48 @@
-﻿<div class="report-container">
+<div class="report-container">
   <div class="header">
     <button (click)="goBack()" class="back-btn">
       <mat-icon>arrow_back</mat-icon> Retour
     </button>
-    <h2>Rapport : Achats Amazon</h2>
+    <h2>Rapport : Dépenses Flotte</h2>
+  </div>
+
+  <!-- Barre filtres -->
+  <div class="filters-bar">
+    <!-- Toggle Mode -->
+    <div class="mode-toggle">
+      <button [class.active]="viewMode() === 'mensuel'" (click)="switchMode('mensuel')">Par mois</button>
+      <button [class.active]="viewMode() === 'annuel'"  (click)="switchMode('annuel')">Par année</button>
+    </div>
+
+    @if (viewMode() === 'mensuel') {
+      <div class="filter-group">
+        <label>Date début</label>
+        <input type="date" [(ngModel)]="dateDebut" (change)="load()" />
+      </div>
+      <div class="filter-group">
+        <label>Date fin</label>
+        <input type="date" [(ngModel)]="dateFin" (change)="load()" />
+      </div>
+    } @else {
+      <div class="filter-group">
+        <label>Année début</label>
+        <input type="number" [(ngModel)]="anDebut" min="2018" [max]="anFin" (change)="load()" />
+      </div>
+      <div class="filter-group">
+        <label>Année fin</label>
+        <input type="number" [(ngModel)]="anFin" [min]="anDebut" [max]="2099" (change)="load()" />
+      </div>
+    }
+
+    <button class="clear-btn" (click)="clearFilters()">
+      <mat-icon>refresh</mat-icon> Réinitialiser
+    </button>
   </div>
 
   @if (loading()) {
     <div class="state-msg">
       <mat-icon class="spin">refresh</mat-icon>
-      <span>Chargement des donnees...</span>
+      <span>Chargement des données...</span>
     </div>
   }
 
@@ -17,69 +50,108 @@
     <div class="state-msg error">
       <mat-icon>error_outline</mat-icon>
       <span>{{ error() }}</span>
-      <button class="retry-btn" (click)="load()">Reessayer</button>
+      <button class="retry-btn" (click)="load()">Réessayer</button>
     </div>
   }
 
   @if (!loading() && !error()) {
+    <!-- KPI row -->
     <div class="kpi-row">
-      <div class="kpi-card">
-        <mat-icon>shopping_cart</mat-icon>
+      <div class="kpi-card kpi-red">
+        <mat-icon>trending_down</mat-icon>
         <div>
-          <div class="kpi-value">{{ totalDepenses() | number:'1.2-2' }} &euro;</div>
-          <div class="kpi-label">Total depenses Amazon</div>
+          <div class="kpi-value">{{ totalDepenses() | number:'1.2-2' }} DT</div>
+          <div class="kpi-label">Total dépenses</div>
         </div>
       </div>
       <div class="kpi-card">
         <mat-icon>category</mat-icon>
         <div>
+          <div class="kpi-value">{{ depensesParMois().length }}</div>
+          <div class="kpi-label">Périodes avec dépenses</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <mat-icon>layers</mat-icon>
+        <div>
           <div class="kpi-value">{{ depensesParCategorie().length }}</div>
-          <div class="kpi-label">Fournisseurs / Categories</div>
+          <div class="kpi-label">Catégories</div>
         </div>
       </div>
     </div>
 
+    <!-- Graphique en barres -->
+    @if (depensesParMois().length > 0) {
+      <div class="chart-card">
+        <h3 class="chart-title">
+          <mat-icon>bar_chart</mat-icon>
+          Dépenses {{ viewMode() === 'mensuel' ? 'par mois' : 'par année' }}
+        </h3>
+        <div class="bar-chart">
+          @for (item of depensesParMois(); track item.key) {
+            <div class="bar-group">
+              <div class="bar-stack-wrapper">
+                <div class="bar-label-top">{{ item.montant | number:'1.0-0' }}</div>
+                <div class="bar-single" [style.height]="barWidth(item.montant)"></div>
+              </div>
+              <span class="bar-label-x">{{ item.label }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
     <div class="dashboard-grid">
+      <!-- Tableau dépenses par période -->
       <div class="card">
-        <h3>Depenses par Mois</h3>
+        <h3>Dépenses {{ viewMode() === 'mensuel' ? 'par mois' : 'par année' }}</h3>
         @if (depensesParMois().length === 0) {
-          <p class="empty">Aucune donnee disponible.</p>
+          <p class="empty">Aucune donnée disponible.</p>
         } @else {
           <table class="data-table">
             <thead>
               <tr>
-                <th>Mois</th>
-                <th class="text-right">Montant (&euro;)</th>
+                <th>{{ viewMode() === 'mensuel' ? 'Mois' : 'Année' }}</th>
+                <th class="text-right">Montant (DT)</th>
+                <th class="text-right">%</th>
               </tr>
             </thead>
             <tbody>
-              @for (item of depensesParMois(); track item.mois) {
+              @for (item of depensesParMois(); track item.key) {
                 <tr>
-                  <td>{{ item.mois }}</td>
-                  <td class="text-right text-red font-bold">{{ item.montant | number:'1.2-2' }} &euro;</td>
+                  <td>{{ item.label }}</td>
+                  <td class="text-right text-red font-bold">{{ item.montant | number:'1.2-2' }} DT</td>
+                  <td class="text-right">
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar" [style.width]="barWidth(item.montant)"></div>
+                      <span>{{ totalDepenses() > 0 ? (item.montant / totalDepenses() * 100 | number:'1.0-0') : 0 }}%</span>
+                    </div>
+                  </td>
                 </tr>
               }
             </tbody>
             <tfoot>
               <tr class="total-row">
                 <td><strong>Total</strong></td>
-                <td class="text-right"><strong>{{ totalDepenses() | number:'1.2-2' }} &euro;</strong></td>
+                <td class="text-right"><strong>{{ totalDepenses() | number:'1.2-2' }} DT</strong></td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
         }
       </div>
 
+      <!-- Dépenses par catégorie -->
       <div class="card">
-        <h3>Depenses par Fournisseur / Categorie</h3>
+        <h3>Dépenses par Catégorie</h3>
         @if (depensesParCategorie().length === 0) {
-          <p class="empty">Aucune donnee disponible.</p>
+          <p class="empty">Aucune donnée disponible.</p>
         } @else {
           <div class="stats-list">
             @for (item of depensesParCategorie(); track item.categorie) {
               <div class="stat-item">
                 <span class="label">{{ item.categorie }}</span>
-                <span class="value text-red">{{ item.montant | number:'1.2-2' }} &euro;</span>
+                <span class="value text-red">{{ item.montant | number:'1.2-2' }} DT</span>
               </div>
             }
           </div>
