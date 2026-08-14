@@ -22,24 +22,24 @@
             </select>
           </div>
           <div class="field-group">
-            <label class="field-label">NumÃ©ro de rÃ©fÃ©rence</label>
+            <label class="field-label">Num&#233;ro de r&#233;f&#233;rence</label>
             <input class="field-input" formControlName="referenceNumber" placeholder="Ex: DOC-2026..."/>
           </div>
         </div>
 
         <div class="field-row">
           <div class="field-group">
-            <label class="field-label">Concerne (EntitÃ©) <span class="required">*</span></label>
+            <label class="field-label">Concerne (Entit&#233;) <span class="required">*</span></label>
             <select class="field-input" formControlName="entityType">
-              <option value="VEHICLE">VÃ©hicule</option>
+              <option value="VEHICLE">V&#233;hicule</option>
               <option value="MACHINE">Machine</option>
               <option value="DRIVER">Chauffeur</option>
             </select>
           </div>
           <div class="field-group">
-            <label class="field-label">Choix de l'entitÃ© <span class="required">*</span></label>
+            <label class="field-label">Choix de l'entit&#233; <span class="required">*</span></label>
             <select class="field-input" formControlName="entityId" [class.error]="submitted && form.get('entityId')?.invalid">
-              <option [ngValue]="null">-- SÃ©lectionner --</option>
+              <option [ngValue]="null">-- S&#233;lectionner --</option>
               <ng-container *ngIf="entityType === 'VEHICLE'">
                 <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
               </ng-container>
@@ -55,7 +55,7 @@
 
         <div class="field-row">
           <div class="field-group">
-            <label class="field-label">Date d'Ã©mission</label>
+            <label class="field-label">Date d'&#233;mission</label>
             <input class="field-input" type="date" formControlName="issueDate"/>
           </div>
           <div class="field-group">
@@ -66,11 +66,11 @@
 
         <div class="field-row">
           <div class="field-group">
-            <label class="field-label">Ã‰metteur</label>
+            <label class="field-label">&#201;metteur</label>
             <input class="field-input" formControlName="issuer" placeholder="Ex: Comptable, Assurance..."/>
           </div>
           <div class="field-group">
-            <label class="field-label">Montant (€)</label>
+            <label class="field-label">Montant (&#8364;)</label>
             <input class="field-input" type="number" step="0.01" min="0" formControlName="amount"/>
           </div>
         </div>
@@ -79,7 +79,7 @@
           <label class="field-label">Fichier joint (Scan PDF/Image)</label>
           <div class="fl-upload-zone" [class.has-file]="!!selectedFile">
             <input type="file" id="proofFileDrawer" accept="image/*,.pdf" (change)="onFileChange($event)" hidden/>
-            
+
             <ng-container *ngIf="!selectedFile && !existingProofUrl">
               <div class="upload-actions" style="margin-top: 8px;">
                 <label for="proofFileDrawer" class="btn-outline" style="cursor: pointer; padding: 6px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
@@ -90,10 +90,10 @@
 
             <span *ngIf="selectedFile" class="fl-file-name" style="margin-top: 8px; display: block;">
               {{ selectedFile.name }}
-              <button type="button" (click)="removeFile()" title="Supprimer" style="background: none; border: none; cursor: pointer; color: red;">âœ•</button>
+              <button type="button" (click)="removeFile()" title="Supprimer" style="background: none; border: none; cursor: pointer; color: red;">&#10005;</button>
             </span>
           </div>
-          <img *ngIf="previewUrl" [src]="previewUrl" alt="AperÃ§u" style="max-height: 100px; margin-top: 10px; border-radius: 4px;"/>
+          <img *ngIf="previewUrl" [src]="previewUrl" alt="Aper&#231;u" style="max-height: 100px; margin-top: 10px; border-radius: 4px;"/>
         </div>
 
         <div class="field-group">
@@ -108,10 +108,9 @@
       <button type="button" class="btn-outline" (click)="close()">Annuler</button>
       <button type="button" class="btn-primary" [disabled]="form.invalid || loading" (click)="onSubmit()">
         <mat-spinner *ngIf="loading" diameter="16" class="btn-spinner" style="display: inline-block; margin-right: 8px; vertical-align: middle;"></mat-spinner>
-        <span *ngIf="!loading">CrÃ©er</span>
+        <span *ngIf="!loading">Cr&#233;er</span>
       </button>
     </div>
 
   </div>
 </div>
-

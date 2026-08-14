@@ -23,15 +23,15 @@
         <div class="fl-col">
           <label>Concerne (EntitÃ©) *</label>
           <select formControlName="entityType">
-            <option value="VEHICLE">VÃ©hicule</option>
+            <option value="VEHICLE">Véhicule</option>
             <option value="MACHINE">Machine</option>
             <option value="DRIVER">Chauffeur</option>
           </select>
         </div>
         <div class="fl-col">
-          <label>Choix de l'entitÃ© *</label>
+          <label>Choix de l'entité *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
-            <option [ngValue]="null">-- SÃ©lectionner --</option>
+            <option [ngValue]="null">-- Sélectionner --</option>
             <ng-container *ngIf="entityType === 'VEHICLE'">
               <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
             </ng-container>

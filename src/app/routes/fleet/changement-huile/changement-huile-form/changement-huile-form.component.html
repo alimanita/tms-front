@@ -8,9 +8,9 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>VÃ©hicule *</label>
+          <label>Véhicule *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
-            <option [ngValue]="null">-- SÃ©lectionner --</option>
+            <option [ngValue]="null">-- Sélectionner --</option>
             <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
           </select>
         </div>

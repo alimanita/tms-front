@@ -1,17 +1,17 @@
-<page-header 
-  title="Performance & Bénéfices Chauffeur" 
-  subtitle="Analyse globale des revenus, dépenses et salaires par chauffeur." />
+﻿<page-header 
+  title="Performance &amp; B&#233;n&#233;fices Chauffeur" 
+  subtitle="Analyse globale des revenus, d&#233;penses et salaires par chauffeur." />
 
 <div class="chauffeur-wrapper tva-wrapper">
 
-  <!-- ═══ PERIOD & CHAUFFEUR FILTERS ═══ -->
+  <!-- PERIOD & CHAUFFEUR FILTERS -->
   <div class="filter-bar">
     <div class="filter-tabs">
       <button [class.active]="periodMode === 'month'" (click)="onPeriodChange('month')">
         <mat-icon>calendar_month</mat-icon> Par mois
       </button>
       <button [class.active]="periodMode === 'year'" (click)="onPeriodChange('year')">
-        <mat-icon>date_range</mat-icon> Par année
+        <mat-icon>date_range</mat-icon> Par ann&#233;e
       </button>
       <button [class.active]="periodMode === 'all'" (click)="onPeriodChange('all')">
         <mat-icon>all_inclusive</mat-icon> Tout
@@ -29,7 +29,7 @@
           <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
         </select>
       </div>
-      
+
       <!-- Chauffeur Selector -->
       <div class="filter-input">
         <mat-icon>person</mat-icon>
@@ -47,16 +47,16 @@
   </div>
 
   <ng-container *ngIf="stats()">
-    <!-- ═══ KPI SUMMARY ═══ -->
+    <!-- KPI SUMMARY -->
     <div class="summary-grid">
       <div class="kpi-card" [ngClass]="stats()!.totalBenefice < 0 ? 'kpi-danger' : 'kpi-success'">
         <div class="kpi-icon">
           <mat-icon>{{ stats()!.totalBenefice < 0 ? 'warning' : 'task_alt' }}</mat-icon>
         </div>
         <div class="kpi-body">
-          <span class="kpi-label">Bénéfice Net</span>
-          <span class="kpi-value">{{ stats()!.totalBenefice | number:'1.2-2' }} DT</span>
-          <span class="kpi-sub">Total pour la période sélectionnée</span>
+          <span class="kpi-label">B&#233;n&#233;fice Net</span>
+          <span class="kpi-value">{{ stats()!.totalBenefice | number:'1.2-2' }} &#8364;</span>
+          <span class="kpi-sub">Total pour la p&#233;riode s&#233;lectionn&#233;e</span>
         </div>
       </div>
 
@@ -66,8 +66,8 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-label">Total Revenus</span>
-          <span class="kpi-value">{{ stats()!.totalRevenu | number:'1.2-2' }} DT</span>
-          <span class="kpi-sub">{{ stats()!.totalMissions }} Missions effectuées</span>
+          <span class="kpi-value">{{ stats()!.totalRevenu | number:'1.2-2' }} &#8364;</span>
+          <span class="kpi-sub">{{ stats()!.totalMissions }} Missions effectu&#233;es</span>
         </div>
       </div>
 
@@ -76,29 +76,29 @@
           <mat-icon>receipt_long</mat-icon>
         </div>
         <div class="kpi-body">
-          <span class="kpi-label">Total Dépenses (Missions)</span>
-          <span class="kpi-value">{{ stats()!.totalDepense | number:'1.2-2' }} DT</span>
+          <span class="kpi-label">Total D&#233;penses (Missions)</span>
+          <span class="kpi-value">{{ stats()!.totalDepense | number:'1.2-2' }} &#8364;</span>
         </div>
       </div>
-      
+
       <div class="kpi-card kpi-accise" style="border-left-color: #f59e0b;">
         <div class="kpi-icon">
           <mat-icon>payments</mat-icon>
         </div>
         <div class="kpi-body">
-          <span class="kpi-label">Total Salaires & Charges</span>
-          <span class="kpi-value">{{ stats()!.totalSalaire | number:'1.2-2' }} DT</span>
+          <span class="kpi-label">Total Salaires &amp; Charges</span>
+          <span class="kpi-value">{{ stats()!.totalSalaire | number:'1.2-2' }} &#8364;</span>
           <span class="kpi-sub" *ngIf="selectedChauffeur()">Type : {{ selectedChauffeur()!.typeSalaire }} ({{ selectedChauffeur()!.valeurSalaire }})</span>
           <span class="kpi-sub" *ngIf="!selectedChauffeur()">Somme de tous les chauffeurs</span>
         </div>
       </div>
     </div>
 
-    <!-- ═══ DETAILS TABLE ═══ -->
+    <!-- DETAILS TABLE -->
     <div class="tabs-container">
       <div class="tab-headers">
         <button class="active">
-          Détails des opérations - {{ selectedId === '' ? 'Tous les chauffeurs' : stats()!.chauffeurNom }}
+          D&#233;tails des op&#233;rations - {{ selectedId === '' ? 'Tous les chauffeurs' : stats()!.chauffeurNom }}
         </button>
       </div>
 
@@ -108,19 +108,19 @@
             <thead>
               <tr *ngIf="selectedId === ''">
                 <th>Chauffeur</th>
-                <th class="text-right">Revenus (DT)</th>
-                <th class="text-right">Dépenses (DT)</th>
-                <th class="text-right">Salaire (DT)</th>
-                <th class="text-right">Bénéfice Net (DT)</th>
+                <th class="text-right">Revenus (&#8364;)</th>
+                <th class="text-right">D&#233;penses (&#8364;)</th>
+                <th class="text-right">Salaire (&#8364;)</th>
+                <th class="text-right">B&#233;n&#233;fice Net (&#8364;)</th>
                 <th class="text-right">Missions</th>
               </tr>
               <tr *ngIf="selectedId !== ''">
                 <th>Date</th>
                 <th>Mission</th>
-                <th class="text-right">Revenus (DT)</th>
-                <th class="text-right">Dépenses (DT)</th>
-                <th class="text-right">Salaire Mission (DT)</th>
-                <th class="text-right">Bénéfice (DT)</th>
+                <th class="text-right">Revenus (&#8364;)</th>
+                <th class="text-right">D&#233;penses (&#8364;)</th>
+                <th class="text-right">Salaire Mission (&#8364;)</th>
+                <th class="text-right">B&#233;n&#233;fice (&#8364;)</th>
               </tr>
             </thead>
             <tbody>
@@ -138,7 +138,7 @@
                 </tr>
               </ng-container>
 
-              <!-- Si UN chauffeur sélectionné -->
+              <!-- Si UN chauffeur selectionne -->
               <ng-container *ngIf="selectedId !== ''">
                 <tr *ngFor="let row of details(); let i = index" [class.row-alt]="i % 2 === 1">
                   <td>{{ row.date }}</td>
@@ -154,10 +154,10 @@
 
               <tr *ngIf="details().length === 0">
                 <td [attr.colspan]="selectedId === '' ? 6 : 6" class="text-center empty-msg">
-                  Aucune opération sur cette période.
+                  Aucune op&#233;ration sur cette p&#233;riode.
                 </td>
               </tr>
-              
+
               <!-- Ligne de total -->
               <tr class="total-row" *ngIf="details().length > 0">
                 <td [attr.colspan]="selectedId === '' ? 1 : 2"><strong>TOTAL</strong></td>
@@ -178,6 +178,6 @@
 
   <div class="loading-state" *ngIf="loading()">
     <mat-icon class="spin">sync</mat-icon>
-    <span>Calcul des agrégations en cours...</span>
+    <span>Calcul des agr&#233;gations en cours...</span>
   </div>
 </div>
