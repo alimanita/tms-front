@@ -25,6 +25,8 @@
         </button>
       </div>
       
+      <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
+      <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
       <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
     </div>
   </div>
@@ -35,6 +37,7 @@
 <table *ngIf="!loading" class="fl-table">
   <thead>
     <tr>
+      <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
       <th>Référence</th>
       <th>Véhicule</th>
       <th>Chauffeur</th>
@@ -51,6 +54,7 @@
   </thead>
   <tbody>
     <tr *ngFor="let p of pleins">
+      <td><input type="checkbox" [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)"></td>
       <td>{{ p.reference }}</td>
       <td>{{ p.vehiculeImmatriculation || '—' }}</td>
       <td>{{ p.chauffeurNom || '—' }}</td>

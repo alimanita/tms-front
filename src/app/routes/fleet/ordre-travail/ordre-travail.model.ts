@@ -141,6 +141,11 @@ export interface PieceRechangeRequest {
   minStockQty?: number;
   stockItemId?: number;
   location?: string;
+  amountHT?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
+  recoverableTvaAmount?: number;
 }
 
 export interface PieceRechangeResponse {
@@ -157,6 +162,12 @@ export interface PieceRechangeResponse {
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  amountHT?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
+  recoverableTvaAmount?: number;
+  receiptPath?: string;
 }
 
 // ── Stats Syage (changement de lames) ─────────────────────────

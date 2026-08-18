@@ -59,9 +59,45 @@ export class PieceRechangeFormComponent {
       stockQty:    [this.piece?.stockQty ?? 0, [Validators.required, Validators.min(0)]],
       minStockQty: [this.piece?.minStockQty ?? 0, [Validators.required, Validators.min(0)]],
       location:    [this.piece?.location ?? ''],
+      amountHT:    [this.piece?.amountHT ?? null, Validators.min(0)],
+      tvaRate:     [this.piece?.tvaRate ?? 19, Validators.min(0)],
+      tvaAmount:   [{ value: this.piece?.tvaAmount ?? null, disabled: true }],
+      isTvaRecoverable: [this.piece?.isTvaRecoverable ?? false],
+      recoverableTvaAmount: [{ value: this.piece?.recoverableTvaAmount ?? null, disabled: true }],
     });
 
+    this.form.valueChanges.subscribe(() => this.calculateTva());
     this.cdr.markForCheck();
+  }
+
+  selectedFile: File | null = null;
+  selectedFileName = '';
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.selectedFileName = file.name;
+    }
+  }
+
+  private calculateTva(): void {
+    const fv = this.form.getRawValue();
+    const ht = fv.amountHT || 0;
+    const rate = fv.tvaRate || 0;
+    const tva = (ht * rate) / 100;
+    
+    let recoverable = 0;
+    if (fv.isTvaRecoverable) {
+       recoverable = tva;
+    }
+
+    if (this.form.get('tvaAmount')?.value !== tva) {
+       this.form.patchValue({ tvaAmount: tva }, { emitEvent: false });
+    }
+    if (this.form.get('recoverableTvaAmount')?.value !== recoverable) {
+       this.form.patchValue({ recoverableTvaAmount: recoverable }, { emitEvent: false });
+    }
   }
 
   get isEdit(): boolean {
@@ -75,7 +111,7 @@ export class PieceRechangeFormComponent {
       return;
     }
     this.loading = true;
-    const fv = this.form.value;
+    const fv = this.form.getRawValue();
     const request: PieceRechangeRequest = {
       reference:   fv.reference,
       name:        fv.name,
@@ -85,12 +121,32 @@ export class PieceRechangeFormComponent {
       stockQty:    fv.stockQty,
       minStockQty: fv.minStockQty,
       location:    fv.location || undefined,
+      amountHT:    fv.amountHT ?? undefined,
+      tvaRate:     fv.tvaRate ?? undefined,
+      tvaAmount:   fv.tvaAmount ?? undefined,
+      isTvaRecoverable: fv.isTvaRecoverable,
+      recoverableTvaAmount: fv.recoverableTvaAmount ?? undefined
     };
     this.ordreTravailService.savePiece(request, this.editingId ?? undefined).subscribe({
       next: (response) => {
-        this.loading = false;
-        this.snackBar.open(this.isEdit ? 'Pièce mise à jour' : 'Pièce créée', 'OK', { duration: 2500 });
-        this.saved.emit(response); 
+        if (this.selectedFile) {
+          this.ordreTravailService.uploadPieceProofFile(response.id, this.selectedFile).subscribe({
+            next: (finalRes) => {
+               this.loading = false;
+               this.snackBar.open(this.isEdit ? 'Pièce mise à jour avec justificatif' : 'Pièce créée avec justificatif', 'OK', { duration: 2500 });
+               this.saved.emit(finalRes);
+            },
+            error: () => {
+               this.loading = false;
+               this.snackBar.open('Pièce enregistrée mais erreur justificatif', 'Fermer', { duration: 3000 });
+               this.saved.emit(response);
+            }
+          });
+        } else {
+          this.loading = false;
+          this.snackBar.open(this.isEdit ? 'Pièce mise à jour' : 'Pièce créée', 'OK', { duration: 2500 });
+          this.saved.emit(response);
+        }
       },
       error: (err) => {
         this.loading = false;

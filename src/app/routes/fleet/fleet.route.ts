@@ -40,6 +40,12 @@ export const routes : Routes = [
       import('./fuel-fillings/fuel-form/fuel-form.component')
         .then(m => m.FuelFormComponent),
   },
+  {
+    path: 'tolls',
+    loadComponent: () =>
+      import('./tolls/toll-list/toll-list.component')
+        .then(m => m.TollListComponent),
+  },
   { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
 
   {

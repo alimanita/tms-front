@@ -4,7 +4,13 @@
     <h1 class="page-title">Pièces & consommables</h1>
     <p class="page-subtitle">Gérer le stock de pièces, huiles, graisses et consommables</p>
   </div>
-  <div class="header-right">
+  <div class="header-right" style="display: flex; gap: 1rem; align-items: center;">
+    <button class="export-btn btn-outline" *ngIf="selectedIds.size > 0" (click)="exportCSV()">
+      <mat-icon>download</mat-icon> CSV
+    </button>
+    <button class="export-btn btn-outline" *ngIf="selectedIds.size > 0" (click)="exportPDF()">
+      <mat-icon>picture_as_pdf</mat-icon> PDF
+    </button>
     <button class="create-btn" type="button" (click)="openCreate()">
       <mat-icon>add</mat-icon>
       Ajouter une pièce
@@ -47,11 +53,14 @@
   <table class="bl-table" *ngIf="!loading()">
     <thead>
       <tr>
+        <th class="col-checkbox">
+          <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAll($event)" />
+        </th>
         <th class="col-ref">Référence</th>
         <th class="col-name">Désignation</th>
         <th class="col-brand">Marque</th>
         <th class="col-unit">Unité</th>
-        <th class="col-cost">Coût unitaire</th>
+        <th class="col-cost">Coût unitaire HT</th>
         <th class="col-stock">Stock</th>
         <th class="col-location">Emplacement</th>
         <th class="col-actions">Actions</th>
@@ -61,7 +70,7 @@
     <tbody>
 
       <tr *ngIf="pieces().length === 0">
-        <td colspan="8">
+        <td colspan="9">
           <div class="empty-state">
             <mat-icon>inventory_2</mat-icon>
             <p>Aucune pièce trouvée</p>
@@ -69,7 +78,11 @@
         </td>
       </tr>
 
-      <tr *ngFor="let p of pieces()" class="table-row">
+      <tr *ngFor="let p of pieces()" class="table-row" [class.selected]="selectedIds.has(p.id)" (click)="toggleSelection(p.id)">
+
+        <td class="col-checkbox" (click)="$event.stopPropagation()">
+          <input type="checkbox" [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)" />
+        </td>
 
         <td class="col-ref">
           <span class="ref-link">{{ p.reference }}</span>
@@ -83,7 +96,7 @@
 
         <td class="col-unit">{{ p.unit || '—' }}</td>
 
-        <td class="col-cost">{{ (p.unitCost ?? 0) | number:'1.3-3' }} DT</td>
+        <td class="col-cost">{{ (p.amountHT || p.unitCost ?? 0) | number:'1.3-3' }} DT</td>
 
         <td class="col-stock">
           <div class="stock-cell">
@@ -106,6 +119,10 @@
             <button mat-menu-item (click)="openEdit(p)">
               <mat-icon class="menu-icon icon-edit">edit</mat-icon>
               <span>Modifier</span>
+            </button>
+            <button mat-menu-item *ngIf="p.receiptPath" (click)="viewProof(p.id, p.reference)">
+              <mat-icon class="menu-icon" style="color: #6366f1;">visibility</mat-icon>
+              <span>Voir justificatif</span>
             </button>
             <button mat-menu-item class="delete-menu-item" (click)="supprimer(p)">
               <mat-icon class="menu-icon icon-delete">delete</mat-icon>
@@ -143,3 +160,34 @@
   (closed)="onDialogClosed()"
   (saved)="onPieceSaved()"
 ></app-piece-rechange-form>
+
+<!-- Modal Justificatif -->
+<div class="panel-overlay" *ngIf="proofModalOpen" (click)="closeProofModal()">
+  <div class="proof-drawer" (click)="$event.stopPropagation()">
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <mat-icon>description</mat-icon>
+        <h2>Justificatif - {{ currentProofRef }}</h2>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn-outline" *ngIf="!proofLoading && currentProofId" (click)="downloadProof(currentProofId)">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button type="button" class="drawer-close" (click)="closeProofModal()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="drawer-body proof-body">
+      <div *ngIf="proofLoading" class="loading-state">
+        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+        <p>Chargement du justificatif...</p>
+      </div>
+      <div *ngIf="!proofLoading && proofSafeUrl" class="proof-content">
+        <img *ngIf="proofIsImage" [src]="proofSafeUrl" alt="Justificatif" />
+        <iframe *ngIf="!proofIsImage" [src]="proofSafeUrl" width="100%" height="100%" frameborder="0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>

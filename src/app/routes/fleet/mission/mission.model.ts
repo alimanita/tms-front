@@ -50,21 +50,6 @@ export interface MissionRetourRequest {
   dateRetourEffective?: string;
   totalCost?: number;
 }
-export interface DepenseMissionResponse {
-  id: number;
-  libelle: string;
-  montant: number;
-  categorie?: string;
-  dateCreation?: string;
-}
-
-export interface DepenseMissionResponse {
-  id: number;
-  libelle: string;
-  montant: number;
-  categorie?: string;
-  dateCreation?: string;
-}
 
 export interface PageResponse<T> {
   content: T[];
@@ -97,11 +82,17 @@ export interface DepenseMissionRequest {
   mileageAfter?: number;
   isFullTank?: boolean;
   receiptNumber?: string;
+
+  amountHT?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
 }
 
 export interface DepenseMissionResponse {
   id: number;
   missionId: number;
+  missionReference?: string;
   expenseType: TypeDepense;
   montant: number;
   currency: string;
@@ -109,5 +100,9 @@ export interface DepenseMissionResponse {
   description?: string;
   receiptPath?: string;
   isReimbursable: boolean;
+  amountHT?: number;
+  tvaRate?: number;
+  tvaAmount?: number;
+  isTvaRecoverable?: boolean;
   createdAt: string;
 }

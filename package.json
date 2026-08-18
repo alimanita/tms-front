@@ -38,6 +38,7 @@
     "@ngx-translate/http-loader": "^18.0.0",
     "apexcharts": "^5.15.2",
     "base64-js": "^1.5.1",
+    "jspdf": "^4.2.1",
     "jwt-decode": "^4.0.0",
     "ng-apexcharts": "^2.4.0",
     "ngx-translate": "^0.0.1-security",

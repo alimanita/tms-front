@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { MissionService } from '../mission.service';
 import { DepenseMissionResponse, TypeDepense } from '../mission.model';
@@ -25,6 +26,7 @@ export class MissionExpensesComponent implements OnInit {
 
   private readonly zone = inject(NgZone);
   private readonly cdr  = inject(ChangeDetectorRef);
+  private readonly sanitizer = inject(DomSanitizer);
 
   depenses: DepenseMissionResponse[] = [];
   loading = false;
@@ -49,7 +51,7 @@ export class MissionExpensesComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      expenseType:    [TypeDepense.TOLL, Validators.required],
+      expenseType:    [TypeDepense.MEAL, Validators.required],
       montant:        [null, [Validators.required, Validators.min(0.001)]],
       expenseDate:    ['', Validators.required],
       description:    [''],
@@ -65,8 +67,18 @@ export class MissionExpensesComponent implements OnInit {
         this.isFuelDrawerOpen = true;
         this.showForm = false;
         
-        // Remettre à Péage pour la prochaine fois
-        this.form.patchValue({ expenseType: TypeDepense.TOLL }, { emitEvent: false });
+        // Remettre à Autre pour la prochaine fois
+        this.form.patchValue({ expenseType: TypeDepense.MEAL }, { emitEvent: false });
+      } else if (val === TypeDepense.TOLL) {
+        this.initTollForm();
+        this.tollForm.patchValue({
+          expenseDate: this.form.value.expenseDate || new Date().toISOString().slice(0, 16),
+        });
+        this.isTollDrawerOpen = true;
+        this.showForm = false;
+        
+        // Remettre à Autre pour la prochaine fois
+        this.form.patchValue({ expenseType: TypeDepense.MEAL }, { emitEvent: false });
       }
     });
 
@@ -97,7 +109,7 @@ export class MissionExpensesComponent implements OnInit {
     this.showForm = !this.showForm;
     this.submitted = false;
     if (this.showForm) {
-      this.form.reset({ expenseType: TypeDepense.TOLL, isReimbursable: true });
+      this.form.reset({ expenseType: TypeDepense.MEAL, isReimbursable: true });
     }
   }
 
@@ -107,6 +119,13 @@ export class MissionExpensesComponent implements OnInit {
   previewUrl: string | null = null;
   fuelSubmitted = false;
   fuelSaving = false;
+
+  // -- Toll (Péage) --
+  isTollDrawerOpen = false;
+  tollForm!: FormGroup;
+  tollSubmitted = false;
+  tollSaving = false;
+
 
   initFuelForm(): void {
     this.fuelForm = this.fb.group({
@@ -121,6 +140,27 @@ export class MissionExpensesComponent implements OnInit {
       mileageAfter:   [null],
       isFullTank:     [true],
       receiptNumber:  ['']
+    });
+  }
+
+  initTollForm(): void {
+    this.tollForm = this.fb.group({
+      expenseType:      [TypeDepense.TOLL, Validators.required],
+      amountHT:         [null, [Validators.required, Validators.min(0)]],
+      tvaRate:          [20, [Validators.min(0)]],
+      montant:          [{value: null, disabled: true}],
+      expenseDate:      [new Date().toISOString().slice(0, 16), Validators.required],
+      description:      [''],
+      isReimbursable:   [true],
+      isTvaRecoverable: [false],
+      receiptNumber:    ['']
+    });
+
+    this.tollForm.valueChanges.subscribe(() => {
+      const ht = +(this.tollForm.get('amountHT')?.value ?? 0);
+      const tva = +(this.tollForm.get('tvaRate')?.value ?? 0);
+      const ttc = ht * (1 + tva / 100);
+      this.tollForm.get('montant')?.setValue(ttc.toFixed(3), {emitEvent: false});
     });
   }
 
@@ -157,6 +197,13 @@ export class MissionExpensesComponent implements OnInit {
     this.selectedFile = null;
     this.previewUrl = null;
     this.fuelSubmitted = false;
+  }
+
+  closeTollDrawer(): void {
+    this.isTollDrawerOpen = false;
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.tollSubmitted = false;
   }
 
   onSubmit(): void {
@@ -232,6 +279,46 @@ export class MissionExpensesComponent implements OnInit {
     });
   }
 
+  onSubmitToll(): void {
+    this.tollSubmitted = true;
+    if (this.tollForm.invalid) {
+      this.tollForm.markAllAsTouched();
+      return;
+    }
+
+    this.tollSaving = true;
+    const fv = this.tollForm.getRawValue();
+    const request = {
+      expenseType:      fv.expenseType,
+      montant:          +(fv.montant),
+      expenseDate:      fv.expenseDate,
+      description:      fv.description || undefined,
+      isReimbursable:   fv.isReimbursable,
+      receiptNumber:    fv.receiptNumber,
+      amountHT:         fv.amountHT,
+      tvaRate:          fv.tvaRate,
+      tvaAmount:        +(fv.amountHT * fv.tvaRate / 100).toFixed(3),
+      isTvaRecoverable: fv.isTvaRecoverable
+    };
+
+    this.missionService.addDepense(this.missionId, request, this.selectedFile || undefined).subscribe({
+      next: (created) => this.zone.run(() => {
+        this.depenses = [...this.depenses, created];
+        this.snackBar.open('Dépense de péage ajoutée', 'Fermer', { duration: 2500 });
+        this.closeTollDrawer();
+        this.tollSaving = false;
+        this.cdr.detectChanges();
+      }),
+      error: (err) => this.zone.run(() => {
+        this.snackBar.open(
+          err.error?.message ?? "Erreur lors de l'ajout de la dépense de péage", 'Fermer', { duration: 3000 }
+        );
+        this.tollSaving = false;
+        this.cdr.detectChanges();
+      }),
+    });
+  }
+
   supprimer(d: DepenseMissionResponse): void {
     const confirmation = window.confirm('Supprimer cette dépense ?');
     if (!confirmation) return;
@@ -254,4 +341,56 @@ export class MissionExpensesComponent implements OnInit {
   getTypeLabel(t: TypeDepense): string {
     return this.typeOptions.find(o => o.value === t)?.label ?? t;
   }
+
+  viewReceipt(d: DepenseMissionResponse): void {
+    this.proofModalOpen = true;
+    this.proofLoading   = true;
+    this.proofSafeUrl   = null;
+    this.proofIsImage   = false;
+    this.currentDepense = d;
+
+    this.missionService.downloadReceipt(this.missionId, d.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.proofIsImage = blob.type.startsWith('image/');
+        this.proofSafeUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+        this.proofLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.proofLoading = false;
+        this.proofModalOpen = false;
+        this.snackBar.open('Impossible de charger le justificatif', 'Fermer', { duration: 3000 });
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeProofModal(): void {
+    this.proofModalOpen = false;
+    this.proofSafeUrl   = null;
+    this.currentDepense = null;
+  }
+
+  downloadReceipt(): void {
+    if (!this.currentDepense) return;
+    this.missionService.downloadReceipt(this.missionId, this.currentDepense.id).subscribe({
+      next: (blob) => {
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `justificatif-depense-${this.currentDepense!.id}`;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Erreur lors du téléchargement', 'Fermer', { duration: 3000 })
+    });
+  }
+
+  // ── Modal justificatif ──────────────────────────────────────────────────────
+  proofModalOpen  = false;
+  proofLoading    = false;
+  proofIsImage    = false;
+  proofSafeUrl: SafeUrl | null = null;
+  currentDepense: DepenseMissionResponse | null = null;
 }

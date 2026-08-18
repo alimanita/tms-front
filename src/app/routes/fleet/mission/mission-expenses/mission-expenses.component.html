@@ -25,7 +25,7 @@
       </div>
 
       <div class="expense-field">
-        <label>Montant (�) *</label>
+        <label>Montant () *</label>
         <input type="number" step="0.001" min="0" formControlName="montant"
                [class.error]="submitted && form.get('montant')?.invalid"/>
       </div>
@@ -69,12 +69,13 @@
         <th>Date</th>
         <th>Description</th>
         <th>Remboursable</th>
+        <th>Justificatif</th>
         <th *ngIf="!readonly"></th>
       </tr>
     </thead>
     <tbody>
       <tr *ngIf="depenses.length === 0">
-        <td [attr.colspan]="readonly ? 5 : 6" class="expenses-empty">Aucune dépense enregistrée</td>
+        <td [attr.colspan]="readonly ? 6 : 7" class="expenses-empty">Aucune dépense enregistrée</td>
       </tr>
       <tr *ngFor="let d of depenses">
         <td>{{ getTypeLabel(d.expenseType) }}</td>
@@ -86,6 +87,12 @@
             {{ d.isReimbursable ? 'Oui' : 'Non' }}
           </span>
         </td>
+        <td>
+          <button *ngIf="d.receiptPath" class="view-receipt-btn" (click)="viewReceipt(d)" type="button" title="Voir le justificatif">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <span *ngIf="!d.receiptPath" class="no-receipt">—</span>
+        </td>
         <td *ngIf="!readonly">
           <button class="remove-expense-btn" (click)="supprimer(d)" type="button" title="Supprimer">
             <mat-icon>delete</mat-icon>
@@ -96,8 +103,8 @@
     <tfoot *ngIf="depenses.length > 0">
       <tr>
         <td colspan="1"><strong>Total</strong></td>
-        <td><strong>{{ totalDepenses | number:'1.3-3' }} �</strong></td>
-        <td colspan="4"></td>
+        <td><strong>{{ totalDepenses | number:'1.3-3' }} </strong></td>
+        <td colspan="5"></td>
       </tr>
     </tfoot>
   </table>
@@ -217,5 +224,134 @@
       <mat-spinner *ngIf="fuelSaving" diameter="20"></mat-spinner>
       <span *ngIf="!fuelSaving">Enregistrer le plein</span>
     </button>
+  </div>
+</div>
+<!-- Overlay et Drawer pour le péage -->
+<div class="drawer-overlay" *ngIf="isTollDrawerOpen" (click)="closeTollDrawer()"></div>
+<div class="drawer-container" [class.open]="isTollDrawerOpen">
+  <div class="drawer-header">
+    <div class="header-left">
+      <mat-icon>toll</mat-icon>
+      <h2>Dépense de péage</h2>
+    </div>
+    <button class="close-btn" type="button" (click)="closeTollDrawer()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="drawer-body" *ngIf="isTollDrawerOpen">
+    <form [formGroup]="tollForm" (ngSubmit)="onSubmitToll()" class="fuel-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Montant HT (DT) *</label>
+          <input type="number" step="0.001" min="0" formControlName="amountHT"
+                 [class.error]="tollSubmitted && tollForm.get('amountHT')?.invalid"/>
+        </div>
+        <div class="form-group">
+          <label>Taux TVA (%)</label>
+          <input type="number" step="0.01" min="0" formControlName="tvaRate"/>
+        </div>
+      </div>
+      
+      <div class="total-estimated">
+        <span class="label">Montant Total TTC</span>
+        <span class="value">{{ tollForm.get('montant')?.value || 0 }} DT</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Date et heure *</label>
+          <input type="datetime-local" formControlName="expenseDate"
+                 [class.error]="tollSubmitted && tollForm.get('expenseDate')?.invalid"/>
+        </div>
+        <div class="form-group">
+          <label>N° reçu / Facture</label>
+          <input type="text" formControlName="receiptNumber"/>
+        </div>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="isTvaRecoverable"/>
+          TVA Récupérable
+        </label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="isReimbursable"/>
+          Remboursable
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Justificatif (photo, reçu scanné...)</label>
+        <div class="file-upload" [class.has-file]="!!selectedFile">
+          <input type="file" id="tollFile" (change)="onFileSelected($event)" accept="image/*,.pdf" hidden/>
+          <input type="file" id="tollCamera" (change)="onFileSelected($event)" accept="image/*" capture="environment" hidden/>
+          
+          <ng-container *ngIf="!selectedFile">
+            <div class="upload-actions">
+              <label for="tollCamera" class="upload-btn camera-btn" title="Prendre une photo">
+                <mat-icon>photo_camera</mat-icon> Prendre photo
+              </label>
+              <span class="upload-or">ou</span>
+              <label for="tollFile" class="upload-btn file-btn" title="Choisir un fichier">
+                <mat-icon>attach_file</mat-icon> Parcourir
+              </label>
+            </div>
+          </ng-container>
+          
+          <ng-container *ngIf="selectedFile">
+            <div class="file-info">
+              <img *ngIf="previewUrl" [src]="previewUrl" alt="Aperçu" class="file-preview"/>
+              <mat-icon *ngIf="!previewUrl" class="file-icon">description</mat-icon>
+              <span class="file-name">{{ selectedFile.name }}</span>
+              <button type="button" class="remove-file-btn" (click)="removeFile()" title="Supprimer">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Description / Notes</label>
+        <textarea formControlName="description" rows="3" placeholder="Observations..."></textarea>
+      </div>
+    </form>
+  </div>
+
+  <div class="drawer-footer" *ngIf="isTollDrawerOpen">
+    <button type="button" class="btn-cancel" (click)="closeTollDrawer()" [disabled]="tollSaving">Annuler</button>
+    <button type="button" class="btn-save" (click)="onSubmitToll()" [disabled]="tollSaving">
+      <mat-spinner *ngIf="tollSaving" diameter="20"></mat-spinner>
+      <span *ngIf="!tollSaving">Enregistrer le péage</span>
+    </button>
+  </div>
+</div>
+
+<!-- ── Modal justificatif (identique au carburant) ── -->
+<div class="proof-modal-overlay" *ngIf="proofModalOpen" (click)="closeProofModal()">
+  <div class="proof-modal" (click)="$event.stopPropagation()">
+
+    <div class="proof-modal-header">
+      <h3>Justificatif</h3>
+      <button class="proof-modal-close" (click)="closeProofModal()">✕</button>
+    </div>
+
+    <div class="proof-modal-body">
+      <div *ngIf="proofLoading" class="proof-modal-loading">Chargement…</div>
+      <ng-container *ngIf="!proofLoading">
+        <img *ngIf="proofIsImage"  [src]="proofSafeUrl" class="proof-modal-img" alt="Justificatif"/>
+        <iframe *ngIf="!proofIsImage" [src]="proofSafeUrl" class="proof-modal-pdf"></iframe>
+      </ng-container>
+    </div>
+
+    <div class="proof-modal-footer">
+      <button class="proof-btn-ghost" (click)="downloadReceipt()">⬇ Télécharger</button>
+      <button class="proof-btn-primary" (click)="closeProofModal()">Fermer</button>
+    </div>
+
   </div>
 </div>

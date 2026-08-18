@@ -443,6 +443,19 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     return this.http.delete<void>(`${this.base}/pleins-carburant/${id}`);
   }
 
+  // Péages (Tolls)
+  getTolls(pageable?: { page?: number; size?: number }): Observable<any> {
+    const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
+    return this.http.get(`${this.base}/missions/depenses/tolls`, { params });
+  }
+
+  getTollProofFile(missionId: number, depenseId: number) {
+    return this.http.get(
+      `${this.base}/missions/${missionId}/depenses/${depenseId}/receipt`,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
   // Dashboard
   getDashboardOverview(): Observable<DashboardOverviewResponse> {
     return this.http.get<DashboardOverviewResponse>(`${this.base}/dashboard/overview`);
@@ -663,6 +676,12 @@ getProofFile(pleinId: number) {
     `${this.base}/pleins-carburant/${pleinId}/proof`,
     { responseType: 'blob', observe: 'response' }
   );
+}
+
+extractFuelData(proof: File): Observable<any> {
+  const formData = new FormData();
+  formData.append('proof', proof, proof.name);
+  return this.http.post<any>(`${this.base}/pleins-carburant/extract`, formData);
 }
   // ── Pneus ─────────────────────────────────────────────
   getPneus(pageable?: { page?: number; size?: number }): Observable<any> {

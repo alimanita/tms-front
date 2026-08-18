@@ -106,6 +106,12 @@
       <button type="button" class="fl-file-remove" (click)="removeFile()" title="Supprimer">✕</button>
     </span>
 
+    <div *ngIf="selectedFile && !loading" style="margin-top: 10px;">
+      <button type="button" class="fl-btn fl-btn-primary" (click)="extractData()" style="width: 100%;">
+        <mat-icon style="vertical-align: middle; margin-right: 4px;">auto_awesome</mat-icon> Extraire avec l'IA
+      </button>
+    </div>
+
     <span *ngIf="!selectedFile && existingProofUrl" class="fl-file-name">
       Justificatif existant
       <a [href]="existingProofUrl" target="_blank">Voir</a>

@@ -100,6 +100,19 @@ findAll(
     return this.http.delete<void>(`${this.basePieces}/${id}`);
   }
 
+  uploadPieceProofFile(id: number, file: File): Observable<PieceRechangeResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<PieceRechangeResponse>(`${this.basePieces}/${id}/proof`, formData);
+  }
+
+  getPieceProofFile(id: number): Observable<import('@angular/common/http').HttpResponse<Blob>> {
+    return this.http.get(`${this.basePieces}/${id}/proof`, {
+      responseType: 'blob',
+      observe: 'response'
+    });
+  }
+
   // ── Statistiques Syage ─────────────────────────────────
   getStatsSyageMachine(machineId: number, idEntreprise: number): Observable<StatsSyageResponse> {
     const params = new HttpParams().set('idEntreprise', idEntreprise.toString());

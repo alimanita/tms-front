@@ -87,6 +87,14 @@ demarrer(id: number, mileageAtDeparture?: number) {
     return this.http.delete<void>(`${this.baseUrl}/${id}/depenses/${depenseId}`);
   }
 
+  getDepenseReceiptUrl(missionId: number, depenseId: number): string {
+    return `${this.baseUrl}/${missionId}/depenses/${depenseId}/receipt`;
+  }
+
+  downloadReceipt(missionId: number, depenseId: number): Observable<Blob> {
+    return this.http.get(this.getDepenseReceiptUrl(missionId, depenseId), { responseType: 'blob' });
+  }
+
   findByVehicule(vehiculeId: number): Observable<MissionResponse[]> {
     return this.http.get<MissionResponse[]>(`${this.baseUrl}/vehicule/${vehiculeId}`);
   }

@@ -191,4 +191,36 @@ export class FuelFormComponent implements OnInit {
     this.selectedFile = null;
     this.previewUrl = null;
   }
+
+  extractData(): void {
+    if (!this.selectedFile) return;
+    this.loading = true;
+    this.snackBar.open('Extraction des données en cours...', '', { duration: 3000 });
+    this.fleetService.extractFuelData(this.selectedFile).subscribe({
+      next: (data) => {
+        this.loading = false;
+        this.snackBar.open('Données extraites avec succès !', 'Fermer', { duration: 3000 });
+        if (data.quantityLiters) this.form.patchValue({ quantityLiters: data.quantityLiters });
+        if (data.totalCost && data.quantityLiters && data.quantityLiters > 0) {
+          const pricePerLiter = (data.totalCost / data.quantityLiters).toFixed(3);
+          this.form.patchValue({ pricePerLiter: parseFloat(pricePerLiter) });
+        }
+        if (data.fillingDate) this.form.patchValue({ fillingDate: data.fillingDate + 'T00:00' });
+        if (data.fuelType) {
+          const upperType = data.fuelType.toUpperCase();
+          if (this.fuelTypes.includes(upperType)) {
+            this.form.patchValue({ fuelType: upperType });
+          }
+        }
+        if (data.tvaAmount) {
+           // We might deduce TVA rate from amount, but maybe better not override if already set, or calculate it.
+           // const rate = (data.tvaAmount / (data.totalCost - data.tvaAmount)) * 100;
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.snackBar.open('Erreur lors de l\'extraction', 'Fermer', { duration: 5000 });
+      }
+    });
+  }
 }
