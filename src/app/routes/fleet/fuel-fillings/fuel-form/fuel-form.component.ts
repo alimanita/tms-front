@@ -50,7 +50,7 @@ export class FuelFormComponent implements OnInit {
       notes:          [''],
     });
 
-    this.fleetService.getVehicules().subscribe({
+    this.fleetService.getVehicules({ size: 1000 }).subscribe({
       next: (page: any) => {
         this.vehicules = page.content ?? page;
         const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];

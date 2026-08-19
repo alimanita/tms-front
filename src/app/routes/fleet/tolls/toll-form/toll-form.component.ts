@@ -52,8 +52,8 @@ export class TollFormComponent implements OnInit {
   }
 
   loadDropdowns(): void {
-    this.fleetService.getVehiculesDisponibles().subscribe(data => this.vehicules = data);
-    this.fleetService.getChauffeursDisponibles().subscribe(data => this.chauffeurs = data);
+    this.fleetService.getVehicules({ size: 1000 }).subscribe((page: any) => this.vehicules = page.content ?? page);
+    this.fleetService.getChauffeurs({ size: 1000 }).subscribe((page: any) => this.chauffeurs = page.content ?? page);
     // Optionnel : charger les missions en cours
   }
 
