@@ -47,8 +47,8 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-label">Bilan TVA ({{ reportData.netTva.status === 'A_PAYER' ? 'À Payer' : 'Crédit' }})</span>
-          <span class="kpi-value">{{ reportData.netTva.netAmount | number:'1.2-2' }} €</span>
-          <span class="kpi-sub">Collectée : {{ reportData.netTva.tvaCollectee | number:'1.2-2' }} € | Déductible : {{ reportData.netTva.tvaDeductible | number:'1.2-2' }} €</span>
+          <span class="kpi-value">{{ reportData.netTva.netAmount | number:'1.2-2' }} dt</span>
+          <span class="kpi-sub">Collectée : {{ reportData.netTva.tvaCollectee | number:'1.2-2' }} dt | Déductible : {{ reportData.netTva.tvaDeductible | number:'1.2-2' }} dt</span>
         </div>
       </div>
 
@@ -58,7 +58,7 @@
         </div>
         <div class="kpi-body">
           <span class="kpi-label">Remboursement Accise Estimé</span>
-          <span class="kpi-value">{{ reportData.fiscaliteCarburant.estimatedReimbursement | number:'1.2-2' }} €</span>
+          <span class="kpi-value">{{ reportData.fiscaliteCarburant.estimatedReimbursement | number:'1.2-2' }} dt</span>
           <span class="kpi-sub">{{ reportData.fiscaliteCarburant.totalLiters | number:'1.2-2' }} Litres consommés</span>
         </div>
       </div>
@@ -83,11 +83,11 @@
             <div class="cat-values">
               <div class="val">
                 <label>TVA</label>
-                <span>{{ cat.tvaAmount | number:'1.2-2' }} €</span>
+                <span>{{ cat.tvaAmount | number:'1.2-2' }} dt</span>
               </div>
               <div class="val">
                 <label>HT</label>
-                <span>{{ cat.amountHT | number:'1.2-2' }} €</span>
+                <span>{{ cat.amountHT | number:'1.2-2' }} dt</span>
               </div>
             </div>
           </div>
@@ -110,9 +110,9 @@
                 <td>{{ row.date | date:'dd/MM/yyyy' }}</td>
                 <td><span class="badge badge-ded">{{ row.category }}</span></td>
                 <td>{{ row.reference }}</td>
-                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} €</td>
-                <td class="text-right mono text-accent">{{ row.tvaAmount | number:'1.2-2' }} €</td>
-                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} €</td>
+                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} dt</td>
+                <td class="text-right mono text-accent">{{ row.tvaAmount | number:'1.2-2' }} dt</td>
+                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} dt</td>
               </tr>
               <tr *ngIf="reportData.tvaDeductible.details.length === 0">
                 <td colspan="6" class="text-center empty-msg">Aucune donnée sur cette période.</td>
@@ -130,11 +130,11 @@
             <div class="cat-values">
               <div class="val">
                 <label>TVA</label>
-                <span>{{ cat.tvaAmount | number:'1.2-2' }} €</span>
+                <span>{{ cat.tvaAmount | number:'1.2-2' }} dt</span>
               </div>
               <div class="val">
                 <label>HT</label>
-                <span>{{ cat.amountHT | number:'1.2-2' }} €</span>
+                <span>{{ cat.amountHT | number:'1.2-2' }} dt</span>
               </div>
             </div>
           </div>
@@ -157,9 +157,9 @@
                 <td>{{ row.date | date:'dd/MM/yyyy' }}</td>
                 <td><span class="badge badge-col">{{ row.category }}</span></td>
                 <td>{{ row.reference }}</td>
-                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} €</td>
-                <td class="text-right mono text-accent-col">{{ row.tvaAmount | number:'1.2-2' }} €</td>
-                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} €</td>
+                <td class="text-right mono">{{ row.amountHT | number:'1.2-2' }} dt</td>
+                <td class="text-right mono text-accent-col">{{ row.tvaAmount | number:'1.2-2' }} dt</td>
+                <td class="text-right mono bold">{{ row.amountTTC | number:'1.2-2' }} dt</td>
               </tr>
               <tr *ngIf="reportData.tvaCollectee.details.length === 0">
                 <td colspan="6" class="text-center empty-msg">Aucune donnée sur cette période.</td>

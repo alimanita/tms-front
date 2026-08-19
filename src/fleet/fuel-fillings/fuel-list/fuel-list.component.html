@@ -40,7 +40,7 @@
       <td>{{ p.fuelType }}</td>
       <td>{{ p.quantityLiters | number:'1.3-3' }}</td>
       <td>{{ p.pricePerLiter | number:'1.3-3' }}</td>
-      <td><strong>{{ p.totalAmount | number:'1.3-3' }} DT</strong></td>
+      <td><strong>{{ p.totalAmount | number:'1.3-3' }} dt</strong></td>
       <td>
         <span *ngIf="p.consumptionRate">{{ p.consumptionRate | number:'1.2-2' }}</span>
         <span *ngIf="!p.consumptionRate" class="text-muted">—</span>

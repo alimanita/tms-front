@@ -98,7 +98,7 @@
         </div>
 
         <div class="field-group">
-          <label class="field-label">Coût estimé (DT)</label>
+          <label class="field-label">Coût estimé (dt)</label>
           <input class="field-input" type="number" formControlName="estimatedCost">
         </div>
 
@@ -119,9 +119,9 @@
             <div class="line-item" *ngFor="let p of pendingPieces; let i = index">
               <div class="line-item-main">
                 <span class="line-item-name">{{ p.pieceName }}</span>
-                <span class="line-item-sub">{{ p.quantityPlanned }} × {{ p.unitCost | number:'1.3-3' }} DT</span>
+                <span class="line-item-sub">{{ p.quantityPlanned }} × {{ p.unitCost | number:'1.3-3' }} dt</span>
               </div>
-              <span class="line-item-total">{{ (p.quantityPlanned * p.unitCost) | number:'1.3-3' }} DT</span>
+              <span class="line-item-total">{{ (p.quantityPlanned * p.unitCost) | number:'1.3-3' }} dt</span>
               <button type="button" class="line-item-remove" (click)="$event.preventDefault(); retirerPiecePending(i)">
                 <mat-icon>close</mat-icon>
               </button>
@@ -155,9 +155,9 @@
             <div class="line-item" *ngFor="let m of pendingMainOeuvre; let i = index">
               <div class="line-item-main">
                 <span class="line-item-name">{{ m.technicianName }}</span>
-                <span class="line-item-sub">{{ m.hoursPlanned ?? 0 }} h × {{ m.hourlyRate ?? 0 | number:'1.3-3' }} DT</span>
+                <span class="line-item-sub">{{ m.hoursPlanned ?? 0 }} h × {{ m.hourlyRate ?? 0 | number:'1.3-3' }} dt</span>
               </div>
-              <span class="line-item-total">{{ ((m.hoursPlanned ?? 0) * (m.hourlyRate ?? 0)) | number:'1.3-3' }} DT</span>
+              <span class="line-item-total">{{ ((m.hoursPlanned ?? 0) * (m.hourlyRate ?? 0)) | number:'1.3-3' }} dt</span>
               <button type="button" class="line-item-remove" (click)="$event.preventDefault(); retirerMainOeuvrePending(i)">
                 <mat-icon>close</mat-icon>
               </button>
@@ -179,15 +179,15 @@
         <div class="totaux-panel" *ngIf="pendingPieces.length || pendingMainOeuvre.length">
           <div class="totaux-row">
             <span>Pièces</span>
-            <span>{{ totalPiecesPendingEstime | number:'1.3-3' }} DT</span>
+            <span>{{ totalPiecesPendingEstime | number:'1.3-3' }} dt</span>
           </div>
           <div class="totaux-row">
             <span>Main d'œuvre</span>
-            <span>{{ totalMainOeuvrePendingEstime | number:'1.3-3' }} DT</span>
+            <span>{{ totalMainOeuvrePendingEstime | number:'1.3-3' }} dt</span>
           </div>
           <div class="totaux-row totaux-row--total">
             <span>Total estimé</span>
-            <span>{{ totalPendingEstime | number:'1.3-3' }} DT</span>
+            <span>{{ totalPendingEstime | number:'1.3-3' }} dt</span>
           </div>
         </div>
 
@@ -209,9 +209,9 @@
             <div class="line-item" *ngFor="let p of ot.pieces">
               <div class="line-item-main">
                 <span class="line-item-name">{{ p.pieceName }}</span>
-                <span class="line-item-sub">{{ p.quantityPlanned }} × {{ p.unitCost | number:'1.3-3' }} DT</span>
+                <span class="line-item-sub">{{ p.quantityPlanned }} × {{ p.unitCost | number:'1.3-3' }} dt</span>
               </div>
-              <span class="line-item-total">{{ p.totalCost | number:'1.3-3' }} DT</span>
+              <span class="line-item-total">{{ p.totalCost | number:'1.3-3' }} dt</span>
               <button type="button" class="line-item-remove" (click)="retirerPiece(p.id)">
                 <mat-icon>close</mat-icon>
               </button>
@@ -245,9 +245,9 @@
             <div class="line-item" *ngFor="let m of ot.mainOeuvres">
               <div class="line-item-main">
                 <span class="line-item-name">{{ m.technicianName }}</span>
-                <span class="line-item-sub">{{ m.hoursPlanned ?? 0 }} h × {{ m.hourlyRate ?? 0 | number:'1.3-3' }} DT</span>
+                <span class="line-item-sub">{{ m.hoursPlanned ?? 0 }} h × {{ m.hourlyRate ?? 0 | number:'1.3-3' }} dt</span>
               </div>
-              <span class="line-item-total">{{ m.totalCost | number:'1.3-3' }} DT</span>
+              <span class="line-item-total">{{ m.totalCost | number:'1.3-3' }} dt</span>
               <button type="button" class="line-item-remove" (click)="retirerMainOeuvre(m.id)">
                 <mat-icon>close</mat-icon>
               </button>
@@ -269,15 +269,15 @@
         <div class="totaux-panel">
           <div class="totaux-row">
             <span>Coût pièces</span>
-            <span>{{ ot.actualPartsCost ?? 0 | number:'1.3-3' }} DT</span>
+            <span>{{ ot.actualPartsCost ?? 0 | number:'1.3-3' }} dt</span>
           </div>
           <div class="totaux-row">
             <span>Coût main d'œuvre</span>
-            <span>{{ ot.actualLaborCost ?? 0 | number:'1.3-3' }} DT</span>
+            <span>{{ ot.actualLaborCost ?? 0 | number:'1.3-3' }} dt</span>
           </div>
           <div class="totaux-row totaux-row--total">
             <span>Total réel</span>
-            <span>{{ ot.actualTotalCost ?? 0 | number:'1.3-3' }} DT</span>
+            <span>{{ ot.actualTotalCost ?? 0 | number:'1.3-3' }} dt</span>
           </div>
         </div>
 

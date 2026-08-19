@@ -79,7 +79,7 @@
 
 .kpi-icon {
   font-size   : 22px;
-  width       : 22px;
+  wi€h       : 22px;
   height      : 22px;
   color       : var(--stats-muted);
   flex-shrink : 0;
@@ -90,7 +90,7 @@
   display        : flex;
   flex-direction : column;
   gap            : 2px;
-  min-width      : 0;
+  min-wi€h      : 0;
 }
 
 .kpi-value {
@@ -179,7 +179,7 @@
   color       : var(--stats-muted);
   margin-bottom: 12px;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
   strong.gauge-pct {
     margin-left : auto;
     font-size   : 1.1rem;
@@ -198,8 +198,8 @@
 .gauge-fill {
   height        : 100%;
   border-radius : 999px;
-  transition    : width .6s cubic-bezier(.4,0,.2,1);
-  max-width     : 100%;
+  transition    : wi€h .6s cubic-bezier(.4,0,.2,1);
+  max-wi€h     : 100%;
 
   &.gauge-ok     { background: var(--stats-green); }
   &.gauge-warn   { background: var(--stats-amber); }
@@ -216,7 +216,7 @@
   &::after {
     content    : '';
     display    : block;
-    width      : 1px;
+    wi€h      : 1px;
     height     : 8px;
     background : var(--stats-muted);
     margin     : 2px auto 0;
@@ -240,7 +240,7 @@
 }
 
 .gl-dot {
-  width        : 10px;
+  wi€h        : 10px;
   height       : 10px;
   border-radius: 2px;
   flex-shrink  : 0;
@@ -272,7 +272,7 @@
   font-weight : 600;
   color       : var(--stats-muted);
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
 }
 
 .chart-empty {
@@ -344,7 +344,7 @@
   align-items : flex-end;
   gap         : 6px;
   min-height  : 120px;
-  min-width   : max-content;
+  min-wi€h   : max-content;
   padding     : 4px 0;
 }
 
@@ -354,7 +354,7 @@
   align-items    : center;
   gap            : 4px;
   flex           : 1;
-  min-width      : 36px;
+  min-wi€h      : 36px;
   cursor         : default;
 }
 
@@ -365,7 +365,7 @@
 }
 
 .bar-outer {
-  width         : 28px;
+  wi€h         : 28px;
   height        : 90px;
   background    : var(--stats-surface-2);
   border-radius : 4px 4px 0 0;
@@ -374,7 +374,7 @@
 }
 
 .bar-inner {
-  width         : 100%;
+  wi€h         : 100%;
   border-radius : 4px 4px 0 0;
   transition    : height .4s cubic-bezier(.4,0,.2,1);
 
@@ -396,7 +396,7 @@
   grid-template-columns : 1fr 1fr;
   gap                   : 18px;
 
-  @media (max-width: 600px) {
+  @media (max-wi€h: 600px) {
     grid-template-columns: 1fr;
   }
 }
@@ -412,7 +412,7 @@
 }
 
 .donut-svg {
-  width      : 130px;
+  wi€h      : 130px;
   height     : 130px;
   flex-shrink: 0;
 }
@@ -442,13 +442,13 @@
 }
 
 .dl-dot {
-  width        : 10px;
+  wi€h        : 10px;
   height       : 10px;
   border-radius: 3px;
   flex-shrink  : 0;
 }
 
-.dl-label { flex: 1; min-width: 0; }
+.dl-label { flex: 1; min-wi€h: 0; }
 .dl-count { font-weight: 700; color: var(--stats-text); }
 
 // ── Top articles ──────────────────────────────────────────────────────────────
@@ -469,13 +469,13 @@
 .article-rank {
   font-weight : 700;
   color       : var(--stats-accent);
-  min-width   : 26px;
+  min-wi€h   : 26px;
   font-size   : .72rem;
 }
 
 .article-nom {
   flex      : 1;
-  min-width : 0;
+  min-wi€h : 0;
   overflow  : hidden;
   text-overflow: ellipsis;
   white-space  : nowrap;
@@ -506,5 +506,5 @@
   height        : 100%;
   background    : linear-gradient(90deg, var(--stats-accent), var(--stats-accent-2));
   border-radius : 2px;
-  transition    : width .4s ease;
+  transition    : wi€h .4s ease;
 }

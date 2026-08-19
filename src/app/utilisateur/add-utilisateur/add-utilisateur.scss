@@ -30,8 +30,8 @@ $transition:    all .2s ease;
 
 // ── Page wrapper ───────────────────────────────────────────────
 .page-wrapper {
-  width: 100%;
-  max-width: none;
+  wi€h: 100%;
+  max-wi€h: none;
   margin: 0 auto;
   padding: 24px 20px 48px;
   display: flex;
@@ -60,7 +60,7 @@ $transition:    all .2s ease;
 }
 
 .page-icon {
-  width: 44px;
+  wi€h: 44px;
   height: 44px;
   border-radius: $radius-md;
   background: $primary;
@@ -72,7 +72,7 @@ $transition:    all .2s ease;
   mat-icon {
     color: $white;
     font-size: 22px;
-    width: 22px;
+    wi€h: 22px;
     height: 22px;
   }
 }
@@ -111,7 +111,7 @@ $transition:    all .2s ease;
   cursor: pointer;
   transition: $transition;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover { background: $neutral-100; border-color: #9ca3af; }
 }
 
@@ -129,7 +129,7 @@ $transition:    all .2s ease;
   cursor: pointer;
   transition: $transition;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover:not(:disabled) { background: #1459b5; }
   &:disabled { opacity: .6; cursor: not-allowed; }
 }
@@ -153,7 +153,7 @@ $transition:    all .2s ease;
 }
 
 .section-dot {
-  width: 4px;
+  wi€h: 4px;
   height: 18px;
   border-radius: 2px;
   flex-shrink: 0;
@@ -166,7 +166,7 @@ $transition:    all .2s ease;
 
 .section-icon {
   font-size: 18px;
-  width: 18px;
+  wi€h: 18px;
   height: 18px;
   color: $primary;
 
@@ -193,7 +193,7 @@ $transition:    all .2s ease;
   &.two-col {
     grid-template-columns: 1fr 1fr;
 
-    @media (max-width: 600px) {
+    @media (max-wi€h: 600px) {
       grid-template-columns: 1fr;
     }
   }
@@ -204,7 +204,7 @@ $transition:    all .2s ease;
   flex-direction: column;
   gap: 5px;
 
-  &.full-width {
+  &.full-wi€h {
     grid-column: 1 / -1;
   }
 }
@@ -242,7 +242,7 @@ $transition:    all .2s ease;
 
   .input-icon {
     font-size: 17px;
-    width: 17px;
+    wi€h: 17px;
     height: 17px;
     color: $neutral-500;
     margin: 0 10px;
@@ -280,7 +280,7 @@ $transition:    all .2s ease;
   color: $neutral-500;
   transition: $transition;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
   &:hover { color: $neutral-700; }
 }
 
@@ -321,7 +321,7 @@ $transition:    all .2s ease;
 
   .role-icon {
     font-size: 16px;
-    width: 16px;
+    wi€h: 16px;
     height: 16px;
     color: $neutral-500;
   }
@@ -334,7 +334,7 @@ $transition:    all .2s ease;
 
   .role-check {
     font-size: 16px;
-    width: 16px;
+    wi€h: 16px;
     height: 16px;
     color: $primary;
   }

@@ -1,6 +1,6 @@
 .balances-page {
   padding: 24px;
-  width: 100%;
+  wi€h: 100%;
   box-sizing: border-box;
 }
 
@@ -21,7 +21,7 @@
   cursor: pointer;
   font-size: 14px;
   color: var(--primary-color, #1976d2);
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
 }
 
 .page-title    { font-size: 22px; font-weight: 600; margin: 0 0 4px; }
@@ -47,7 +47,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  width: 280px;
+  wi€h: 280px;
   height: 36px;
   padding: 7px 10px;
   background: #fff;
@@ -61,7 +61,7 @@
     box-shadow: 0 0 0 3px rgba(25, 118, 210, .08);
   }
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #999; flex-shrink: 0; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; color: #999; flex-shrink: 0; }
 
   input {
     flex: 1;
@@ -98,7 +98,7 @@
     box-shadow: 0 0 0 3px rgba(25, 118, 210, .08);
   }
 
-  mat-icon { font-size: 15px; width: 15px; height: 15px; color: #999; flex-shrink: 0; }
+  mat-icon { font-size: 15px; wi€h: 15px; height: 15px; color: #999; flex-shrink: 0; }
 
   input[type="date"] {
     border: none;
@@ -126,7 +126,7 @@
   height: 36px;
   box-sizing: border-box;
 
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon { font-size: 16px; wi€h: 16px; height: 16px; }
 
   &:hover {
     border-color: #d32f2f;
@@ -148,21 +148,21 @@
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .08);
   overflow: hidden;
-  width: 100%;
+  wi€h: 100%;
 }
 
 .balance-table {
-  width: 100%;
+  wi€h: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 
   /* 6 colonnes : Nom | Raison sociale | Débit | Crédit | Solde | Risque */
-  th:nth-child(1) { width: 17%; }
-  th:nth-child(2) { width: 20%; }
-  th:nth-child(3) { width: 15%; }
-  th:nth-child(4) { width: 15%; }
-  th:nth-child(5) { width: 15%; }
-  th:nth-child(6) { width: 18%; }
+  th:nth-child(1) { wi€h: 17%; }
+  th:nth-child(2) { wi€h: 20%; }
+  th:nth-child(3) { wi€h: 15%; }
+  th:nth-child(4) { wi€h: 15%; }
+  th:nth-child(5) { wi€h: 15%; }
+  th:nth-child(6) { wi€h: 18%; }
 
   th, td {
     padding: 12px 16px;
@@ -275,7 +275,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
+    wi€h: 32px;
     height: 32px;
     border-radius: 6px;
     border: 1px solid #ddd;
@@ -283,7 +283,7 @@
     cursor: pointer;
     transition: background .15s, border-color .15s;
 
-    mat-icon { font-size: 18px; width: 18px; height: 18px; color: #555; }
+    mat-icon { font-size: 18px; wi€h: 18px; height: 18px; color: #555; }
 
     &:hover:not(:disabled) { background: #f5f5f5; border-color: #bbb; }
     &:disabled { opacity: .4; cursor: not-allowed; }
@@ -309,7 +309,7 @@
   background: #fff;
   cursor: pointer;
   font-size: 13px;
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
 }
 
 .export-menu {
@@ -322,13 +322,13 @@
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
   z-index: 100;
-  min-width: 180px;
+  min-wi€h: 180px;
 
   button {
     display: flex;
     align-items: center;
     gap: 8px;
-    width: 100%;
+    wi€h: 100%;
     padding: 10px 14px;
     border: none;
     background: none;
@@ -336,7 +336,7 @@
     font-size: 13px;
     text-align: left;
 
-    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+    mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
     &:hover { background: #f5f5f5; }
   }
 }

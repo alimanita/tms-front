@@ -1,0 +1,125 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Nouveau Péage</h2>
+    <div class="fl-topbar-actions">
+      <button class="fl-btn fl-btn-ghost" (click)="cancel()">← Retour</button>
+      <button class="fl-btn fl-btn-primary" (click)="savePeage()" [disabled]="loading">
+        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+    <form [formGroup]="peageForm" class="fl-form">
+      <div class="fl-grid">
+
+        <!-- Véhicule -->
+        <div class="fl-field">
+          <label>Véhicule *</label>
+          <select formControlName="vehiculeId">
+            <option [ngValue]="null">— Sélectionner —</option>
+            <option *ngFor="let v of vehicules" [value]="v.id">
+              {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Chauffeur -->
+        <div class="fl-field">
+          <label>Chauffeur</label>
+          <select formControlName="chauffeurId">
+            <option [ngValue]="null">— Aucun —</option>
+            <option *ngFor="let c of chauffeurs" [value]="c.id">
+              {{ c.nom }} {{ c.prenom }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Date passage -->
+        <div class="fl-field">
+          <label>Date du passage *</label>
+          <input type="datetime-local" formControlName="datePassage" />
+        </div>
+
+        <!-- Société autoroute -->
+        <div class="fl-field">
+          <label>Société (ASF, VINCI…)</label>
+          <input type="text" formControlName="societeAutoroute" placeholder="Ex: ASF, VINCI Autoroutes" />
+        </div>
+
+        <!-- Gare entrée -->
+        <div class="fl-field">
+          <label>Gare d'entrée</label>
+          <input type="text" formControlName="gareEntree" placeholder="Ex: Toulouse Nord" />
+        </div>
+
+        <!-- Gare sortie -->
+        <div class="fl-field">
+          <label>Gare de sortie</label>
+          <input type="text" formControlName="gareSortie" placeholder="Ex: Montauban" />
+        </div>
+
+        <!-- Montants -->
+        <div class="fl-field">
+          <label>Montant HT</label>
+          <input type="number" formControlName="amountHT" min="0" step="0.01" />
+        </div>
+
+        <div class="fl-field">
+          <label>TVA</label>
+          <input type="number" formControlName="tvaAmount" min="0" step="0.01" />
+        </div>
+
+        <div class="fl-field fl-field--highlight">
+          <label>Montant TTC *</label>
+          <input type="number" formControlName="amountTTC" min="0" step="0.01" />
+        </div>
+
+        <!-- Justificatif -->
+        <div class="fl-field fl-field--full">
+          <label>Justificatif (photo du ticket…)</label>
+
+          <div class="fl-upload-zone" [class.has-file]="!!selectedFile">
+            <input type="file" id="proofFile" accept="image/*,.pdf" (change)="onFileSelected($event)" hidden />
+            <input type="file" id="proofCamera" accept="image/*" capture="environment" (change)="onFileSelected($event)" hidden />
+
+            <ng-container *ngIf="!selectedFile">
+              <div class="upload-actions">
+                <label for="proofCamera" class="fl-btn camera-btn" title="Prendre une photo">
+                  <mat-icon style="vertical-align: middle; margin-right: 4px;">photo_camera</mat-icon> Prendre une photo
+                </label>
+                <span class="upload-or">ou</span>
+                <label for="proofFile" class="fl-btn fl-btn-ghost file-btn" title="Choisir un fichier">
+                  <mat-icon style="vertical-align: middle; margin-right: 4px;">attach_file</mat-icon> Parcourir
+                </label>
+              </div>
+            </ng-container>
+
+            <span *ngIf="selectedFile" class="fl-file-name">
+              {{ selectedFile.name }}
+              <button type="button" class="fl-file-remove" (click)="selectedFile = null" title="Supprimer">✕</button>
+            </span>
+
+            <div *ngIf="selectedFile && !extracting" style="margin-top: 10px;">
+              <button type="button" class="fl-btn fl-btn-primary" (click)="extractData()" style="width: 100%;">
+                <mat-icon style="vertical-align: middle; margin-right: 4px;">auto_awesome</mat-icon>
+                {{ extracting ? 'Extraction…' : "Extraire avec l'IA" }}
+              </button>
+            </div>
+
+            <div *ngIf="extracting" style="margin-top: 10px; text-align: center; color: #666;">
+              <mat-icon style="vertical-align: middle;">hourglass_empty</mat-icon> Analyse en cours…
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="fl-field fl-field--full">
+          <label>Notes</label>
+          <textarea formControlName="notes" rows="3" placeholder="Observations…"></textarea>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>

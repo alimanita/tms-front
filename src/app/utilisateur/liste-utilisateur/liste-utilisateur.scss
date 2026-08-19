@@ -29,7 +29,7 @@ $transition:    all .2s ease;
 
 // ── Page wrapper ───────────────────────────────────────────────
 .page-wrapper {
-  max-width: 1200px;
+  max-wi€h: 1200px;
   margin: 0 auto;
   padding: 24px 20px 48px;
   display: flex;
@@ -58,7 +58,7 @@ $transition:    all .2s ease;
 }
 
 .page-icon {
-  width: 44px;
+  wi€h: 44px;
   height: 44px;
   border-radius: $radius-md;
   background: $primary;
@@ -67,7 +67,7 @@ $transition:    all .2s ease;
   justify-content: center;
   flex-shrink: 0;
 
-  mat-icon { color: $white; font-size: 22px; width: 22px; height: 22px; }
+  mat-icon { color: $white; font-size: 22px; wi€h: 22px; height: 22px; }
 }
 
 .page-title {
@@ -98,7 +98,7 @@ $transition:    all .2s ease;
   color: $neutral-700;
   cursor: pointer;
   transition: $transition;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover { background: $neutral-100; border-color: #9ca3af; }
 }
 
@@ -115,7 +115,7 @@ $transition:    all .2s ease;
   color: $white;
   cursor: pointer;
   transition: $transition;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover { background: $primary-hover; }
 }
 
@@ -150,7 +150,7 @@ $transition:    all .2s ease;
 
   .search-icon {
     font-size: 18px;
-    width: 18px;
+    wi€h: 18px;
     height: 18px;
     color: $neutral-500;
     flex-shrink: 0;
@@ -176,7 +176,7 @@ $transition:    all .2s ease;
   cursor: pointer;
   padding: 0;
   color: $neutral-500;
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover { color: $neutral-700; }
 }
 
@@ -186,7 +186,7 @@ $transition:    all .2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
+  min-wi€h: 28px;
   height: 22px;
   padding: 0 8px;
   background: $primary-light;
@@ -216,7 +216,7 @@ $transition:    all .2s ease;
   gap: 12px;
   color: $neutral-500;
 
-  mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: .4; }
+  mat-icon { font-size: 40px; wi€h: 40px; height: 40px; opacity: .4; }
   p { font-size: 14px; font-weight: 500; margin: 0; }
   span { font-size: 12.5px; }
 }
@@ -238,10 +238,10 @@ $transition:    all .2s ease;
 
 // ── Table ──────────────────────────────────────────────────────
 .data-table {
-  width: 100%;
+  wi€h: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  min-width: 800px;
+  min-wi€h: 800px;
 
   thead tr {
     background: $neutral-50;
@@ -274,14 +274,14 @@ $transition:    all .2s ease;
 }
 
 // ── Colonnes ──────────────────────────────────────────────────
-.col-id       { width: 64px; }
-.col-user     { min-width: 180px; }
-.col-email    { min-width: 200px; }
-.col-phone   { width: 120px; }
-.col-entreprise { width: 150px; }
-.col-roles    { width: 160px; }
-.col-actions  { width: 130px; }
-.col-status     { width: 90px; }
+.col-id       { wi€h: 64px; }
+.col-user     { min-wi€h: 180px; }
+.col-email    { min-wi€h: 200px; }
+.col-phone   { wi€h: 120px; }
+.col-entreprise { wi€h: 150px; }
+.col-roles    { wi€h: 160px; }
+.col-actions  { wi€h: 130px; }
+.col-status     { wi€h: 90px; }
 
 .status-badge {
   display: inline-flex;
@@ -302,7 +302,7 @@ $transition:    all .2s ease;
 }
 
 .user-avatar {
-  width: 34px;
+  wi€h: 34px;
   height: 34px;
   border-radius: 50%;
   display: flex;
@@ -363,7 +363,7 @@ $transition:    all .2s ease;
 
   .ville-icon {
     font-size: 14px;
-    width: 14px;
+    wi€h: 14px;
     height: 14px;
     color: $neutral-500;
   }
@@ -415,7 +415,7 @@ $transition:    all .2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  wi€h: 32px;
   height: 32px;
   border: none;
   border-radius: $radius-sm;
@@ -424,7 +424,7 @@ $transition:    all .2s ease;
   transition: $transition;
   color: $neutral-500;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
 
   &.edit:hover     { background: $primary-light; color: $primary; }
   &.password:hover { background: #ede9fe; color: #7c3aed; }
@@ -458,7 +458,7 @@ $transition:    all .2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
+  min-wi€h: 32px;
   height: 32px;
   padding: 0 8px;
   border: 1px solid $neutral-200;
@@ -470,7 +470,7 @@ $transition:    all .2s ease;
   cursor: pointer;
   transition: $transition;
 
-  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
 
   &:hover:not(:disabled) { background: $primary-light; border-color: $primary; color: $primary; }
   &.active               { background: $primary; color: $white; border-color: $primary; }
@@ -516,8 +516,8 @@ $transition:    all .2s ease;
   background: $white;
   border-radius: $radius-lg;
   padding: 28px 28px 24px;
-  max-width: 420px;
-  width: 90%;
+  max-wi€h: 420px;
+  wi€h: 90%;
   box-shadow: 0 20px 48px rgba(0,0,0,.18);
   text-align: center;
   animation: slideUp .25s ease;
@@ -529,7 +529,7 @@ $transition:    all .2s ease;
 }
 
 .modal-icon {
-  width: 52px;
+  wi€h: 52px;
   height: 52px;
   border-radius: 50%;
   background: $danger-light;
@@ -538,7 +538,7 @@ $transition:    all .2s ease;
   justify-content: center;
   margin: 0 auto 16px;
 
-  mat-icon { font-size: 26px; width: 26px; height: 26px; color: $danger; }
+  mat-icon { font-size: 26px; wi€h: 26px; height: 26px; color: $danger; }
 }
 
 .modal-title {
@@ -577,6 +577,6 @@ $transition:    all .2s ease;
   cursor: pointer;
   transition: $transition;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
   &:hover { background: #c53030; }
 }

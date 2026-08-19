@@ -46,6 +46,12 @@ export const routes : Routes = [
       import('./tolls/toll-list/toll-list.component')
         .then(m => m.TollListComponent),
   },
+  {
+    path: 'tolls/new',
+    loadComponent: () =>
+      import('./tolls/toll-form/toll-form.component')
+        .then(m => m.TollFormComponent),
+  },
   { path: '', redirectTo: 'vehicles', pathMatch: 'full' },
 
   {

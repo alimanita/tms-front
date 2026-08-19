@@ -32,16 +32,16 @@
       <div class="kpi-card kpi-ca">
         <mat-icon class="kpi-icon">trending_up</mat-icon>
         <div class="kpi-body">
-          <span class="kpi-value">{{ s.totalTtc | number:'1.3-3' }} DT</span>
+          <span class="kpi-value">{{ s.totalTtc | number:'1.3-3' }} dt</span>
           <span class="kpi-label">CA TTC total</span>
-          <span class="kpi-sub">HT : {{ s.totalHt | number:'1.3-3' }} DT</span>
+          <span class="kpi-sub">HT : {{ s.totalHt | number:'1.3-3' }} dt</span>
         </div>
       </div>
 
       <div class="kpi-card kpi-enc">
         <mat-icon class="kpi-icon">payments</mat-icon>
         <div class="kpi-body">
-          <span class="kpi-value">{{ s.totalEncaissements | number:'1.3-3' }} DT</span>
+          <span class="kpi-value">{{ s.totalEncaissements | number:'1.3-3' }} dt</span>
           <span class="kpi-label">Total encaissements</span>
           <span class="kpi-sub">Taux : {{ tauxRecouvrement() }}%</span>
         </div>
@@ -52,10 +52,10 @@
            [class.kpi-solde-pos]="s.solde >= 0">
         <mat-icon class="kpi-icon">account_balance_wallet</mat-icon>
         <div class="kpi-body">
-          <span class="kpi-value">{{ s.solde | number:'1.3-3' }} DT</span>
+          <span class="kpi-value">{{ s.solde | number:'1.3-3' }} dt</span>
           <span class="kpi-label">Solde actuel</span>
           @if (s.soldeDepart !== 0) {
-            <span class="kpi-sub">Départ : {{ s.soldeDepart | number:'1.3-3' }} DT</span>
+            <span class="kpi-sub">Départ : {{ s.soldeDepart | number:'1.3-3' }} dt</span>
           }
         </div>
       </div>
@@ -109,11 +109,11 @@
       <div class="gauge-legend">
         <span class="gl-item">
           <span class="gl-dot gl-enc"></span>
-          Encaissé : {{ s.totalEncaissements | number:'1.3-3' }} DT
+          Encaissé : {{ s.totalEncaissements | number:'1.3-3' }} dt
         </span>
         <span class="gl-item">
           <span class="gl-dot gl-rest"></span>
-          Restant : {{ (s.totalTtc - s.totalEncaissements) | number:'1.3-3' }} DT
+          Restant : {{ (s.totalTtc - s.totalEncaissements) | number:'1.3-3' }} dt
         </span>
       </div>
     </div>
@@ -140,7 +140,7 @@
           <div class="bar-chart">
             @for (b of blSeries(); track b.periode) {
               <div class="bar-col"
-                   [title]="b.nombreBls + ' BL — ' + (b.totalTtc | number:'1.3-3') + ' DT'">
+                   [title]="b.nombreBls + ' BL — ' + (b.totalTtc | number:'1.3-3') + ' dt'">
                 <span class="bar-value">{{ b.nombreBls }}</span>
                 <div class="bar-outer">
                   <div class="bar-inner bar-bl"
@@ -154,7 +154,7 @@
         </div>
         <div class="chart-footer">
           <span><strong>Périodes :</strong> {{ blSeries().length }}</span>
-          <span><strong>CA TTC :</strong> {{ blTotalGlobal() | number:'1.3-3' }} DT</span>
+          <span><strong>CA TTC :</strong> {{ blTotalGlobal() | number:'1.3-3' }} dt</span>
         </div>
       }
     </div>
@@ -176,7 +176,7 @@
           <div class="bar-chart">
             @for (p of s.paiementsParMois; track p.periode) {
               <div class="bar-col"
-                   [title]="p.nombrePaiements + ' paiement(s) — ' + (p.montantTotal | number:'1.3-3') + ' DT'">
+                   [title]="p.nombrePaiements + ' paiement(s) — ' + (p.montantTotal | number:'1.3-3') + ' dt'">
                 <span class="bar-value">{{ p.montantTotal | number:'1.0-0' }}</span>
                 <div class="bar-outer">
                   <div class="bar-inner bar-pay"
@@ -211,7 +211,7 @@
                 <span class="article-rank">#{{ i + 1 }}</span>
                 <span class="article-nom">{{ a.nom }}</span>
                 <span class="article-qty">×{{ a.quantite }}</span>
-                <span class="article-ht">{{ a.totalHt | number:'1.3-3' }} DT</span>
+                <span class="article-ht">{{ a.totalHt | number:'1.3-3' }} dt</span>
               </div>
               <div class="article-bar-track">
                 <div

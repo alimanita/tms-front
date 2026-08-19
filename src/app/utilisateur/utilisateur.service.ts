@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, EMPTY, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { UtilisateurDto, ChangerMotDePasseDto } from './utilisateur.model';
+
 import { environment } from 'environments/environment';
+import { ChangerMotDePasseDto, UtilisateurDto } from './utilisateur.model';
 
 @Injectable({
   providedIn: 'root',

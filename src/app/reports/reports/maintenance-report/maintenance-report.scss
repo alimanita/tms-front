@@ -24,7 +24,7 @@ $col-fuel   : #f59e0b;
 // ── Wrapper global ───────────────────────────────────────────
 .mr-wrapper {
   padding: 0 24px 48px;
-  max-width: 1400px;
+  max-wi€h: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -55,7 +55,7 @@ $col-fuel   : #f59e0b;
 }
 
 .kpi-icon {
-  width: 44px;
+  wi€h: 44px;
   height: 44px;
   border-radius: 12px;
   display: flex;
@@ -74,7 +74,7 @@ $col-fuel   : #f59e0b;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  min-width: 0;
+  min-wi€h: 0;
 }
 
 .kpi-label {
@@ -141,7 +141,7 @@ $col-fuel   : #f59e0b;
   cursor: pointer;
   transition: all .2s;
 
-  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+  mat-icon { font-size: 17px; wi€h: 17px; height: 17px; }
 
   &.active {
     background: $accent-blue;
@@ -192,7 +192,7 @@ $col-fuel   : #f59e0b;
   transition: all .2s;
 
   &:hover { border-color: $accent-blue; color: $accent-blue; }
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  mat-icon { font-size: 16px; wi€h: 16px; height: 16px; }
 }
 
 // ═══ CHART CARD ══════════════════════════════════════════════
@@ -233,8 +233,8 @@ $col-fuel   : #f59e0b;
   align-items: center;
   gap: 4px;
   flex: 1;
-  min-width: 48px;
-  max-width: 80px;
+  min-wi€h: 48px;
+  max-wi€h: 80px;
   position: relative;
 }
 
@@ -242,7 +242,7 @@ $col-fuel   : #f59e0b;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  wi€h: 100%;
   height: 160px;
   justify-content: flex-end;
 }
@@ -254,13 +254,13 @@ $col-fuel   : #f59e0b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 64px;
+  max-wi€h: 64px;
   text-align: center;
 }
 
 // Barre empilée entretiens
 .bar-stack {
-  width: 36px;
+  wi€h: 36px;
   border-radius: 6px 6px 0 0;
   display: flex;
   flex-direction: column-reverse;
@@ -270,7 +270,7 @@ $col-fuel   : #f59e0b;
 }
 
 .bar-seg {
-  width: 100%;
+  wi€h: 100%;
   transition: height .4s ease;
 }
 
@@ -279,7 +279,7 @@ $col-fuel   : #f59e0b;
 
 // Barre simple carburant
 .bar-single {
-  width: 36px;
+  wi€h: 36px;
   background: linear-gradient(180deg, $col-fuel 0%, darken($col-fuel, 15%) 100%);
   border-radius: 6px 6px 0 0;
   transition: height .5s cubic-bezier(.4,0,.2,1);
@@ -293,7 +293,7 @@ $col-fuel   : #f59e0b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 72px;
+  max-wi€h: 72px;
 }
 
 .bar-ot-count {
@@ -314,7 +314,7 @@ $col-fuel   : #f59e0b;
 }
 
 .legend-dot {
-  width: 10px;
+  wi€h: 10px;
   height: 10px;
   border-radius: 3px;
   display: inline-block;
@@ -328,7 +328,7 @@ $col-fuel   : #f59e0b;
 .table-scroll { overflow-x: auto; }
 
 .data-table {
-  width: 100%;
+  wi€h: 100%;
   border-collapse: collapse;
   font-size: 13px;
   color: $text-primary;
@@ -392,11 +392,11 @@ code {
   border-radius: 3px;
   overflow: hidden;
   background: rgba(255,255,255,.08);
-  width: 120px;
+  wi€h: 120px;
   margin-bottom: 3px;
 }
 
-.mini-seg { height: 100%; transition: width .3s ease; }
+.mini-seg { height: 100%; transition: wi€h .3s ease; }
 .mini-labour { background: $col-labour; }
 .mini-pieces { background: $col-pieces; }
 
@@ -415,7 +415,7 @@ code {
   font-size: 12px;
   font-weight: 500;
 
-  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+  mat-icon { font-size: 13px; wi€h: 13px; height: 13px; }
 
   &.chip-vehicle {
     background: rgba($accent-blue, .12);
@@ -456,7 +456,7 @@ code {
 }
 
 .spinner {
-  width: 36px;
+  wi€h: 36px;
   height: 36px;
   border: 3px solid rgba($accent-blue, .2);
   border-top-color: $accent-blue;
@@ -477,6 +477,6 @@ code {
   border: 1px solid $border;
   border-radius: 16px;
 
-  mat-icon { font-size: 48px; width: 48px; height: 48px; opacity: .3; }
+  mat-icon { font-size: 48px; wi€h: 48px; height: 48px; opacity: .3; }
   p { margin: 0; font-size: 14px; }
 }

@@ -227,7 +227,7 @@ export class FuelListComponent implements OnInit {
             }
 
             pdf.setFontSize(9);
-            pdf.text(`Plein: ${plein.reference || 'N/A'} - ${plein.vehiculeImmatriculation || 'N/A'} - ${plein.totalAmount}DT`, currentX, currentY + textHeight);
+            pdf.text(`Plein: ${plein.reference || 'N/A'} - ${plein.vehiculeImmatriculation || 'N/A'} - ${plein.totalAmount}€`, currentX, currentY + textHeight);
             
             const offsetX = currentX + (colWidth - imgWidth) / 2;
             pdf.addImage(base64, 'JPEG', offsetX, currentY + textHeight + 2, imgWidth, imgHeight);

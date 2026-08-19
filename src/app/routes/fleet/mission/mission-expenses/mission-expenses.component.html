@@ -133,7 +133,7 @@
                  [class.error]="fuelSubmitted && fuelForm.get('quantityLiters')?.invalid"/>
         </div>
         <div class="form-group">
-          <label>Prix / litre (DT) *</label>
+          <label>Prix / litre (dt) *</label>
           <input type="number" step="0.001" min="0" formControlName="pricePerLiter"
                  [class.error]="fuelSubmitted && fuelForm.get('pricePerLiter')?.invalid"/>
         </div>
@@ -141,7 +141,7 @@
       
       <div class="total-estimated">
         <span class="label">Total estimé</span>
-        <span class="value">{{ totalEstime | number:'1.3-3' }} DT</span>
+        <span class="value">{{ totalEstime | number:'1.3-3' }} dt</span>
       </div>
 
       <div class="form-grid">
@@ -243,7 +243,7 @@
     <form [formGroup]="tollForm" (ngSubmit)="onSubmitToll()" class="fuel-form">
       <div class="form-grid">
         <div class="form-group">
-          <label>Montant HT (DT) *</label>
+          <label>Montant HT (dt) *</label>
           <input type="number" step="0.001" min="0" formControlName="amountHT"
                  [class.error]="tollSubmitted && tollForm.get('amountHT')?.invalid"/>
         </div>
@@ -255,7 +255,7 @@
       
       <div class="total-estimated">
         <span class="label">Montant Total TTC</span>
-        <span class="value">{{ tollForm.get('montant')?.value || 0 }} DT</span>
+        <span class="value">{{ tollForm.get('montant')?.value || 0 }} dt</span>
       </div>
 
       <div class="form-grid">

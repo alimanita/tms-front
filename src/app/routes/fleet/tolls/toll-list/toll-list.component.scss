@@ -178,3 +178,33 @@ $radius     : 8px;
   padding: 12px 20px;
   border-top: 1px solid $border;
 }
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .fleet-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .fl-topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .fl-filters {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  .fl-filters .fl-input {
+    flex: 1 1 calc(50% - 5px);
+  }
+  .fl-filters .fl-btn-ghost {
+    flex: 0 0 auto;
+  }
+}

@@ -13,42 +13,55 @@
       
       <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
       <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
+      <button class="fl-btn fl-btn-primary" (click)="addPeage()">+ Ajouter</button>
     </div>
   </div>
 
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
+<div class="table-responsive">
 <table *ngIf="!loading" class="fl-table">
   <thead>
     <tr>
       <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
-      <th>Mission</th>
       <th>Date</th>
+      <th>Véhicule</th>
+      <th>Chauffeur</th>
       <th>Montant TTC</th>
-      <th>Montant HT</th>
-      <th>TVA</th>
-      <th>Description</th>
+      <th>Gare / Description</th>
       <th>Justificatif</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let t of tolls">
       <td><input type="checkbox" [checked]="selectedIds.has(t.id)" (change)="toggleSelection(t.id)"></td>
-      <td>{{ t.missionReference || '—' }}</td>
-      <td>{{ t.expenseDate | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td><strong>{{ t.montant | number:'1.2-2' }} {{ t.currency }}</strong></td>
-      <td>{{ t.amountHT ? (t.amountHT | number:'1.2-2') : '—' }}</td>
-      <td>{{ t.tvaAmount ? (t.tvaAmount | number:'1.2-2') : '—' }}</td>
-      <td>{{ t.description || '—' }}</td>
+      <td>{{ t.datePassage | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>{{ t.vehiculeImmatriculation || '—' }}</td>
+      <td>{{ t.chauffeurNom || '—' }}</td>
+      <td><strong>{{ t.amountTTC | number:'1.2-2' }} €</strong></td>
+      <td>
+        <div *ngIf="t.gareEntree || t.gareSortie">
+          {{ t.gareEntree || '?' }} → {{ t.gareSortie || '?' }}
+        </div>
+        <div class="text-muted" style="font-size: 0.85em">{{ t.notes }}</div>
+      </td>
 
       <td>
         <div class="fl-actions">
-          <ng-container *ngIf="t.receiptPath; else noProof">
-            <button class="fl-btn fl-btn-ghost" (click)="viewProof(t.missionId, t.id, t.missionReference)" title="Voir">👁</button>
-            <button class="fl-btn fl-btn-ghost" (click)="downloadProof(t.missionId, t.id, t.missionReference)" title="Télécharger">⬇</button>
+          <ng-container *ngIf="t.proofUrl; else noProof">
+            <button class="fl-btn fl-btn-ghost" (click)="viewProof(t.id, t.reference)" title="Voir">👁</button>
+            <button class="fl-btn fl-btn-ghost" (click)="downloadProof(t.id, t.reference)" title="Télécharger">⬇</button>
           </ng-container>
           <ng-template #noProof><span class="text-muted">—</span></ng-template>
+        </div>
+      </td>
+
+      <td>
+        <div class="fl-actions">
+          <button class="fl-btn fl-btn-ghost" (click)="goEdit(t)" title="Modifier">✎</button>
+          <button class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer">🗑</button>
         </div>
       </td>
     </tr>
@@ -57,6 +70,7 @@
     </tr>
   </tbody>
 </table>
+</div>
   </div>
 </div>
 
@@ -78,7 +92,7 @@
     </div>
 
     <div class="fl-modal-footer">
-      <button class="fl-btn fl-btn-ghost" (click)="downloadProof(currentMissionId!, currentProofId!, currentProofRef)">
+      <button class="fl-btn fl-btn-ghost" (click)="downloadProof(currentProofId!, currentProofRef)">
         ⬇ Télécharger
       </button>
       <button class="fl-btn fl-btn-primary" (click)="closeProofModal()">Fermer</button>

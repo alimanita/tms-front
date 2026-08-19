@@ -9,7 +9,7 @@
 /* ── Wrapper ─────────────────────────────────────────────────────────── */
 .chauf-dashboard {
   padding: 24px;
-  max-width: 1400px;
+  max-wi€h: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
     content: '';
     position: absolute;
     top: -50px; right: -50px;
-    width: 220px; height: 220px;
+    wi€h: 220px; height: 220px;
     border-radius: 50%;
     background: rgba(255, 255, 255, .06);
   }
@@ -44,7 +44,7 @@
     content: '';
     position: absolute;
     bottom: -30px; left: 40%;
-    width: 160px; height: 160px;
+    wi€h: 160px; height: 160px;
     border-radius: 50%;
     background: rgba(255, 255, 255, .04);
   }
@@ -57,7 +57,7 @@
   }
 
   .chauf-avatar {
-    width: 64px; height: 64px;
+    wi€h: 64px; height: 64px;
     border-radius: 50%;
     background: linear-gradient(135deg, #6366f1, #4f46e5);
     display: flex;
@@ -67,7 +67,7 @@
 
     mat-icon {
       font-size: 32px;
-      width: 32px; height: 32px;
+      wi€h: 32px; height: 32px;
       color: #fff;
     }
   }
@@ -129,7 +129,7 @@
     content: '';
     position: absolute;
     bottom: -20px; right: -20px;
-    width: 80px; height: 80px;
+    wi€h: 80px; height: 80px;
     border-radius: 50%;
     background: rgba(255,255,255,.1);
   }
@@ -151,7 +151,7 @@
   &.kpi-purple  { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
 
   .kpi-icon-wrap {
-    width: 48px; height: 48px;
+    wi€h: 48px; height: 48px;
     border-radius: 12px;
     background: rgba(255,255,255,.2);
     display: flex; align-items: center; justify-content: center;
@@ -159,7 +159,7 @@
 
     mat-icon {
       font-size: 26px;
-      width: 26px; height: 26px;
+      wi€h: 26px; height: 26px;
       color: #fff;
     }
   }
@@ -199,7 +199,7 @@
   .prog-icon {
     color: #6366f1;
     font-size: 32px;
-    width: 32px; height: 32px;
+    wi€h: 32px; height: 32px;
   }
 
   .prog-bar-wrap {
@@ -218,7 +218,7 @@
       font-size: 1.2rem;
       font-weight: 700;
       color: #6366f1;
-      min-width: 52px;
+      min-wi€h: 52px;
       text-align: right;
     }
   }
@@ -233,7 +233,7 @@
     flex-wrap: wrap;
 
     .legend-dot {
-      width: 10px; height: 10px;
+      wi€h: 10px; height: 10px;
       border-radius: 50%;
 
       &.green  { background: #10b981; }
@@ -251,7 +251,7 @@
   grid-template-columns: 1.5fr 1fr;
   gap: 20px;
 
-  @media (max-width: 1024px) {
+  @media (max-wi€h: 1024px) {
     grid-template-columns: 1fr;
   }
 }
@@ -274,7 +274,7 @@
   }
 
   .compact-table {
-    width: 100%;
+    wi€h: 100%;
     font-size: .82rem;
 
     .mat-mdc-header-cell {
@@ -319,7 +319,7 @@
   }
 
   .summary-icon {
-    width: 44px; height: 44px;
+    wi€h: 44px; height: 44px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -328,7 +328,7 @@
 
     mat-icon {
       font-size: 22px;
-      width: 22px; height: 22px;
+      wi€h: 22px; height: 22px;
     }
 
     &.fuel   { background: rgba(245,158,11,.12); mat-icon { color: #d97706; } }
@@ -396,7 +396,7 @@
 
   .dest-icon {
     font-size: 14px;
-    width: 14px; height: 14px;
+    wi€h: 14px; height: 14px;
     color: #6366f1;
   }
 }
@@ -456,7 +456,7 @@
   }
 
   .sc-icon {
-    width: 52px; height: 52px;
+    wi€h: 52px; height: 52px;
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -465,7 +465,7 @@
 
     mat-icon {
       font-size: 26px;
-      width: 26px; height: 26px;
+      wi€h: 26px; height: 26px;
       color: #fff;
     }
   }
@@ -498,11 +498,11 @@
   color: #94a3b8;
   gap: 8px;
 
-  mat-icon { font-size: 40px; width: 40px; height: 40px; }
+  mat-icon { font-size: 40px; wi€h: 40px; height: 40px; }
   p { margin: 0; font-size: .9rem; }
 
   &.success {
     color: #10b981;
-    mat-icon { font-size: 36px; width: 36px; height: 36px; }
+    mat-icon { font-size: 36px; wi€h: 36px; height: 36px; }
   }
 }

@@ -1,3 +1,4 @@
+import { DomSanitizer } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,7 +9,6 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { PieceRechangeResponse } from '../../ordre-travail/ordre-travail.model';
 import { OrdreTravailService } from '../../ordre-travail/ordre-travail.service';
 import { PieceRechangeFormComponent } from '../piece-rechange-form/piece-rechange-form.component';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-piece-rechange-list',
@@ -41,7 +41,7 @@ export class PieceRechangeListComponent implements OnInit {
   proofModalOpen = false;
   proofLoading = false;
   proofIsImage = false;
-  proofSafeUrl: SafeUrl | null = null;
+  proofSafeUrl: import('@angular/platform-browser').SafeUrl | null = null;
   currentProofId: number | null = null;
   currentProofRef = '';
   private currentProofBlobUrl: string | null = null;

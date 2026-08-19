@@ -10,7 +10,7 @@
         <div class="fl-col">
           <label>Véhicule *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
-            <option [ngValue]="null">-- Sélectionner --</option>
+            <option [ngValue]="null">-- SÃ©lectionner --</option>
             <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
           </select>
         </div>
@@ -41,11 +41,11 @@
                  [ngClass]="{'is-invalid': submitted && form.controls['quantityLiters'].invalid}">
         </div>
         <div class="fl-col">
-          <label>CoÃ»t unitaire (€/L)</label>
+          <label>CoÃ»t unitaire (dt/L)</label>
           <input type="number" formControlName="unitCost" step="0.01">
         </div>
         <div class="fl-col">
-          <label>CoÃ»t Total (€)</label>
+          <label>CoÃ»t Total (dt)</label>
           <input type="number" formControlName="totalCost" step="0.01">
         </div>
       </div>

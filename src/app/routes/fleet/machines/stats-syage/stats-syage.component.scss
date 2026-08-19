@@ -1,7 +1,7 @@
 // ─── Fix Angular Material overflow ────────────────────
 :host {
   display: block;
-  width: 100%;
+  wi€h: 100%;
   overflow-x: hidden;
 }
 
@@ -21,8 +21,8 @@
   padding: clamp(8px, 3vw, 24px);
   font-family: 'Inter', sans-serif;
   display: block;
-  width: 100%;
-  max-width: 100%;
+  wi€h: 100%;
+  max-wi€h: 100%;
 }
 
 // ─── Loading ───────────────────────────────────────────
@@ -52,7 +52,7 @@ mat-card {
   border-radius: 10px !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
   background: #fff !important;
-  min-width: 0;
+  min-wi€h: 0;
 }
 
 .m-b-24 {
@@ -102,7 +102,7 @@ mat-card-content {
 
 .col-sm-4 {
   flex: 1 1 calc(33.333% - 10px);
-  min-width: 0;
+  min-wi€h: 0;
 }
 
 .text-primary {
@@ -131,14 +131,14 @@ mat-card-content.p-0 {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   display: block;
-  width: 100%;
+  wi€h: 100%;
 }
 
 // ─── Tableau historique ────────────────────────────────
 table.mat-mdc-table,
 table[mat-table] {
-  width: 100%;
-  min-width: 620px;
+  wi€h: 100%;
+  min-wi€h: 620px;
   background: transparent;
 
   th.mat-mdc-header-cell,
@@ -201,14 +201,14 @@ tr.mat-row td[colspan] {
 }
 
 // ─── Tablette (≤ 768px) ────────────────────────────────
-@media (max-width: 768px) {
+@media (max-wi€h: 768px) {
   .col-sm-4 {
     flex: 1 1 calc(50% - 10px);
   }
 }
 
 // ─── Mobile (≤ 599px) ──────────────────────────────────
-@media (max-width: 599px) {
+@media (max-wi€h: 599px) {
   mat-card-header {
     padding: 12px 12px 0 12px;
   }
@@ -223,7 +223,7 @@ tr.mat-row td[colspan] {
 
   table.mat-mdc-table,
   table[mat-table] {
-    min-width: 560px;
+    min-wi€h: 560px;
   }
 }
 ::ng-deep mat-card.mat-mdc-card {

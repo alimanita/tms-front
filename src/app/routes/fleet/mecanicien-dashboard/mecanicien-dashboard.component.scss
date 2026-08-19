@@ -9,7 +9,7 @@
 /* ── Wrapper ─────────────────────────────────────────────────────────── */
 .meca-dashboard {
   padding: 24px;
-  max-width: 1400px;
+  max-wi€h: 1400px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
     content: '';
     position: absolute;
     top: -40px; right: -40px;
-    width: 200px; height: 200px;
+    wi€h: 200px; height: 200px;
     border-radius: 50%;
     background: rgba(255, 255, 255, .05);
   }
@@ -48,7 +48,7 @@
   }
 
   .meca-avatar {
-    width: 64px; height: 64px;
+    wi€h: 64px; height: 64px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f59e0b, #d97706);
     display: flex;
@@ -58,7 +58,7 @@
 
     mat-icon {
       font-size: 32px;
-      width: 32px; height: 32px;
+      wi€h: 32px; height: 32px;
       color: #fff;
     }
   }
@@ -120,7 +120,7 @@
     content: '';
     position: absolute;
     bottom: -20px; right: -20px;
-    width: 80px; height: 80px;
+    wi€h: 80px; height: 80px;
     border-radius: 50%;
     background: rgba(255,255,255,.1);
   }
@@ -142,7 +142,7 @@
   &.kpi-amber  { background: linear-gradient(135deg, #f97316, #ea580c); }
 
   .kpi-icon-wrap {
-    width: 48px; height: 48px;
+    wi€h: 48px; height: 48px;
     border-radius: 12px;
     background: rgba(255,255,255,.2);
     display: flex; align-items: center; justify-content: center;
@@ -150,7 +150,7 @@
 
     mat-icon {
       font-size: 26px;
-      width: 26px; height: 26px;
+      wi€h: 26px; height: 26px;
       color: #fff;
     }
   }
@@ -205,7 +205,7 @@
 
   mat-icon {
     font-size: 28px;
-    width: 28px; height: 28px;
+    wi€h: 28px; height: 28px;
     color: #64748b;
     flex-shrink: 0;
   }
@@ -238,7 +238,7 @@
   .avail-icon {
     color: #3b82f6;
     font-size: 32px;
-    width: 32px; height: 32px;
+    wi€h: 32px; height: 32px;
   }
 
   .avail-bar-wrap {
@@ -257,7 +257,7 @@
       font-size: 1.2rem;
       font-weight: 700;
       color: #3b82f6;
-      min-width: 52px;
+      min-wi€h: 52px;
       text-align: right;
     }
   }
@@ -272,7 +272,7 @@
     flex-wrap: wrap;
 
     .legend-dot {
-      width: 10px; height: 10px;
+      wi€h: 10px; height: 10px;
       border-radius: 50%;
 
       &.green { background: #10b981; }
@@ -290,7 +290,7 @@
   grid-template-columns: 1.5fr 1fr;
   gap: 20px;
 
-  @media (max-width: 1024px) {
+  @media (max-wi€h: 1024px) {
     grid-template-columns: 1fr;
   }
 }
@@ -313,7 +313,7 @@
   }
 
   .compact-table {
-    width: 100%;
+    wi€h: 100%;
     font-size: .82rem;
 
     .mat-mdc-header-cell {
@@ -363,7 +363,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 120px;
+  max-wi€h: 120px;
   display: inline-block;
 }
 
@@ -371,7 +371,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px; height: 32px;
+  wi€h: 32px; height: 32px;
   border-radius: 50%;
   font-weight: 700;
   font-size: .85rem;
@@ -445,7 +445,7 @@
   }
 
   .sc-icon {
-    width: 52px; height: 52px;
+    wi€h: 52px; height: 52px;
     border-radius: 14px;
     display: flex;
     align-items: center;
@@ -454,7 +454,7 @@
 
     mat-icon {
       font-size: 26px;
-      width: 26px; height: 26px;
+      wi€h: 26px; height: 26px;
       color: #fff;
     }
   }
@@ -487,11 +487,11 @@
   color: #94a3b8;
   gap: 8px;
 
-  mat-icon { font-size: 40px; width: 40px; height: 40px; }
+  mat-icon { font-size: 40px; wi€h: 40px; height: 40px; }
   p { margin: 0; font-size: .9rem; }
 
   &.success {
     color: #10b981;
-    mat-icon { font-size: 36px; width: 36px; height: 36px; }
+    mat-icon { font-size: 36px; wi€h: 36px; height: 36px; }
   }
 }

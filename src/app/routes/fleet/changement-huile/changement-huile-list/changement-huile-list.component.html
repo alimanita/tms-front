@@ -5,7 +5,7 @@
   </div>
 
   <div class="fleet-body">
-    <div *ngIf="loading" class="fleet-loading">Chargementâ€¦</div>
+    <div *ngIf="loading" class="fleet-loading">Chargementâdt¦</div>
 
     <table *ngIf="!loading" class="fl-table">
       <thead>
@@ -31,7 +31,7 @@
           <td>{{ c.changeDate | date:'dd/MM/yyyy' }}</td>
           <td>{{ c.mileageAtChange || c.hoursAtChange }}</td>
           <td>{{ c.quantityLiters }} L</td>
-          <td>{{ c.totalCost | currency:'€' }}</td>
+          <td>{{ c.totalCost | currency:'dt' }}</td>
           <td>{{ c.nextChangeKm || c.nextChangeHours }}</td>
           <td class="fl-actions">
             <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">âœŽ</button>

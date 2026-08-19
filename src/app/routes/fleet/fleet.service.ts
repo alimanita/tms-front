@@ -443,17 +443,43 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     return this.http.delete<void>(`${this.base}/pleins-carburant/${id}`);
   }
 
-  // Péages (Tolls)
-  getTolls(pageable?: { page?: number; size?: number }): Observable<any> {
+  // Péages (Tolls) - Nouvelle table peage
+  getPeages(pageable?: { page?: number; size?: number }): Observable<any> {
     const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
-    return this.http.get(`${this.base}/missions/depenses/tolls`, { params });
+    return this.http.get(`${this.base}/peages`, { params });
   }
 
-  getTollProofFile(missionId: number, depenseId: number) {
+  savePeage(request: any, proof?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    if (proof) {
+      const ext = proof.type?.split('/')[1] || 'jpg';
+      const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+        ? proof.name
+        : `photo_peage_${Date.now()}.${ext}`;
+      formData.append('proof', proof, safeName);
+    }
+    return this.http.post<any>(`${this.base}/peages`, formData);
+  }
+
+  getPeageProofFile(peageId: number) {
     return this.http.get(
-      `${this.base}/missions/${missionId}/depenses/${depenseId}/receipt`,
+      `${this.base}/peages/${peageId}/proof`,
       { responseType: 'blob', observe: 'response' }
     );
+  }
+
+  extractPeageData(proof: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('proof', proof, proof.name);
+    return this.http.post<any>(`${this.base}/peages/extract`, formData);
+  }
+
+  deletePeage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/peages/${id}`);
   }
 
   // Dashboard
@@ -539,7 +565,7 @@ toggleVehicleActif(id: number): Observable<VehiculeResponse> {
   }
 
   getChauffeursDisponibles(): Observable<ChauffeurResponse[]> {
-    return this.http.get<ChauffeurResponse[]>(`${this.base}/chauffeurs/disponibles`);
+    return this.http.get<ChauffeurResponse[]>(`${this.base}/chauffeurs/actifs`);
   }
 
   saveChauffeur(request: ChauffeurRequest, id?: number): Observable<ChauffeurResponse> {
@@ -651,7 +677,7 @@ updateHeuresActuelles(id: number, heures: number): Observable<UpdateHeuresRespon
     return this.http.get<CarburantAnnuelDto[]>(`${this.base}/rapports/carburant/annuel`, { params: p });
   }
 
-savePlein(request: PleinCarburantRequest, proof?: File) {
+  savePlein(request: PleinCarburantRequest, proof?: File) {
   const formData = new FormData();
   formData.append(
     'data',
@@ -667,6 +693,25 @@ savePlein(request: PleinCarburantRequest, proof?: File) {
   }
   return this.http.post<PleinCarburantResponse>(
     `${this.base}/pleins-carburant`,
+    formData
+  );
+}
+
+updatePlein(id: number, request: PleinCarburantRequest, proof?: File) {
+  const formData = new FormData();
+  formData.append(
+    'data',
+    new Blob([JSON.stringify(request)], { type: 'application/json' })
+  );
+  if (proof) {
+    const ext = proof.type?.split('/')[1] || 'jpg';
+    const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+      ? proof.name
+      : `photo_${Date.now()}.${ext}`;
+    formData.append('proof', proof, safeName);
+  }
+  return this.http.put<PleinCarburantResponse>(
+    `${this.base}/pleins-carburant/${id}`,
     formData
   );
 }

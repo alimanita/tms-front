@@ -6,7 +6,7 @@ import { FleetService } from '../../fleet.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { DepenseMissionResponse } from '../../mission/mission.model';
+import { PeageResponse } from '../peage.model';
 import { jsPDF } from 'jspdf';
 
 @Component({
@@ -17,8 +17,8 @@ import { jsPDF } from 'jspdf';
   styleUrls: ['./toll-list.component.scss'],
 })
 export class TollListComponent implements OnInit {
-  allTolls: DepenseMissionResponse[] = [];
-  tolls: DepenseMissionResponse[] = [];
+  allTolls: PeageResponse[] = [];
+  tolls: PeageResponse[] = [];
   selectedIds: Set<number> = new Set();
   
   startDate?: string;
@@ -30,7 +30,6 @@ export class TollListComponent implements OnInit {
   proofIsImage = false;
   proofSafeUrl: SafeUrl | null = null;
   currentProofId: number | null = null;
-  currentMissionId: number | null = null;
   currentProofRef = '';
   private currentProofBlobUrl: string | null = null;
 
@@ -52,7 +51,7 @@ export class TollListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.fleetService.getTolls({ page: 0, size: 2000 }).subscribe({
+    this.fleetService.getPeages({ page: 0, size: 2000 }).subscribe({
       next: (data: any) => {
         this.allTolls = Array.isArray(data) ? data : (data.content ?? []);
         this.applyFilters();
@@ -70,12 +69,12 @@ export class TollListComponent implements OnInit {
 
     if (this.startDate) {
       const start = new Date(this.startDate).getTime();
-      filtered = filtered.filter(p => p.expenseDate && new Date(p.expenseDate).getTime() >= start);
+      filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() >= start);
     }
 
     if (this.endDate) {
       const end = new Date(this.endDate).getTime() + 86400000 - 1;
-      filtered = filtered.filter(p => p.expenseDate && new Date(p.expenseDate).getTime() <= end);
+      filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() <= end);
     }
 
     this.tolls = filtered;
@@ -95,6 +94,22 @@ export class TollListComponent implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.onFilterChange();
+  }
+
+  addPeage(): void {
+    this.router.navigate(['/fleet/tolls/new']);
+  }
+
+  goEdit(t: PeageResponse): void {
+    this.router.navigate([`/fleet/tolls/${t.id}/edit`]);
+  }
+
+  delete(t: PeageResponse): void {
+    if (!confirm('Supprimer ce péage ?')) return;
+    this.fleetService.deletePeage(t.id!).subscribe({
+      next: () => this.load(),
+      error: () => this.snackBar.open('Erreur suppression', 'Fermer', { duration: 3000 })
+    });
   }
   
   toggleSelection(id: number): void {
@@ -119,11 +134,11 @@ export class TollListComponent implements OnInit {
 
   exportCSV(): void {
     if (this.selectedIds.size === 0) return;
-    const selectedTolls = this.tolls.filter(t => this.selectedIds.has(t.id));
+    const selecteTolls = this.tolls.filter(t => this.selectedIds.has(t.id));
     
-    let csv = 'ID,Mission,Date,Montant TTC,Montant HT,TVA,Description\n';
-    selectedTolls.forEach(t => {
-      csv += `${t.id},${t.missionReference || ''},${t.expenseDate || ''},${t.montant || ''},${t.amountHT || ''},${t.tvaAmount || ''},"${t.description || ''}"\n`;
+    let csv = 'ID,Reference,Date,Véhicule,Chauffeur,Montant TTC,Montant HT,TVA,Gare Entrée,Gare Sortie\n';
+    selecteTolls.forEach(t => {
+      csv += `${t.id},${t.reference},${t.datePassage || ''},${t.vehiculeImmatriculation || ''},${t.chauffeurNom || ''},${t.amountTTC || ''},${t.amountHT || ''},${t.tvaAmount || ''},"${t.gareEntree || ''}","${t.gareSortie || ''}"\n`;
     });
     
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -138,8 +153,8 @@ export class TollListComponent implements OnInit {
 
   async exportPDF(): Promise<void> {
     if (this.selectedIds.size === 0) return;
-    const selectedTolls = this.tolls.filter(t => this.selectedIds.has(t.id) && t.receiptPath);
-    if (selectedTolls.length === 0) {
+    const selecteTolls = this.tolls.filter(t => this.selectedIds.has(t.id) && t.proofUrl);
+    if (selecteTolls.length === 0) {
       this.snackBar.open('Aucun justificatif disponible pour la sélection', 'Fermer', { duration: 3000 });
       return;
     }
@@ -149,10 +164,10 @@ export class TollListComponent implements OnInit {
     
     const marginX = 10;
     const marginY = 10;
-    const usableWidth = pdf.internal.pageSize.getWidth() - 2 * marginX;
+    const usableWidh = pdf.internal.pageSize.getWidth() - 2 * marginX;
     const colCount = 2;
     const gap = 10;
-    const colWidth = (usableWidth - gap * (colCount - 1)) / colCount;
+    const colWidh = (usableWidh - gap * (colCount - 1)) / colCount;
     const maxPageHeight = pdf.internal.pageSize.getHeight();
     
     let currentX = marginX;
@@ -161,9 +176,9 @@ export class TollListComponent implements OnInit {
     let currentColumn = 0;
     let imageCount = 0;
 
-    for (const toll of selectedTolls) {
+    for (const toll of selecteTolls) {
       try {
-        const res = await this.fleetService.getTollProofFile(toll.missionId, toll.id).toPromise();
+        const res = await this.fleetService.getPeageProofFile(toll.id).toPromise();
         if (res && res.body) {
           const blob = res.body;
           const contentType = res.headers.get('Content-Type') || blob.type;
@@ -172,13 +187,13 @@ export class TollListComponent implements OnInit {
             const base64 = await this.blobToBase64(blob);
             
             const imgProps = pdf.getImageProperties(base64);
-            let imgWidth = colWidth;
-            let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+            let imgWidh = colWidh;
+            let imgHeight = (imgProps.height * imgWidh) / imgProps.width;
             
             const maxAllowedHeight = (maxPageHeight - 3 * marginY) / 2;
             if (imgHeight > maxAllowedHeight) {
                 imgHeight = maxAllowedHeight;
-                imgWidth = (imgProps.width * imgHeight) / imgProps.height;
+                imgWidh = (imgProps.width * imgHeight) / imgProps.height;
             }
 
             const textHeight = 5;
@@ -200,13 +215,13 @@ export class TollListComponent implements OnInit {
             }
 
             pdf.setFontSize(9);
-            pdf.text(`Péage: ${toll.missionReference || 'N/A'} - ${toll.montant}€`, currentX, currentY + textHeight);
+            pdf.text(`Péage: ${toll.reference || 'N/A'} - ${toll.amountTTC}€`, currentX, currentY + textHeight);
             
-            const offsetX = currentX + (colWidth - imgWidth) / 2;
-            pdf.addImage(base64, 'JPEG', offsetX, currentY + textHeight + 2, imgWidth, imgHeight);
+            const offsetX = currentX + (colWidh - imgWidh) / 2;
+            pdf.addImage(base64, 'JPEG', offsetX, currentY + textHeight + 2, imgWidh, imgHeight);
             
             currentRowHeight = Math.max(currentRowHeight, totalItemHeight);
-            currentX += colWidth + gap;
+            currentX += colWidh + gap;
             currentColumn++;
             imageCount++;
           } else {
@@ -235,8 +250,8 @@ export class TollListComponent implements OnInit {
     });
   }
 
-  downloadProof(missionId: number, depenseId: number, filename = 'justificatif'): void {
-    this.fleetService.getTollProofFile(missionId, depenseId).subscribe({
+  downloadProof(peageId: number, filename = 'justificatif'): void {
+    this.fleetService.getPeageProofFile(peageId).subscribe({
       next: (res) => {
         const blob = res.body!;
         const disposition = res.headers.get('Content-Disposition');
@@ -254,14 +269,13 @@ export class TollListComponent implements OnInit {
     });
   }
   
-  viewProof(missionId: number, depenseId: number, reference = ''): void {
+  viewProof(peageId: number, reference = ''): void {
     this.proofModalOpen = true;
     this.proofLoading = true;
-    this.currentProofId = depenseId;
-    this.currentMissionId = missionId;
+    this.currentProofId = peageId;
     this.currentProofRef = reference;
   
-    this.fleetService.getTollProofFile(missionId, depenseId).subscribe({
+    this.fleetService.getPeageProofFile(peageId).subscribe({
       next: (res) => {
         const blob = res.body!;
         const contentType = res.headers.get('Content-Type') || blob.type;
@@ -288,4 +302,4 @@ export class TollListComponent implements OnInit {
     }
     this.proofSafeUrl = null;
   }
-}
+}

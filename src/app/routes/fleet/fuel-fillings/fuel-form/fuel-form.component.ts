@@ -143,10 +143,14 @@ export class FuelFormComponent implements OnInit {
       notes:          fv.notes          || undefined,
     };
 
-    this.fleetService.savePlein(request, this.selectedFile ?? undefined).subscribe({
+    const obs$ = this.isEdit && this.pleinId
+      ? this.fleetService.updatePlein(this.pleinId, request, this.selectedFile ?? undefined)
+      : this.fleetService.savePlein(request, this.selectedFile ?? undefined);
+
+    obs$.subscribe({
       next: () => {
-        this.loading = false; // ✅ Fix : débloque le bouton avant/pendant la navigation
-        this.snackBar.open('Plein enregistré', 'Fermer', { duration: 3000 });
+        this.loading = false;
+        this.snackBar.open(this.isEdit ? 'Plein mis à jour' : 'Plein enregistré', 'Fermer', { duration: 3000 });
         this.router.navigate(['/fleet/fuel-fillings']);
       },
       error: (err) => {

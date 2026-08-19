@@ -60,7 +60,7 @@
       <div class="kpi-card kpi-red">
         <mat-icon>trending_down</mat-icon>
         <div>
-          <div class="kpi-value">{{ totalDepenses() | number:'1.2-2' }} DT</div>
+          <div class="kpi-value">{{ totalDepenses() | number:'1.2-2' }} dt</div>
           <div class="kpi-label">Total dépenses</div>
         </div>
       </div>
@@ -112,7 +112,7 @@
             <thead>
               <tr>
                 <th>{{ viewMode() === 'mensuel' ? 'Mois' : 'Année' }}</th>
-                <th class="text-right">Montant (DT)</th>
+                <th class="text-right">Montant (dt)</th>
                 <th class="text-right">%</th>
               </tr>
             </thead>
@@ -120,7 +120,7 @@
               @for (item of depensesParMois(); track item.key) {
                 <tr>
                   <td>{{ item.label }}</td>
-                  <td class="text-right text-red font-bold">{{ item.montant | number:'1.2-2' }} DT</td>
+                  <td class="text-right text-red font-bold">{{ item.montant | number:'1.2-2' }} dt</td>
                   <td class="text-right">
                     <div class="mini-bar-wrap">
                       <div class="mini-bar" [style.width]="barWidth(item.montant)"></div>
@@ -133,7 +133,7 @@
             <tfoot>
               <tr class="total-row">
                 <td><strong>Total</strong></td>
-                <td class="text-right"><strong>{{ totalDepenses() | number:'1.2-2' }} DT</strong></td>
+                <td class="text-right"><strong>{{ totalDepenses() | number:'1.2-2' }} dt</strong></td>
                 <td></td>
               </tr>
             </tfoot>
@@ -151,7 +151,7 @@
             @for (item of depensesParCategorie(); track item.categorie) {
               <div class="stat-item">
                 <span class="label">{{ item.categorie }}</span>
-                <span class="value text-red">{{ item.montant | number:'1.2-2' }} DT</span>
+                <span class="value text-red">{{ item.montant | number:'1.2-2' }} dt</span>
               </div>
             }
           </div>
