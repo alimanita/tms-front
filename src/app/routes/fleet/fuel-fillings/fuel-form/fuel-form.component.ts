@@ -205,7 +205,7 @@ export class FuelFormComponent implements OnInit {
           const pricePerLiter = (data.totalCost / data.quantityLiters).toFixed(3);
           this.form.patchValue({ pricePerLiter: parseFloat(pricePerLiter) });
         }
-        if (data.fillingDate) this.form.patchValue({ fillingDate: data.fillingDate + 'T00:00' });
+       if (data.fillingDate) this.form.patchValue({ fillingDate: data.fillingDate.slice(0, 16) });
         if (data.fuelType) {
           const upperType = data.fuelType.toUpperCase();
           if (this.fuelTypes.includes(upperType)) {
