@@ -1,6 +1,6 @@
 .register-container {
   display: flex;
-  wi€h: 100%;
+  width: 100%;
   min-height: 100vh;
   padding: 2rem 1rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -9,14 +9,14 @@
 }
 
 .register-card {
-  wi€h: 100%;
-  max-wi€h: 900px;
+  width: 100%;
+  max-width: 900px;
   margin: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   padding: 1rem;
 
-  @media (min-wi€h: 768px) {
+  @media (min-width: 768px) {
     padding: 2rem;
   }
 }
@@ -28,7 +28,7 @@
   margin-bottom: 1.5rem;
   text-align: center;
 
-  @media (min-wi€h: 768px) {
+  @media (min-width: 768px) {
     font-size: 2rem;
   }
 }
@@ -56,8 +56,8 @@ mat-card-header {
 .form-row {
   margin-bottom: 1rem;
 
-  &.full-wi€h {
-    wi€h: 100%;
+  &.full-width {
+    width: 100%;
   }
 
   &.two-columns {
@@ -65,7 +65,7 @@ mat-card-header {
     grid-template-columns: 1fr;
     gap: 1rem;
 
-    @media (min-wi€h: 768px) {
+    @media (min-width: 768px) {
       grid-template-columns: 1fr 1fr;
     }
   }
@@ -75,17 +75,17 @@ mat-card-header {
     grid-template-columns: 1fr;
     gap: 1rem;
 
-    @media (min-wi€h: 768px) {
+    @media (min-width: 768px) {
       grid-template-columns: 2fr 1fr 1fr;
     }
   }
 }
 
 mat-form-field {
-  wi€h: 100%;
+  width: 100%;
 
-  &.full-wi€h {
-    wi€h: 100%;
+  &.full-width {
+    width: 100%;
   }
 }
 
@@ -97,7 +97,7 @@ mat-form-field {
   gap: 1rem;
 
   button {
-    min-wi€h: 120px;
+    min-width: 120px;
   }
 }
 
@@ -151,7 +151,7 @@ mat-form-field {
   grid-template-columns: 1fr;
   gap: 1rem;
 
-  @media (min-wi€h: 768px) {
+  @media (min-width: 768px) {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -220,7 +220,7 @@ mat-form-field {
 }
 
 // Responsive adjustments
-@media (max-wi€h: 767px) {
+@media (max-width: 767px) {
   .register-container {
     padding: 1rem 0.5rem;
   }

@@ -8,6 +8,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { MissionService } from '../mission.service';
 import { DepenseMissionResponse, TypeDepense } from '../mission.model';
+import { FleetService } from '../../fleet.service';
 
 @Component({
   selector: 'app-mission-expenses',
@@ -47,6 +48,7 @@ export class MissionExpensesComponent implements OnInit {
     private missionService: MissionService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
+    private fleetService: FleetService,
   ) {}
 
   ngOnInit(): void {
@@ -119,12 +121,14 @@ export class MissionExpensesComponent implements OnInit {
   previewUrl: string | null = null;
   fuelSubmitted = false;
   fuelSaving = false;
+  extractingFuel = false;
 
   // -- Toll (Péage) --
   isTollDrawerOpen = false;
   tollForm!: FormGroup;
   tollSubmitted = false;
   tollSaving = false;
+  extractingToll = false;
 
 
   initFuelForm(): void {
@@ -393,4 +397,55 @@ export class MissionExpensesComponent implements OnInit {
   proofIsImage    = false;
   proofSafeUrl: SafeUrl | null = null;
   currentDepense: DepenseMissionResponse | null = null;
+
+  // ── Extraction IA ───────────────────────────────────────────────────────────
+  extractFuelData(): void {
+    if (!this.selectedFile) return;
+    this.extractingFuel = true;
+    this.snackBar.open('Extraction des données en cours…', '', { duration: 3000 });
+    this.fleetService.extractFuelData(this.selectedFile).subscribe({
+      next: (data) => this.zone.run(() => {
+        this.extractingFuel = false;
+        this.snackBar.open('Données extraites avec succès !', 'Fermer', { duration: 3000 });
+        if (data.quantityLiters) this.fuelForm.patchValue({ quantityLiters: data.quantityLiters });
+        if (data.totalCost && data.quantityLiters && data.quantityLiters > 0) {
+          this.fuelForm.patchValue({ pricePerLiter: +(data.totalCost / data.quantityLiters).toFixed(3) });
+        }
+        if (data.fillingDate) this.fuelForm.patchValue({ expenseDate: data.fillingDate.slice(0, 16) });
+        this.cdr.detectChanges();
+      }),
+      error: () => this.zone.run(() => {
+        this.extractingFuel = false;
+        this.snackBar.open("Erreur lors de l'extraction", 'Fermer', { duration: 4000 });
+        this.cdr.detectChanges();
+      })
+    });
+  }
+
+  extractTollData(): void {
+    if (!this.selectedFile) return;
+    this.extractingToll = true;
+    this.snackBar.open('Extraction des données en cours…', '', { duration: 3000 });
+    this.fleetService.extractPeageData(this.selectedFile).subscribe({
+      next: (res) => this.zone.run(() => {
+        this.extractingToll = false;
+        this.snackBar.open('Données extraites avec succès !', 'Fermer', { duration: 3000 });
+        if (res) {
+          this.tollForm.patchValue({
+            amountHT:      res.amountHT  ?? null,
+            tvaRate:       res.tvaRate   ?? 20,
+            receiptNumber: res.receiptNumber ?? '',
+            description:   [res.entree, res.sortie].filter(Boolean).join(' → ') || '',
+          });
+          if (res.receiptDate) this.tollForm.patchValue({ expenseDate: res.receiptDate });
+        }
+        this.cdr.detectChanges();
+      }),
+      error: () => this.zone.run(() => {
+        this.extractingToll = false;
+        this.snackBar.open("Erreur lors de l'extraction OCR", 'Fermer', { duration: 4000 });
+        this.cdr.detectChanges();
+      })
+    });
+  }
 }

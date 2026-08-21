@@ -293,3 +293,15 @@ input[type="datetime-local"]::-webkit-datetime-edit {
   }
 }
 
+
+/* Tooltip chauffeurs mission-list */
+.chauffeurs-tooltip {
+  white-space: pre-line !important;
+  font-size: 12px !important;
+  line-height: 1.7 !important;
+  max-width: 260px !important;
+  padding: 8px 12px !important;
+  background: #1e293b !important;
+  border-radius: 8px !important;
+}
+

@@ -11,6 +11,35 @@
 
   <div class="fleet-body">
     <form [formGroup]="form" class="fl-form">
+
+      <!-- Bloc d'erreur API -->
+      <div *ngIf="errorMessage" class="form-error-alert" style="
+          background: #fef2f2;
+          border: 1px solid #fca5a5;
+          border-left: 4px solid #ef4444;
+          border-radius: 8px;
+          padding: 14px 16px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+        ">
+        <mat-icon style="color: #ef4444; flex-shrink: 0; margin-top: 1px;">error_outline</mat-icon>
+        <div>
+          <div style="font-weight: 600; color: #b91c1c; font-size: 14px; margin-bottom: 4px;">
+            Impossible d'enregistrer la mission
+          </div>
+          <div style="color: #7f1d1d; font-size: 13px;">{{ errorMessage }}</div>
+          <ul *ngIf="errorDetails.length > 0" style="margin: 6px 0 0 0; padding-left: 18px; color: #7f1d1d; font-size: 13px;">
+            <li *ngFor="let e of errorDetails">{{ e }}</li>
+          </ul>
+        </div>
+        <button type="button" (click)="errorMessage = null" style="
+            margin-left: auto; background: none; border: none;
+            cursor: pointer; color: #b91c1c; font-size: 18px; line-height: 1;
+          ">✕</button>
+      </div>
+
       <div class="fl-grid">
 
         <div class="fl-field fl-field--full">
@@ -30,13 +59,49 @@
           </select>
         </div>
 
-        <div class="fl-field">
-          <label>Chauffeur *</label>
-          <select formControlName="chauffeurId"
-                  [class.error]="submitted && form.get('chauffeurId')?.invalid">
-            <option [ngValue]="null">— Sélectionner —</option>
-            <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.prenom }} {{ c.nom }}</option>
-          </select>
+        <div class="fl-field chauffeur-dropdown-wrapper" style="position: relative;">
+          <label>Chauffeurs *</label>
+          <!-- Trigger button -->
+          <div class="chauffeur-trigger"
+               (click)="toggleDropdown($event)"
+               [class.error]="submitted && form.get('chauffeurIds')?.invalid"
+               style="display: flex; align-items: center; justify-content: space-between;
+                      border: 1px solid #d1d5db; border-radius: 6px; padding: 0 12px;
+                      height: 40px; cursor: pointer; background: white; font-size: 14px;
+                      color: #374151; user-select: none;">
+            <span [style.color]="(form.get('chauffeurIds')?.value?.length === 0) ? '#9ca3af' : '#111827'">
+              {{ selectedChauffeursLabel }}
+            </span>
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px; color: #6b7280; transition: transform 0.2s;"
+                      [style.transform]="chauffeurDropdownOpen ? 'rotate(180deg)' : 'rotate(0)'">
+              expand_more
+            </mat-icon>
+          </div>
+          <!-- Dropdown panel -->
+          <div *ngIf="chauffeurDropdownOpen"
+               style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1000;
+                      background: white; border: 1px solid #d1d5db; border-radius: 8px;
+                      box-shadow: 0 8px 24px rgba(0,0,0,0.12); max-height: 220px;
+                      overflow-y: auto; padding: 6px 0;">
+            <div *ngIf="chauffeurs.length === 0"
+                 style="padding: 12px 16px; color: #9ca3af; font-size: 13px; font-style: italic;">
+              Aucun chauffeur disponible
+            </div>
+            <label *ngFor="let c of chauffeurs"
+                   (click)="$event.stopPropagation()"
+                   style="display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+                          cursor: pointer; font-size: 14px; color: #374151;
+                          transition: background 0.15s; user-select: none;"
+                   [style.background]="isChauffeurSelected(c.id) ? '#eff6ff' : 'white'">
+              <input type="checkbox"
+                     [checked]="isChauffeurSelected(c.id)"
+                     (change)="toggleChauffeur(c.id)"
+                     style="width: 15px; height: 15px; margin: 0; cursor: pointer; accent-color: #3b82f6;">
+              <span [style.fontWeight]="isChauffeurSelected(c.id) ? '600' : '400'">
+                {{ c.prenom }} {{ c.nom }}
+              </span>
+            </label>
+          </div>
         </div>
 
         <div class="fl-field">
@@ -58,18 +123,30 @@
         </div>
 
         <div class="fl-field">
-          <label>Date/heure de retour prévue</label>
-          <input type="datetime-local" formControlName="plannedReturn"/>
+          <label>Tarif / Prix de la mission (€)</label>
+          <input type="number" step="0.001" formControlName="revenue" min="0" placeholder="Ex: 450.00"/>
         </div>
 
-        <div class="fl-field">
-          <label>Poids cargo (kg)</label>
-          <input type="number" formControlName="cargoWeight" min="0"/>
-        </div>
+        <!-- Lettre de mission -->
+        <div class="fl-field fl-field--full">
+          <label>Lettre de mission (PDF, image…)</label>
+          <div class="fl-upload-zone" [class.has-file]="!!letterFile">
+            <input type="file" id="letterInput" accept=".pdf,image/*,.doc,.docx"
+                   (change)="onLetterSelected($event)" hidden />
 
-        <div class="fl-field">
-          <label>Tarif / Prix de la mission (dt)</label>
-          <input type="number" step="0.001" formControlName="revenue" min="0" placeholder="Ex: 450.000"/>
+            <ng-container *ngIf="!letterFile">
+              <label for="letterInput" class="fl-btn fl-btn-ghost file-btn" style="cursor:pointer;">
+                <mat-icon style="vertical-align:middle;margin-right:4px;">attach_file</mat-icon>
+                Joindre la lettre de mission
+              </label>
+            </ng-container>
+
+            <span *ngIf="letterFile" class="fl-file-name">
+              <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">description</mat-icon>
+              {{ letterFile.name }}
+              <button type="button" class="fl-file-remove" (click)="removeLetterFile()" title="Supprimer">✕</button>
+            </span>
+          </div>
         </div>
 
         <div class="fl-field fl-field--full">

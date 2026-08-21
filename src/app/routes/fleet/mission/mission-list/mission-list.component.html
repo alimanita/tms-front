@@ -12,57 +12,97 @@
   </div>
 </div>
 
+<!-- Modal Lettre de mission -->
+<div class="fl-modal-overlay" *ngIf="letterModalOpen" (click)="closeLetterModal()">
+  <div class="fl-modal" (click)="$event.stopPropagation()">
+    <div class="fl-modal-header">
+      <h3>Lettre de mission</h3>
+      <button class="fl-modal-close" (click)="closeLetterModal()">✕</button>
+    </div>
+
+    <div class="fl-modal-body">
+      <div *ngIf="letterLoading" class="fl-modal-loading">Chargement…</div>
+
+      <ng-container *ngIf="!letterLoading">
+        <img *ngIf="letterIsImage" [src]="letterSafeUrl" class="fl-modal-img" alt="Lettre de mission"/>
+        <iframe *ngIf="!letterIsImage" [src]="letterSafeUrl" class="fl-modal-pdf"></iframe>
+      </ng-container>
+    </div>
+
+    <div class="fl-modal-footer">
+      <button class="fl-btn fl-btn-primary" style="background:#3b82f6;color:white;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="downloadCurrentLetter()">
+        ⬇ Télécharger
+      </button>
+      <button class="fl-btn fl-btn-ghost" style="background:#f1f5f9;color:#374151;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="closeLetterModal()">
+        Fermer
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Filters Bar -->
 <div class="filters-bar">
 
+  <!-- Chauffeur multi-select -->
   <div class="filter-group">
     <label class="filter-label">Chauffeur</label>
-    <div class="pm-autocomplete-wrap">
-      <svg class="pm-search-icon" width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <circle cx="5.5" cy="5.5" r="4" stroke="#9ca3af" stroke-width="1.3"/>
-        <path d="M9 9l3 3" stroke="#9ca3af" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
-      <input
-        type="text"
-        placeholder="Rechercher un chauffeur..."
-        [(ngModel)]="filterChauffeur"
-        (input)="onChauffeurInput()"
-        (focus)="onChauffeurInput()"
-        (blur)="hideDropdown()"
-        autocomplete="off"
-        [class.pm-ac-input--open]="showDropdown"
-      />
-      <button
-        *ngIf="selectedChauffeurId"
-        class="pm-autocomplete-clear"
-        type="button"
-        (mousedown)="$event.preventDefault()"
-        (click)="clearChauffeurFilter()"
-        title="Effacer"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
+    <div class="ms-wrap" tabindex="-1" (blur)="showChauffeurDropdown = false">
+      <button type="button" class="ms-trigger" (click)="showChauffeurDropdown = !showChauffeurDropdown; showVehiculeDropdown = false"
+              [class.ms-trigger--active]="selectedChauffeurIds.length > 0">
+        <span class="ms-trigger-label">{{ chauffeurLabel }}</span>
+        <span *ngIf="selectedChauffeurIds.length > 0" class="ms-badge">{{ selectedChauffeurIds.length }}</span>
+        <mat-icon class="ms-chevron">{{ showChauffeurDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
-      <ul class="pm-autocomplete-list" *ngIf="showDropdown">
-        <li *ngIf="filteredChauffeur.length === 0" class="pm-autocomplete-item pm-autocomplete-empty">
-          Aucun chauffeur trouvé
-        </li>
-        <li
-          *ngFor="let c of filteredChauffeur"
-          class="pm-autocomplete-item"
-          (mousedown)="selectChauffeur(c)"
-        >
-          <span class="pm-ac-name">{{ c.nom }}</span>
-        </li>
-      </ul>
+      <div class="ms-panel" *ngIf="showChauffeurDropdown">
+        <div class="ms-search-wrap">
+          <mat-icon class="ms-search-icon">search</mat-icon>
+          <input class="ms-search-input" placeholder="Rechercher…" [(ngModel)]="chauffeurSearch" autocomplete="off"/>
+          <button *ngIf="chauffeurSearch" class="ms-clear-search" type="button" (click)="chauffeurSearch = ''">✕</button>
+        </div>
+        <ul class="ms-list">
+          <li *ngIf="filteredChauffeurs.length === 0" class="ms-empty">Aucun résultat</li>
+          <li *ngFor="let c of filteredChauffeurs" class="ms-item"
+              (click)="toggleChauffeur(c.id)" [class.ms-item--checked]="isChauffeurSelected(c.id)">
+            <span class="ms-checkbox">{{ isChauffeurSelected(c.id) ? '☑' : '☐' }}</span>
+            {{ c.nom }}
+          </li>
+        </ul>
+        <div class="ms-footer" *ngIf="selectedChauffeurIds.length > 0">
+          <button type="button" class="ms-clear-btn" (click)="clearChauffeursFilter()">Effacer la sélection</button>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Véhicule multi-select -->
   <div class="filter-group">
     <label class="filter-label">Véhicule</label>
-    <input class="filter-select" placeholder="Référence véhicule"
-           [(ngModel)]="filterVehicule" (input)="onFilterChange()"/>
+    <div class="ms-wrap" tabindex="-1" (blur)="showVehiculeDropdown = false">
+      <button type="button" class="ms-trigger" (click)="showVehiculeDropdown = !showVehiculeDropdown; showChauffeurDropdown = false"
+              [class.ms-trigger--active]="selectedVehiculeIds.length > 0">
+        <span class="ms-trigger-label">{{ vehiculeLabel }}</span>
+        <span *ngIf="selectedVehiculeIds.length > 0" class="ms-badge">{{ selectedVehiculeIds.length }}</span>
+        <mat-icon class="ms-chevron">{{ showVehiculeDropdown ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </button>
+      <div class="ms-panel" *ngIf="showVehiculeDropdown">
+        <div class="ms-search-wrap">
+          <mat-icon class="ms-search-icon">search</mat-icon>
+          <input class="ms-search-input" placeholder="Rechercher…" [(ngModel)]="vehiculeSearch" autocomplete="off"/>
+          <button *ngIf="vehiculeSearch" class="ms-clear-search" type="button" (click)="vehiculeSearch = ''">✕</button>
+        </div>
+        <ul class="ms-list">
+          <li *ngIf="filteredVehicules.length === 0" class="ms-empty">Aucun résultat</li>
+          <li *ngFor="let v of filteredVehicules" class="ms-item"
+              (click)="toggleVehicule(v.id)" [class.ms-item--checked]="isVehiculeSelected(v.id)">
+            <span class="ms-checkbox">{{ isVehiculeSelected(v.id) ? '☑' : '☐' }}</span>
+            {{ v.ref }}
+          </li>
+        </ul>
+        <div class="ms-footer" *ngIf="selectedVehiculeIds.length > 0">
+          <button type="button" class="ms-clear-btn" (click)="clearVehiculesFilter()">Effacer la sélection</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="filter-group">
@@ -105,11 +145,17 @@
                  [checked]="allSelected" (change)="toggleAll($event)">
         </th>
         <th class="col-ref">Référence</th>
-        <th class="col-client">Chauffeur / Véhicule</th>
+        <th class="col-client">Chauffeurs / Véhicule</th>
         <th class="col-date">Départ prévu</th>
         <th class="col-status">Statut</th>
         <th class="col-revenue">Tarif</th>
-        <th class="col-amount">Coût</th>
+        <th class="col-fuel">Carburant</th>
+        <th class="col-toll">Péage</th>
+        <th class="col-other">Autres</th>
+        <th class="col-amount">Coût total</th>
+        <th class="col-letter" title="Lettre de mission">
+          <mat-icon style="font-size:16px;width:16px;height:16px;color:#94a3b8">description</mat-icon>
+        </th>
         <th class="col-actions">Actions</th>
       </tr>
     </thead>
@@ -117,7 +163,7 @@
     <tbody>
 
       <tr *ngIf="missions.length === 0">
-        <td colspan="8">
+        <td colspan="12">
           <div class="empty-state">
             <mat-icon>route</mat-icon>
             <p>Aucune mission trouvée</p>
@@ -140,7 +186,13 @@
           <div class="client-info">
             <div class="client-avatar"><mat-icon>local_shipping</mat-icon></div>
             <div class="client-details">
-              <span class="client-name">{{ m.chauffeurNom || 'Chauffeur #' + m.chauffeurId }}</span>
+              <span class="client-name chauffeurs-cell"
+                    [matTooltip]="getChauffeursTooltip(m)"
+                    matTooltipClass="chauffeurs-tooltip"
+                    matTooltipPosition="above">
+                <mat-icon style="font-size:13px; height:13px; width:13px; vertical-align:middle; margin-right:3px; color:#6b7280;">person</mat-icon>
+                {{ getChauffeursLabel(m) }}
+              </span>
               <span class="client-sub">{{ m.vehiculeRef || 'Véhicule #' + m.vehiculeId }}</span>
             </div>
           </div>
@@ -159,11 +211,34 @@
         </td>
 
         <td class="col-revenue">
-          <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.3-3' }} dt</span>
+          <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+        </td>
+
+        <td class="col-fuel">
+          <span class="amount-ttc montant-fuel">{{ (m.fuelCost ?? 0) | number:'1.2-2' }} €</span>
+        </td>
+
+        <td class="col-toll">
+          <span class="amount-ttc montant-toll">{{ (m.tollCost ?? 0) | number:'1.2-2' }} €</span>
+        </td>
+
+        <td class="col-other">
+          <span class="amount-ttc montant-other">{{ (m.otherExpenses ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
         <td class="col-amount">
-          <span class="amount-ttc montant-normal">{{ (m.totalCost ?? 0) | number:'1.3-3' }} dt</span>
+          <span class="amount-ttc montant-normal">{{ (m.totalCost ?? 0) | number:'1.2-2' }} €</span>
+        </td>
+
+        <!-- Lettre de mission -->
+        <td class="col-letter">
+          <div class="fl-actions">
+            <ng-container *ngIf="m.letterMissionUrl; else noLetter">
+              <button class="fl-btn fl-btn-ghost" (click)="viewLetter(m)" title="Voir">👁</button>
+              <button class="fl-btn fl-btn-ghost" (click)="downloadLetter(m)" title="Télécharger">⬇</button>
+            </ng-container>
+            <ng-template #noLetter><span class="text-muted">—</span></ng-template>
+          </div>
         </td>
 
         <td class="col-actions">
@@ -181,6 +256,11 @@
             <button mat-menu-item [disabled]="m.statut !== statut.PLANNED" (click)="editMission(m)">
               <mat-icon class="menu-icon icon-edit">edit</mat-icon>
               <span>Modifier</span>
+            </button>
+
+            <button mat-menu-item *ngIf="m.letterMissionUrl" (click)="downloadLetter(m)">
+              <mat-icon class="menu-icon icon-letter">download</mat-icon>
+              <span>Lettre de mission</span>
             </button>
 
             <mat-divider></mat-divider>
@@ -204,17 +284,41 @@
               <span>Annuler</span>
             </button>
 
-            <!-- <button mat-menu-item class="delete-menu-item"
-                    [disabled]="m.statut !== statut.PLANNED"
-                    (click)="supprimer(m)">
-              <mat-icon class="menu-icon icon-delete">delete</mat-icon>
-              <span>Supprimer</span>
-            </button> -->
-
           </mat-menu>
         </td>
 
       </tr>
+
+      <!-- ── Ligne de totaux ──────────────────────────────────── -->
+      <tr *ngIf="missions.length > 0" class="totals-row">
+        <td class="col-check"></td>
+        <td class="col-ref">
+          <span class="totals-label">TOTAUX</span>
+        </td>
+        <td class="col-client"></td>
+        <td class="col-date"></td>
+        <td class="col-status">
+          <span class="totals-label">{{ missions.length }} mission(s)</span>
+        </td>
+        <td class="col-revenue">
+          <span class="totals-amount revenue">{{ totalRevenue | number:'1.2-2' }} €</span>
+        </td>
+        <td class="col-fuel">
+          <span class="totals-amount fuel">{{ totalFuel | number:'1.2-2' }} €</span>
+        </td>
+        <td class="col-toll">
+          <span class="totals-amount toll">{{ totalToll | number:'1.2-2' }} €</span>
+        </td>
+        <td class="col-other">
+          <span class="totals-amount other">{{ totalOtherExpenses | number:'1.2-2' }} €</span>
+        </td>
+        <td class="col-amount">
+          <span class="totals-amount cost">{{ totalCost | number:'1.2-2' }} €</span>
+        </td>
+        <td class="col-letter"></td>
+        <td class="col-actions"></td>
+      </tr>
+
     </tbody>
   </table>
 

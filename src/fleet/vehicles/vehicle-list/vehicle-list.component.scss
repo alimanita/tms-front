@@ -37,7 +37,7 @@ $radius     : 8px;
 }
 
 .fl-table {
-  wi€h: 100%; border-collapse: collapse; font-size: 13px; background: #fff;
+  wih: 100%; border-collapse: collapse; font-size: 13px; background: #fff;
   border-radius: $radius; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06);
   th { background: #f8fafc; font-weight: 600; color: $text-muted;
        padding: 10px 14px; text-align: left; border-bottom: 1px solid $border; }
@@ -59,11 +59,11 @@ $radius     : 8px;
   &--grey  { background: #f1f5f9; color: $text-muted; }
 }
 
-.fl-form { max-wi€h: 900px; }
+.fl-form { max-width: 900px; }
 
 .fl-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
-  @media (max-wi€h: 768px) { grid-template-columns: 1fr; }
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
 }
 
 .fl-field {

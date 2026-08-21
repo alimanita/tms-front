@@ -6,9 +6,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { MissionService } from '../mission.service';
 import { MissionResponse, StatutMission } from '../mission.model';
@@ -24,6 +24,7 @@ import { isAdminRole } from 'app/core/authentication/helpers';
   imports: [
     CommonModule, FormsModule, MatIconModule, MatMenuModule,
     MatDividerModule, MatProgressSpinnerModule, MatSnackBarModule,
+    MatTooltipModule,
   ],
   templateUrl: './mission-list.component.html',
   styleUrls: ['./mission-list.component.scss'],
@@ -39,10 +40,76 @@ export class MissionListComponent implements OnInit {
 
   // ── Filtres ────────────────────────────────────────────────────────────
   filterStatut: StatutMission | '' = '';
-  filterChauffeur = '';
-  filterVehicule = '';
   filterDateDebut = '';
   filterDateFin = '';
+
+  // ── Multi-select chauffeur ──────────────────────────────────────────
+  chauffeurs: { id: number; nom: string }[] = [];
+  selectedChauffeurIds: number[] = [];
+  chauffeurSearch = '';
+  showChauffeurDropdown = false;
+
+  // ── Multi-select véhicule ───────────────────────────────────────────
+  vehicules: { id: number; ref: string }[] = [];
+  selectedVehiculeIds: number[] = [];
+  vehiculeSearch = '';
+  showVehiculeDropdown = false;
+
+  get filteredChauffeurs(): { id: number; nom: string }[] {
+    const term = this.chauffeurSearch.trim().toLowerCase();
+    return term ? this.chauffeurs.filter(c => c.nom.toLowerCase().includes(term)) : this.chauffeurs;
+  }
+
+  get filteredVehicules(): { id: number; ref: string }[] {
+    const term = this.vehiculeSearch.trim().toLowerCase();
+    return term ? this.vehicules.filter(v => v.ref.toLowerCase().includes(term)) : this.vehicules;
+  }
+
+  isChauffeurSelected(id: number): boolean { return this.selectedChauffeurIds.includes(id); }
+  isVehiculeSelected(id: number): boolean { return this.selectedVehiculeIds.includes(id); }
+
+  toggleChauffeur(id: number): void {
+    const idx = this.selectedChauffeurIds.indexOf(id);
+    if (idx >= 0) this.selectedChauffeurIds.splice(idx, 1);
+    else this.selectedChauffeurIds.push(id);
+    this.onFilterChange();
+  }
+
+  toggleVehicule(id: number): void {
+    const idx = this.selectedVehiculeIds.indexOf(id);
+    if (idx >= 0) this.selectedVehiculeIds.splice(idx, 1);
+    else this.selectedVehiculeIds.push(id);
+    this.onFilterChange();
+  }
+
+  clearChauffeursFilter(): void {
+    this.selectedChauffeurIds = [];
+    this.chauffeurSearch = '';
+    this.onFilterChange();
+  }
+
+  clearVehiculesFilter(): void {
+    this.selectedVehiculeIds = [];
+    this.vehiculeSearch = '';
+    this.onFilterChange();
+  }
+
+  get chauffeurLabel(): string {
+    if (!this.selectedChauffeurIds.length) return 'Tous les chauffeurs';
+    return this.selectedChauffeurIds
+      .map(id => this.chauffeurs.find(c => c.id === id)?.nom ?? '')
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  get vehiculeLabel(): string {
+    if (!this.selectedVehiculeIds.length) return 'Tous les véhicules';
+    return this.selectedVehiculeIds
+      .map(id => this.vehicules.find(v => v.id === id)?.ref ?? '')
+      .filter(Boolean)
+      .join(', ');
+  }
+
   readonly statutOptions: { value: StatutMission | ''; label: string }[] = [
     { value: '', label: 'Tous les statuts' },
     { value: StatutMission.PLANNED, label: 'Planifiée' },
@@ -60,16 +127,23 @@ export class MissionListComponent implements OnInit {
   // ── Sélection ──────────────────────────────────────────────────────────
   selectedRows = new Set<number>();
   allSelected = false;
-  chauffeurs: { id: number; nom: string }[] = [];
-  filteredChauffeur: { id: number; nom: string }[] = [];
-  showDropdown = false;
   isAdmin = false;
-  selectedChauffeurId: number | null = null;
-  selectedChauffeurNom = '';
   readonly statut = StatutMission;
 
-  // ── Debounce pour la recherche chauffeur ─────────────────────────────
-  private chauffeurInput$ = new Subject<void>();
+  // ── Modal Lettre de mission ──────────────────────────────────
+  letterModalOpen = false;
+  letterLoading   = false;
+  letterIsImage   = false;
+  letterSafeUrl: SafeUrl | null = null;
+  private letterBlobUrl: string | null = null;
+  private currentLetterMission: MissionResponse | null = null;
+
+  // ── Totaux calculés sur la page courante ─────────────────────
+  get totalRevenue(): number { return this.missions.reduce((s, m) => s + (m.revenue ?? 0), 0); }
+  get totalFuel():    number { return this.missions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
+  get totalToll():    number { return this.missions.reduce((s, m) => s + (m.tollCost ?? 0), 0); }
+  get totalOtherExpenses(): number { return this.missions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
+  get totalCost():    number { return this.missions.reduce((s, m) => s + (m.totalCost ?? 0), 0); }
 
   constructor(
     private missionService: MissionService,
@@ -77,11 +151,13 @@ export class MissionListComponent implements OnInit {
     private chauffeurService: FleetService,
     private snackBar: MatSnackBar,
     private authService: AuthService,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
      this.isAdmin = isAdminRole();
     const isAdminOuSuperAdmin = this.authService.hasRole('SUPERADMIN')
+      || this.authService.hasRole('SUPER_ADMIN')
       || this.authService.hasRole('ADMIN');
 
     this.isGestion = isAdminOuSuperAdmin
@@ -90,15 +166,11 @@ export class MissionListComponent implements OnInit {
 
     this.isChauffeurScope = !this.isGestion;
 
-    // Debounce : une seule requête au max toutes les 300ms pendant la frappe
-    this.chauffeurInput$.pipe(
-      debounceTime(50),
-    ).subscribe(() => this.load());
-
     this.load();
 
     if (this.isGestion) {
       this.loadChauffeurs();
+      this.loadVehicules();
     }
   }
 
@@ -138,15 +210,12 @@ export class MissionListComponent implements OnInit {
   private applyClientFilters(list: MissionResponse[]): MissionResponse[] {
     return list.filter(m => {
       if (this.filterStatut && m.statut !== this.filterStatut) return false;
-
-      if (this.selectedChauffeurId !== null) {
-        if ((m as any).chauffeurId !== this.selectedChauffeurId) return false;
-      } else if (this.filterChauffeur
-        && !(m.chauffeurNom ?? '').toLowerCase().includes(this.filterChauffeur.toLowerCase())) {
-        return false;
+      if (this.selectedChauffeurIds.length) {
+        if (!m.chauffeurIds || !m.chauffeurIds.some(id => this.selectedChauffeurIds.includes(id))) {
+          return false;
+        }
       }
-
-      if (this.filterVehicule && !(m.vehiculeRef ?? '').toLowerCase().includes(this.filterVehicule.toLowerCase())) return false;
+      if (this.selectedVehiculeIds.length && !this.selectedVehiculeIds.includes((m as any).vehiculeId)) return false;
       if (this.filterDateDebut && m.plannedDeparture < this.filterDateDebut) return false;
       if (this.filterDateFin && m.plannedDeparture > this.filterDateFin) return false;
       return true;
@@ -154,9 +223,41 @@ export class MissionListComponent implements OnInit {
   }
 
   private loadChauffeurs(): void {
-    this.chauffeurService.getChauffeurs().subscribe({
-      next: list => this.chauffeurs = list,
-      error: () => {},
+    // getChauffeursDisponibles() retourne directement un tableau ChauffeurResponse[]
+    this.chauffeurService.getChauffeursDisponibles().subscribe({
+      next: (list: any[]) => {
+        this.chauffeurs = list.map(c => ({
+          id: c.id,
+          nom: `${c.prenom ?? ''} ${c.nom ?? ''}`.trim()
+        }));
+      },
+      error: () => {
+        // Fallback: essai avec getChauffeurs paginé
+        this.chauffeurService.getChauffeurs({ size: 200 }).subscribe({
+          next: (page: any) => {
+            const items: any[] = page.content ?? page;
+            this.chauffeurs = items.map(c => ({
+              id: c.id,
+              nom: `${c.prenom ?? ''} ${c.nom ?? ''}`.trim()
+            }));
+          },
+          error: () => {}
+        });
+      }
+    });
+  }
+
+  private loadVehicules(): void {
+    // getVehicules() retourne une page paginée { content: [...] }
+    this.chauffeurService.getVehicules({ size: 200 }).subscribe({
+      next: (page: any) => {
+        const items: any[] = page.content ?? (Array.isArray(page) ? page : []);
+        this.vehicules = items.map(v => ({
+          id: v.id,
+          ref: [v.reference, v.immatriculation].filter(Boolean).join(' — ')
+        }));
+      },
+      error: () => {}
     });
   }
 
@@ -275,48 +376,92 @@ private updateMissionInList(updated: MissionResponse): void {
 
   resetFilters(): void {
     this.filterStatut = '';
-    this.filterChauffeur = '';
-    this.filterVehicule = '';
     this.filterDateDebut = '';
     this.filterDateFin = '';
-    this.selectedChauffeurId = null;
-    this.selectedChauffeurNom = '';
-    this.showDropdown = false;
+    this.selectedChauffeurIds = [];
+    this.selectedVehiculeIds = [];
+    this.chauffeurSearch = '';
+    this.vehiculeSearch = '';
+    this.showChauffeurDropdown = false;
+    this.showVehiculeDropdown = false;
     this.onFilterChange();
   }
 
-  onChauffeurInput(): void {
-    if (this.selectedChauffeurId !== null && this.filterChauffeur !== this.selectedChauffeurNom) {
-      this.selectedChauffeurId = null;
+  viewLetter(m: MissionResponse): void {
+    if (!m.letterMissionUrl) return;
+    this.letterModalOpen = true;
+    this.letterLoading = true;
+    this.currentLetterMission = m;
+
+    this.missionService.downloadLetterBlob(m.id).subscribe({
+      next: (blob) => {
+        const contentType = blob.type || 'application/octet-stream';
+        this.letterIsImage = contentType.startsWith('image/');
+
+        if (this.letterBlobUrl) {
+          window.URL.revokeObjectURL(this.letterBlobUrl);
+        }
+        const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+        this.letterBlobUrl = url;
+        this.letterSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.letterLoading = false;
+      },
+      error: () => {
+        this.letterLoading = false;
+        this.letterModalOpen = false;
+        this.snackBar.open('Impossible de charger la lettre de mission', 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
+  closeLetterModal(): void {
+    this.letterModalOpen = false;
+    if (this.letterBlobUrl) {
+      window.URL.revokeObjectURL(this.letterBlobUrl);
+      this.letterBlobUrl = null;
     }
-
-    const term = this.filterChauffeur.trim().toLowerCase();
-    this.filteredChauffeur = term
-      ? this.chauffeurs.filter(c => c.nom.toLowerCase().includes(term))
-      : this.chauffeurs;
-
-    this.showDropdown = true;
-    this.pageIndex = 0;
-    this.chauffeurInput$.next();
+    this.letterSafeUrl = null;
+    this.currentLetterMission = null;
   }
 
-  selectChauffeur(c: { id: number; nom: string }): void {
-    this.selectedChauffeurId = c.id;
-    this.selectedChauffeurNom = c.nom;
-    this.filterChauffeur = c.nom;
-    this.showDropdown = false;
-    this.onFilterChange();
+  downloadCurrentLetter(): void {
+    if (!this.currentLetterMission) return;
+    this.downloadLetter(this.currentLetterMission);
   }
 
-  clearChauffeurFilter(): void {
-    this.selectedChauffeurId = null;
-    this.selectedChauffeurNom = '';
-    this.filterChauffeur = '';
-    this.filteredChauffeur = this.chauffeurs;
-    this.onFilterChange();
+  downloadLetter(m: MissionResponse): void {
+    if (!m.letterMissionUrl) return;
+    this.missionService.downloadLetterBlob(m.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Lettre_Mission_${m.reference || m.id}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Erreur lors du téléchargement de la lettre', 'Fermer', { duration: 3000 })
+    });
   }
 
-  hideDropdown(): void {
-    setTimeout(() => (this.showDropdown = false), 150);
+  /** Affiche les noms des chauffeurs tronqués : "Ali Ben" ou "Ali Ben, Sara +1" */
+  getChauffeursLabel(m: MissionResponse): string {
+    const noms = (m.chauffeursNoms || '').trim();
+    if (!noms) return '—';
+    const names = noms.split(', ').map(n => n.trim()).filter(n => n.length > 0);
+    if (names.length === 0) return '—';
+    if (names.length === 1) return names[0];
+    // 2 premiers noms, puis "+N" si plus
+    const visible = names.slice(0, 2).join(', ');
+    return names.length > 2 ? `${visible} +${names.length - 2}` : visible;
+  }
+
+  /** Texte du tooltip : liste numérotée de tous les chauffeurs (si >1) */
+  getChauffeursTooltip(m: MissionResponse): string {
+    const noms = (m.chauffeursNoms || '').trim();
+    if (!noms) return '';
+    const names = noms.split(', ').map(n => n.trim()).filter(n => n.length > 0);
+    if (names.length <= 1) return '';   // pas de tooltip pour 1 seul
+    return names.map((n, i) => `${i + 1}. ${n}`).join('\n');
   }
 }

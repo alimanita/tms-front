@@ -79,7 +79,7 @@
       </tr>
       <tr *ngFor="let d of depenses">
         <td>{{ getTypeLabel(d.expenseType) }}</td>
-        <td>{{ d.montant | number:'1.3-3' }} {{ d.currency }}</td>
+        <td>{{ d.montant | number:'1.2-2' }} €</td>
         <td>{{ d.expenseDate | date:'dd/MM/yyyy HH:mm' }}</td>
         <td>{{ d.description || '—' }}</td>
         <td>
@@ -103,7 +103,7 @@
     <tfoot *ngIf="depenses.length > 0">
       <tr>
         <td colspan="1"><strong>Total</strong></td>
-        <td><strong>{{ totalDepenses | number:'1.3-3' }} </strong></td>
+        <td><strong>{{ totalDepenses | number:'1.2-2' }} €</strong></td>
         <td colspan="5"></td>
       </tr>
     </tfoot>
@@ -133,15 +133,15 @@
                  [class.error]="fuelSubmitted && fuelForm.get('quantityLiters')?.invalid"/>
         </div>
         <div class="form-group">
-          <label>Prix / litre (dt) *</label>
-          <input type="number" step="0.001" min="0" formControlName="pricePerLiter"
+          <label>Prix / litre (€) *</label>
+          <input type="number" step="0.01" min="0" formControlName="pricePerLiter"
                  [class.error]="fuelSubmitted && fuelForm.get('pricePerLiter')?.invalid"/>
         </div>
       </div>
       
       <div class="total-estimated">
         <span class="label">Total estimé</span>
-        <span class="value">{{ totalEstime | number:'1.3-3' }} dt</span>
+        <span class="value">{{ totalEstime | number:'1.2-2' }} €</span>
       </div>
 
       <div class="form-grid">
@@ -207,6 +207,10 @@
                 <mat-icon>close</mat-icon>
               </button>
             </div>
+            <button type="button" class="extract-btn" (click)="extractFuelData()" [disabled]="extractingFuel" style="margin-top: 8px; width: 100%;">
+              <mat-icon style="vertical-align: middle; margin-right: 4px;">auto_awesome</mat-icon>
+              {{ extractingFuel ? 'Extraction en cours…' : "Extraire avec l'IA" }}
+            </button>
           </ng-container>
         </div>
       </div>
@@ -243,8 +247,8 @@
     <form [formGroup]="tollForm" (ngSubmit)="onSubmitToll()" class="fuel-form">
       <div class="form-grid">
         <div class="form-group">
-          <label>Montant HT (dt) *</label>
-          <input type="number" step="0.001" min="0" formControlName="amountHT"
+          <label>Montant HT (€) *</label>
+          <input type="number" step="0.01" min="0" formControlName="amountHT"
                  [class.error]="tollSubmitted && tollForm.get('amountHT')?.invalid"/>
         </div>
         <div class="form-group">
@@ -255,7 +259,7 @@
       
       <div class="total-estimated">
         <span class="label">Montant Total TTC</span>
-        <span class="value">{{ tollForm.get('montant')?.value || 0 }} dt</span>
+        <span class="value">{{ tollForm.get('montant')?.value || 0 }} €</span>
       </div>
 
       <div class="form-grid">
@@ -311,6 +315,10 @@
                 <mat-icon>close</mat-icon>
               </button>
             </div>
+            <button type="button" class="extract-btn" (click)="extractTollData()" [disabled]="extractingToll" style="margin-top: 8px; width: 100%;">
+              <mat-icon style="vertical-align: middle; margin-right: 4px;">auto_awesome</mat-icon>
+              {{ extractingToll ? 'Extraction en cours…' : "Extraire avec l'IA" }}
+            </button>
           </ng-container>
         </div>
       </div>

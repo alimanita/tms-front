@@ -9,8 +9,9 @@ export interface MissionResponse {
   reference: string;
   vehiculeId: number;
   vehiculeRef?: string;
-  chauffeurId: number;
-  chauffeurNom?: string;
+  vehiculeImmatriculation?: string;
+  chauffeurIds: number[];
+  chauffeursNoms?: string;
   destination?: string;
   motif?: string;
   statut: StatutMission;
@@ -20,8 +21,12 @@ export interface MissionResponse {
   actualReturn?: string;
   kilometrageDepart?: number;
   kilometrageRetour?: number;
+  fuelCost?: number;
+  tollCost?: number;
+  otherExpenses?: number;
   totalCost?: number;
   revenue?: number;
+  letterMissionUrl?: string;
   motifRejet?: string;
   motifAnnulation?: string;
   createdAt?: string;
@@ -32,7 +37,7 @@ export interface MissionRequest {
   title: string;
   clientId?: number;
   vehiculeId: number;
-  chauffeurId: number;
+  chauffeurIds: number[];
   departureLocation: string;
   arrivalLocation: string;
   plannedDeparture: string;       // ISO LocalDateTime, ex: "2026-07-10T08:00:00"

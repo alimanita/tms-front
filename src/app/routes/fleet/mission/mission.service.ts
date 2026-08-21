@@ -26,12 +26,26 @@ findAll(pageIndex: number, pageSize: number) {
     return this.http.get<MissionResponse>(`${this.baseUrl}/${id}`);
   }
 
-  create(request: MissionRequest): Observable<MissionResponse> {
-    return this.http.post<MissionResponse>(this.baseUrl, request);
+  create(request: MissionRequest, letterFile?: File): Observable<MissionResponse> {
+    const formData = new FormData();
+    formData.append('mission', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (letterFile) {
+      formData.append('letter', letterFile);
+    }
+    return this.http.post<MissionResponse>(this.baseUrl, formData);
   }
 
-  update(id: number, request: MissionRequest): Observable<MissionResponse> {
-    return this.http.put<MissionResponse>(`${this.baseUrl}/${id}`, request);
+  update(id: number, request: MissionRequest, letterFile?: File): Observable<MissionResponse> {
+    const formData = new FormData();
+    formData.append('mission', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (letterFile) {
+      formData.append('letter', letterFile);
+    }
+    return this.http.put<MissionResponse>(`${this.baseUrl}/${id}`, formData);
+  }
+
+  downloadLetterBlob(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/letter`, { responseType: 'blob' });
   }
 
   soumettre(id: number): Observable<MissionResponse> {

@@ -38,8 +38,8 @@ $required     : #dc2626;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  wi€h: 480px;
-  max-wi€h: 100vw;
+  width: 480px;
+  max-width: 100vw;
   background: #fff;
   box-shadow: -6px 0 24px rgba(0, 0, 0, .12);
   animation: slideIn .2s ease-out;
@@ -93,7 +93,7 @@ $required     : #dc2626;
 
   mat-icon {
     font-size: 20px;
-    wi€h: 20px;
+    width: 20px;
     height: 20px;
   }
 }
@@ -115,7 +115,7 @@ $required     : #dc2626;
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  min-wi€h: 0;
+  min-width: 0;
 }
 
 .field-row {
@@ -135,7 +135,7 @@ $required     : #dc2626;
 }
 
 .field-input {
-  wi€h: 100%;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid $border;
   border-radius: $radius;
@@ -166,7 +166,7 @@ textarea.field-input {
 select.field-input {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' wi€h='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-wi€h='1.5' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2364748b' stroke-width='1.5' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
@@ -198,7 +198,7 @@ select.field-input {
     color: $text-muted;
 
     .mat-mdc-icon-button {
-      wi€h: 34px;
+      width: 34px;
       height: 34px;
       padding: 6px;
     }
@@ -260,7 +260,7 @@ select.field-input {
 
   mat-icon {
     font-size: 16px;
-    wi€h: 16px;
+    width: 16px;
     height: 16px;
   }
 
