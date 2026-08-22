@@ -71,7 +71,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let u of paginatedUtilisateurs; let i = index"
+          <tr *ngFor="let u of filteredUtilisateurs | paginate:pageIndex:pageSize; let i = index"
               class="table-row">
 
             <!-- ID -->
@@ -153,34 +153,14 @@
     </div>
 
     <!-- ══ PAGINATION ══ -->
-    <div class="pagination-bar" *ngIf="!isLoading && totalPages > 1">
-      <div class="pagination-info">
-        {{ pageStart + 1 }}–{{ pageEnd }} sur {{ filteredUtilisateurs.length }}
-      </div>
-      <div class="pagination-controls">
-        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-        <button class="page-btn"
-                *ngFor="let p of pageNumbers"
-                [class.active]="p === currentPage"
-                (click)="goToPage(p)">
-          {{ p }}
-        </button>
-        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-      <div class="page-size-selector">
-        <span>Lignes :</span>
-        <select [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
-          <option [value]="5">5</option>
-          <option [value]="10">10</option>
-          <option [value]="20">20</option>
-          <option [value]="50">50</option>
-        </select>
-      </div>
-    </div>
+    <app-pagination-bar
+      *ngIf="!isLoading && filteredUtilisateurs.length > 0"
+      [total]="filteredUtilisateurs.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [loading]="isLoading"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
 
   </div><!-- /table-card -->
 

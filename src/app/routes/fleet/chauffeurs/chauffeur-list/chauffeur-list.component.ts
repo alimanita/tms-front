@@ -7,10 +7,12 @@ import { ChauffeurResponse } from '../chauffeur.model';
 import { DocumentDrawerComponent } from '../../documents/document-drawer/document-drawer.component';
 import { AuthService } from 'app/core/auth/auth.service';
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-chauffeur-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, DocumentDrawerComponent],
+  imports: [CommonModule, MatSnackBarModule, DocumentDrawerComponent, PaginationBarComponent],
   templateUrl: './chauffeur-list.component.html',
   styleUrls: ['./chauffeur-list.component.scss'],
 })
@@ -82,4 +84,20 @@ export class ChauffeurListComponent implements OnInit {
       INDISPONIBLE: 'badge--red',
     } as any)[statut ?? ''] ?? 'badge--grey';
   }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'chauffeurs';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['chauffeurs'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

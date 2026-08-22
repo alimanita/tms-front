@@ -182,7 +182,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let role of filteredRoles" class="table-row">
+        <tr *ngFor="let role of filteredRoles | paginate:pageIndex:pageSize" class="table-row">
 
           <!-- Avatar coloré -->
           <td>
@@ -233,6 +233,15 @@
         </tr>
       </tbody>
     </table>
+
+    <app-pagination-bar
+      *ngIf="!isLoading && filteredRoles.length > 0"
+      [total]="filteredRoles.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [loading]="isLoading"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
 
   </div>
 </div>

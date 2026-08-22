@@ -4,10 +4,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, NotificationFlotteResponse } from '../../fleet.service';
 
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-notification-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule],
+  imports: [CommonModule, MatSnackBarModule, PaginationBarComponent],
   templateUrl: './notification-list.component.html',
   styleUrls: ['./notification-list.component.scss'],
 })
@@ -74,4 +76,20 @@ export class NotificationListComponent implements OnInit {
       CRITICAL: '🔴',
     } as any)[severity ?? ''] ?? 'ℹ️';
   }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'notifications';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['notifications'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

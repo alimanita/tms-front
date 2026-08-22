@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let a of affectations">
+        <tr *ngFor="let a of paginatedItems">
           <td><strong>{{ a.pneuSerialNumber || ('Pneu #' + a.pneuId) }}</strong></td>
           <td>{{ a.vehiculeImmatriculation || ('Vehicule #' + a.vehiculeId) }}</td>
           <td>{{ a.position }}</td>
@@ -45,5 +45,11 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="affectations.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>

@@ -54,7 +54,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let p of pleins">
+    <tr *ngFor="let p of paginatedItems">
       <td><input type="checkbox" [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)"></td>
       <td>{{ p.reference }}</td>
       <td>{{ p.vehiculeImmatriculation || '—' }}</td>
@@ -92,6 +92,12 @@
     </tr>
   </tbody>
 </table>
+    <app-pagination-bar
+      [total]="pleins.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
 </div>
   </div>
 </div>

@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { PaginationBarComponent, PageChangeEvent } from '../../shared/components/pagination-bar/pagination-bar.component';
+import { PaginatePipe } from '../../shared/pipes/paginate.pipe';
 
 import { UtilisateurDto } from '../utilisateur.model';
 import { UtilisateurService } from '../utilisateur.service';
@@ -18,6 +20,8 @@ import { UtilisateurService } from '../utilisateur.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    PaginationBarComponent,
+    PaginatePipe
   ],
   templateUrl: './liste-utilisateur.html',
   styleUrls: ['./liste-utilisateur.scss']
@@ -29,8 +33,8 @@ export class ListeUtilisateurs implements OnInit {
   isLoading = true;
   searchText = '';
 
-  currentPage = 1;
-  pageSize    = 10;
+  pageIndex = 0;
+  pageSize  = 10;
 
   userToDelete: UtilisateurDto | null = null;
 
@@ -70,43 +74,12 @@ export class ListeUtilisateurs implements OnInit {
           u.phone?.toLowerCase().includes(q)    ||
           u.entreprise?.nom?.toLowerCase().includes(q)
         );
-    this.currentPage = 1;
+    this.pageIndex = 0;
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.filteredUtilisateurs.length / this.pageSize) || 1;
-  }
-
-  get pageStart(): number {
-    return (this.currentPage - 1) * this.pageSize;
-  }
-
-  get pageEnd(): number {
-    return Math.min(this.pageStart + this.pageSize, this.filteredUtilisateurs.length);
-  }
-
-  get paginatedUtilisateurs(): UtilisateurDto[] {
-    return this.filteredUtilisateurs.slice(this.pageStart, this.pageEnd);
-  }
-
-  get pageNumbers(): number[] {
-    const total = this.totalPages;
-    const cur   = this.currentPage;
-    const delta = 2;
-    const range: number[] = [];
-    for (let i = Math.max(1, cur - delta); i <= Math.min(total, cur + delta); i++) {
-      range.push(i);
-    }
-    return range;
-  }
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
-  }
-
-  onPageSizeChange(): void {
-    this.currentPage = 1;
+  onPageChange(event: PageChangeEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 
   openAddUtilisateur(): void {

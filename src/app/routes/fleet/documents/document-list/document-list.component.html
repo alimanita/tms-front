@@ -97,7 +97,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let d of documents">
+        <tr *ngFor="let d of paginatedItems">
           <td><strong>{{ formatType(d.typeDocument) }}</strong></td>
           <td>{{ d.referenceNumber || '-' }}</td>
           <td>{{ d.issuer || '-' }}</td>
@@ -132,6 +132,12 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="documents.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>
 

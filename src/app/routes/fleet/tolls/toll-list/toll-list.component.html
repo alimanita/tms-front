@@ -35,7 +35,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let t of tolls">
+    <tr *ngFor="let t of tolls | paginate:pageIndex:pageSize">
       <td><input type="checkbox" [checked]="selectedIds.has(t.id)" (change)="toggleSelection(t.id)"></td>
       <td>{{ t.datePassage | date:'dd/MM/yyyy HH:mm' }}</td>
       <td>{{ t.vehiculeImmatriculation || '—' }}</td>
@@ -71,6 +71,14 @@
   </tbody>
 </table>
 </div>
+<app-pagination-bar
+  *ngIf="tolls.length > 0"
+  [total]="tolls.length"
+  [pageIndex]="pageIndex"
+  [pageSize]="pageSize"
+  [loading]="loading"
+  (pageChange)="onPageChange($event)">
+</app-pagination-bar>
   </div>
 </div>
 

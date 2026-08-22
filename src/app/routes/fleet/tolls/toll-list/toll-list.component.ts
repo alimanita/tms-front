@@ -8,11 +8,13 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { PeageResponse } from '../peage.model';
 import { jsPDF } from 'jspdf';
+import { PaginationBarComponent, PageChangeEvent } from '../../../../shared/components/pagination-bar/pagination-bar.component';
+import { PaginatePipe } from '../../../../shared/pipes/paginate.pipe';
 
 @Component({
   selector: 'app-toll-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule, PaginationBarComponent, PaginatePipe],
   templateUrl: './toll-list.component.html',
   styleUrls: ['./toll-list.component.scss'],
 })
@@ -21,6 +23,9 @@ export class TollListComponent implements OnInit {
   tolls: PeageResponse[] = [];
   selectedIds: Set<number> = new Set();
   
+  pageIndex = 0;
+  pageSize = 10;
+
   startDate?: string;
   endDate?: string;
   
@@ -78,6 +83,7 @@ export class TollListComponent implements OnInit {
     }
 
     this.tolls = filtered;
+    this.pageIndex = 0;
   }
 
   onFilterChange(): void {
@@ -94,6 +100,11 @@ export class TollListComponent implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.onFilterChange();
+  }
+
+  onPageChange(event: PageChangeEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 
   addPeage(): void {

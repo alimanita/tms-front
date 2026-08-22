@@ -4,7 +4,7 @@
 
 :host {
   display: block;
-  wi€h: 100%;
+  width: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -12,8 +12,8 @@
 // ── Page ──────────────────────────────────────────────────────
 .report-page {
   padding: 24px;
-  wi€h: 100%;
-  max-wi€h: 100%;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -32,7 +32,7 @@
 
   mat-icon {
     font-size: 18px;
-    wi€h: 18px;
+    width: 18px;
     height: 18px;
   }
 }
@@ -75,7 +75,7 @@
 
   mat-icon {
     font-size: 18px;
-    wi€h: 18px;
+    width: 18px;
     height: 18px;
   }
 
@@ -91,7 +91,7 @@
   border: 1px solid #e2e8f0;
   padding: 16px 20px;
   margin-bottom: 20px;
-  wi€h: 100%;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -106,7 +106,7 @@
 
   mat-icon {
     font-size: 18px;
-    wi€h: 18px;
+    width: 18px;
     height: 18px;
   }
 }
@@ -150,7 +150,7 @@
 
   mat-icon {
     font-size: 16px;
-    wi€h: 16px;
+    width: 16px;
     height: 16px;
     color: #94a3b8;
     flex-shrink: 0;
@@ -162,7 +162,7 @@
     font-size: 13px;
     color: #374151;
     background: transparent;
-    wi€h: 110px;
+    width: 110px;
     cursor: pointer;
 
     &::placeholder {
@@ -194,7 +194,7 @@
     font-size: 13px;
     color: #374151;
     background: transparent;
-    min-wi€h: 0;
+    min-width: 0;
 
     &::placeholder {
       color: #cbd5e1;
@@ -267,7 +267,7 @@
 
   mat-icon {
     font-size: 16px;
-    wi€h: 16px;
+    width: 16px;
     height: 16px;
   }
 
@@ -291,7 +291,7 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  wi€h: 100%;
+  width: 100%;
   box-sizing: border-box;
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -300,8 +300,8 @@
 
 // ── Table ─────────────────────────────────────────────────────
 .report-table {
-  wi€h: 100%;
-  min-wi€h: 1050px;
+  width: 100%;
+  min-width: 1050px;
   border-collapse: collapse;
   table-layout: auto;
 

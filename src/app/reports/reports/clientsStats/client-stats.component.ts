@@ -12,7 +12,7 @@ import { ClientAvecScore, ScoreLabel } from '../balances-report/client-balances.
 import { environment } from 'environments/environment';
 
 
-// ── dtOs ─────────────────────────────────────────────────────────────────────
+// ── DTOs ─────────────────────────────────────────────────────────────────────
 
 export interface BlParPeriode {
   periode    : string;   // 'YYYY-MM' | 'YYYY-WW' | 'YYYY'

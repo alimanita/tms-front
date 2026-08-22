@@ -7,10 +7,12 @@ import { FleetService, DocumentFlotteResponse } from '../../fleet.service';
 import { MatIconModule } from '@angular/material/icon';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-document-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatIconModule, PaginationBarComponent],
   templateUrl: './document-list.component.html',
   styleUrls: ['./document-list.component.scss'],
 })
@@ -193,4 +195,20 @@ export class DocumentListComponent implements OnInit {
   formatEntity(type: string): string {
     return this.entityMap[type] || type;
   }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'documents';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['documents'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

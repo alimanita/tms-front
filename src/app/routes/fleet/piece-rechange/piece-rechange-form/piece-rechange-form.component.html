@@ -91,6 +91,9 @@
               <mat-icon>upload_file</mat-icon>
               {{ selectedFileName || 'Choisir un fichier' }}
             </label>
+            <button type="button" class="btn-primary" *ngIf="selectedFile && !loading" (click)="extractData()" style="margin-top: 0.5rem; width: 100%; display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+              <mat-icon>auto_awesome</mat-icon> Extraire avec l'IA
+            </button>
           </div>
         </div>
 

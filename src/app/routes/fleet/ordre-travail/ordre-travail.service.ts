@@ -113,6 +113,12 @@ findAll(
     });
   }
 
+  extractPieceData(proof: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', proof);
+    return this.http.post<any>(`${this.basePieces}/extract`, formData);
+  }
+
   // ── Statistiques Syage ─────────────────────────────────
   getStatsSyageMachine(machineId: number, idEntreprise: number): Observable<StatsSyageResponse> {
     const params = new HttpParams().set('idEntreprise', idEntreprise.toString());

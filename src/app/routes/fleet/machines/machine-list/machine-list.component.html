@@ -54,6 +54,12 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="machines.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>
 

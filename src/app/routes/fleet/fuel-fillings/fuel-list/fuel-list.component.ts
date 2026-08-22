@@ -9,10 +9,12 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { jsPDF } from 'jspdf';
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-fuel-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule, PaginationBarComponent],
   templateUrl: './fuel-list.component.html',
   styleUrls: ['./fuel-list.component.scss'],
 })
@@ -334,4 +336,20 @@ closeProofModal(): void {
   }
   this.proofSafeUrl = null;
 }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'pleins';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['pleins'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

@@ -21,7 +21,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of chauffeurs">
+        <tr *ngFor="let c of paginatedItems">
           <td><strong>{{ c.nom }} {{ c.prenom }}</strong></td>
           <td>{{ c.telephone }}</td>
           <td>{{ c.email }}</td>
@@ -51,6 +51,12 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="chauffeurs.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>
 

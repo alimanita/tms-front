@@ -119,12 +119,12 @@
           >
             <td>{{ c.nom }} {{ c.prenom ?? '' }}</td>
             <td class="raison">{{ c.matriculeFiscal || '—' }}</td>
-            <td class="num-col">{{ c.totalBls          | number:'1.3-3' }} dt</td>
-            <td class="num-col">{{ c.totalEncaissements | number:'1.3-3' }} dt</td>
+            <td class="num-col">{{ c.totalBls          | number:'1.3-3' }} DT</td>
+            <td class="num-col">{{ c.totalEncaissements | number:'1.3-3' }} DT</td>
             <td class="num-col"
                 [class.solde-neg]="c.solde < 0"
                 [class.solde-pos]="c.solde > 0">
-              {{ c.solde | number:'1.3-3' }} dt
+              {{ c.solde | number:'1.3-3' }} DT
             </td>
 
             <!-- Colonne risque -->
@@ -159,12 +159,12 @@
           <td colspan="2">
             <strong>Totaux — {{ scored().length }} client{{ scored().length > 1 ? 's' : '' }}</strong>
           </td>
-          <td class="num-col"><strong>{{ totalNetAPayer()     | number:'1.3-3' }} dt</strong></td>
-          <td class="num-col"><strong>{{ totalEncaissements() | number:'1.3-3' }} dt</strong></td>
+          <td class="num-col"><strong>{{ totalNetAPayer()     | number:'1.3-3' }} DT</strong></td>
+          <td class="num-col"><strong>{{ totalEncaissements() | number:'1.3-3' }} DT</strong></td>
           <td class="num-col"
               [class.solde-neg]="totalSolde() < 0"
               [class.solde-pos]="totalSolde() > 0">
-            <strong>{{ totalSolde() | number:'1.3-3' }} dt</strong>
+            <strong>{{ totalSolde() | number:'1.3-3' }} DT</strong>
           </td>
           <td></td>
         </tr>

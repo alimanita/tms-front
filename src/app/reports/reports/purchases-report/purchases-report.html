@@ -109,11 +109,11 @@
           <td>{{l.article}}</td>
           <td>{{l.famille}}</td>
           <td class="num">{{l.quantite    | number:'1.0-3':'fr'}}</td>
-          <td class="num">{{l.prixUnitaire | number:'1.3-3':'fr'}} dt</td>
-          <td class="num">{{l.remise      | number:'1.3-3':'fr'}} dt</td>
-          <td class="num">{{l.totalHt     | number:'1.3-3':'fr'}} dt</td>
-          <td class="num">{{l.tva         | number:'1.3-3':'fr'}} dt</td>
-          <td class="num">{{l.totalTtc    | number:'1.3-3':'fr'}} dt</td>
+          <td class="num">{{l.prixUnitaire | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.remise      | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.totalHt     | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.tva         | number:'1.3-3':'fr'}} DT</td>
+          <td class="num">{{l.totalTtc    | number:'1.3-3':'fr'}} DT</td>
         </tr>
       </tbody>
       <tfoot *ngIf="totaux && lignes.length > 0">
@@ -122,9 +122,9 @@
           <td class="num"><strong>{{totaux.totalQuantite | number:'1.0-3':'fr'}}</strong></td>
           <td class="num"></td>
           <td class="num"></td>
-          <td class="num"><strong>{{totaux.totalHt  | number:'1.3-3':'fr'}} dt</strong></td>
-          <td class="num"><strong>{{totaux.totalTva | number:'1.3-3':'fr'}} dt</strong></td>
-          <td class="num"><strong>{{totaux.totalTtc | number:'1.3-3':'fr'}} dt</strong></td>
+          <td class="num"><strong>{{totaux.totalHt  | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"><strong>{{totaux.totalTva | number:'1.3-3':'fr'}} DT</strong></td>
+          <td class="num"><strong>{{totaux.totalTtc | number:'1.3-3':'fr'}} DT</strong></td>
         </tr>
       </tfoot>
     </table>

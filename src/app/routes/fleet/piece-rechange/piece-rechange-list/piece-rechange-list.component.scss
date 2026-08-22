@@ -34,7 +34,7 @@
 
   &:hover { background: #1d4ed8; }
 
-  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
 
 // ── Filters ──────────────────────────────────────────────────────
@@ -48,7 +48,7 @@
 
 .filter-group--search {
   flex: 1;
-  min-wi€h: 240px;
+  min-width: 240px;
 }
 
 .search-wrap {
@@ -60,13 +60,13 @@
     position: absolute;
     left: 10px;
     font-size: 18px;
-    wi€h: 18px;
+    width: 18px;
     height: 18px;
     color: #9ca3af;
   }
 
   input {
-    wi€h: 100%;
+    width: 100%;
     padding: 9px 12px 9px 34px;
     border: 1px solid #d1d5db;
     border-radius: 8px;
@@ -95,7 +95,7 @@
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
-  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 
   &:hover { background: #f9fafb; }
 
@@ -123,7 +123,7 @@
 }
 
 .bl-table {
-  wi€h: 100%;
+  width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 
@@ -156,7 +156,7 @@
   padding: 40px 0;
   color: #9ca3af;
 
-  mat-icon { font-size: 36px; wi€h: 36px; height: 36px; }
+  mat-icon { font-size: 36px; width: 36px; height: 36px; }
 }
 
 .ref-link {
@@ -192,7 +192,7 @@
 
 .stock-warning-icon {
   font-size: 16px;
-  wi€h: 16px;
+  width: 16px;
   height: 16px;
   color: #d97706;
 }
@@ -202,7 +202,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  wi€h: 32px;
+  width: 32px;
   height: 32px;
   border: none;
   background: transparent;
@@ -221,7 +221,7 @@
 
 .menu-icon {
   font-size: 18px;
-  wi€h: 18px;
+  width: 18px;
   height: 18px;
   margin-right: 8px;
 }
@@ -256,7 +256,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  wi€h: 32px;
+  width: 32px;
   height: 32px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
@@ -267,5 +267,5 @@
   &:disabled { opacity: 0.4; cursor: not-allowed; }
   &:not(:disabled):hover { background: #f9fafb; }
 
-  mat-icon { font-size: 18px; wi€h: 18px; height: 18px; color: #4b5563; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: #4b5563; }
 }

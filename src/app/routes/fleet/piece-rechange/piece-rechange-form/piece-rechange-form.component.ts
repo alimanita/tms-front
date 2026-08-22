@@ -163,4 +163,33 @@ export class PieceRechangeFormComponent {
   onBackdropClick(): void {
     if (!this.loading) this.close();
   }
+
+  extractData(): void {
+    if (!this.selectedFile) return;
+    this.loading = true;
+    this.snackBar.open('Extraction des données en cours...', '', { duration: 3000 });
+    this.cdr.markForCheck();
+    
+    this.ordreTravailService.extractPieceData(this.selectedFile).subscribe({
+      next: (data) => {
+        this.loading = false;
+        this.snackBar.open('Données extraites avec succès !', 'Fermer', { duration: 3000 });
+        
+        if (data.name) this.form.patchValue({ name: data.name });
+        if (data.brand) this.form.patchValue({ brand: data.brand });
+        if (data.unitCost) this.form.patchValue({ unitCost: data.unitCost });
+        if (data.amountHT) this.form.patchValue({ amountHT: data.amountHT });
+        if (data.tvaRate) this.form.patchValue({ tvaRate: data.tvaRate });
+        
+        // This will trigger calculateTva indirectly, but if amountHT or tvaRate didn't trigger it nicely, we can call it manually
+        this.calculateTva();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.loading = false;
+        this.snackBar.open('Erreur lors de l\'extraction', 'Fermer', { duration: 5000 });
+        this.cdr.markForCheck();
+      }
+    });
+  }
 }

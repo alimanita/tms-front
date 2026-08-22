@@ -38,8 +38,8 @@ $required     : #dc2626;
 .modal-card {
   display: flex;
   flex-direction: column;
-  wi€h: 400px;
-  max-wi€h: 92vw;
+  width: 400px;
+  max-width: 92vw;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 20px 48px rgba(0, 0, 0, .18);
@@ -92,7 +92,7 @@ $required     : #dc2626;
 
   mat-icon {
     font-size: 20px;
-    wi€h: 20px;
+    width: 20px;
     height: 20px;
   }
 }
@@ -166,7 +166,7 @@ $required     : #dc2626;
 }
 
 .field-input {
-  wi€h: 100%;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid $border;
   border-radius: $radius;
@@ -232,7 +232,7 @@ $required     : #dc2626;
 
   mat-icon {
     font-size: 16px;
-    wi€h: 16px;
+    width: 16px;
     height: 16px;
   }
 

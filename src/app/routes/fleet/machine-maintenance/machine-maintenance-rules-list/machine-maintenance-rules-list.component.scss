@@ -4,7 +4,7 @@ $border: #e2e8f0;
 
 :host {
   display: block;
-  wi€h: 100%;
+  width: 100%;
   padding: 24px;
   box-sizing: border-box;
 }
@@ -52,7 +52,7 @@ $border: #e2e8f0;
 
     mat-icon {
       font-size: 18px;
-      wi€h: 18px;
+      width: 18px;
       height: 18px;
     }
 
@@ -73,7 +73,7 @@ $border: #e2e8f0;
   background: #fff;
   border: 1px solid $border;
   border-radius: 10px;
-  wi€h: 100%;
+  width: 100%;
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
@@ -81,7 +81,7 @@ $border: #e2e8f0;
 
 // ── Table ─────────────────────────────────────────────────────
 .bl-table {
-  wi€h: 100%;
+  width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 
@@ -119,13 +119,13 @@ $border: #e2e8f0;
 }
 
 // ── Colonnes ──────────────────────────────────────────────────
-.col-code        { wi€h: 80px; }
-.col-description { wi€h: 28%; }
-.col-type        { wi€h: 14%; }
-.col-intervalle  { wi€h: 12%; }
-.col-consommable { wi€h: 20%; }
-.col-echeance    { wi€h: 14%; }
-.col-actions     { wi€h: 120px; text-align: right; }
+.col-code        { width: 80px; }
+.col-description { width: 28%; }
+.col-type        { width: 14%; }
+.col-intervalle  { width: 12%; }
+.col-consommable { width: 20%; }
+.col-echeance    { width: 14%; }
+.col-actions     { width: 120px; text-align: right; }
 
 // ── Code badge ────────────────────────────────────────────────
 .code-badge {
@@ -187,7 +187,7 @@ $border: #e2e8f0;
 }
 
 .quick-btn {
-  wi€h: 30px;
+  width: 30px;
   height: 30px;
   border-radius: 7px;
   border: none;
@@ -201,7 +201,7 @@ $border: #e2e8f0;
 
   mat-icon {
     font-size: 17px;
-    wi€h: 17px;
+    width: 17px;
     height: 17px;
   }
 
@@ -213,7 +213,7 @@ $border: #e2e8f0;
 // ── Menu icon colors ──────────────────────────────────────────
 .menu-icon {
   font-size: 17px !important;
-  wi€h: 17px !important;
+  width: 17px !important;
   height: 17px !important;
   margin-right: 2px;
 
@@ -238,7 +238,7 @@ $border: #e2e8f0;
 
   mat-icon {
     font-size: 48px;
-    wi€h: 48px;
+    width: 48px;
     height: 48px;
     margin-bottom: 12px;
   }
@@ -250,14 +250,14 @@ $border: #e2e8f0;
 // RESPONSIVE
 // ══════════════════════════════════════════════════════════════
 
-@media (max-wi€h: 1024px) {
+@media (max-width: 1024px) {
   :host { padding: 16px; }
 
   .col-consommable { display: none; }
-  .col-description { wi€h: 32%; }
+  .col-description { width: 32%; }
 }
 
-@media (max-wi€h: 768px) {
+@media (max-width: 768px) {
   :host { padding: 12px; }
 
   .page-header {
@@ -266,7 +266,7 @@ $border: #e2e8f0;
     gap: 12px;
     margin-bottom: 16px;
 
-    .create-btn { wi€h: 100%; justify-content: center; }
+    .create-btn { width: 100%; justify-content: center; }
   }
 
   .table-card {
@@ -310,7 +310,7 @@ $border: #e2e8f0;
   }
 }
 
-@media (max-wi€h: 480px) {
+@media (max-width: 480px) {
   .page-header .page-title { font-size: 18px; }
   .code-badge { font-size: 11px; padding: 2px 8px; }
   .type-badge { font-size: 10.5px; padding: 2px 8px; }

@@ -23,7 +23,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of changements">
+        <tr *ngFor="let c of paginatedItems">
           <td><strong>{{ c.reference }}</strong></td>
           <td>{{ c.entityType }}</td>
           <td>{{ c.entityRef || ('ID: ' + c.entityId) }}</td>
@@ -43,6 +43,12 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="changements.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>
 

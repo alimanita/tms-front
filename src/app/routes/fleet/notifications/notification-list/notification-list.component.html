@@ -10,7 +10,7 @@
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
     <div *ngIf="!loading" class="notif-list">
-      <div *ngFor="let n of notifications"
+      <div *ngFor="let n of paginatedItems"
            class="notif-item"
            [class.notif-item--unread]="!n.isRead"
            [ngClass]="severityClass(n.severity)">
@@ -34,4 +34,11 @@
       </div>
     </div>
   </div>
+
+    <app-pagination-bar
+      [total]="notifications.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
 </div>

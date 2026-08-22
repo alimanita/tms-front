@@ -16,9 +16,9 @@ import { environment } from 'environments/environment';
 
 
 
-// ── dtOs ─────────────────────────────────────────────────────────────────────
+// ── DTOs ─────────────────────────────────────────────────────────────────────
 
-/** Correspond exactement aux alias SQL + champs du dtO Java ClientSoldeDto */
+/** Correspond exactement aux alias SQL + champs du DTO Java ClientSoldeDto */
 interface ClientSolde {
   id                  : number;         // c.id
   nom                 : string;
@@ -182,9 +182,9 @@ export class ClientBalancesComponent implements OnInit {
   scoreTooltip(c: ClientAvecScore): string {
     return [
       `Score : ${c.score}/100`,
-      `Dette : ${Math.max(0, -Number(c.solde)).toFixed(3)} dt`,
+      `Dette : ${Math.max(0, -Number(c.solde)).toFixed(3)} DT`,
       c.joursDebt > 0 ? `Ancienneté : ${c.joursDebt} j` : '',
-      `Net à payer : ${Number(c.totalBls).toFixed(3)} dt`,
+      `Net à payer : ${Number(c.totalBls).toFixed(3)} DT`,
       `Fréquence : ${c.frequenceMensuelle} BL/mois`,
     ].filter(Boolean).join(' · ');
   }

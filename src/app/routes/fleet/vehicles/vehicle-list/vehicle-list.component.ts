@@ -9,10 +9,12 @@ import { isAdminRole } from 'app/core/authentication/helpers';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule, PaginationBarComponent],
   templateUrl: './vehicle-list.component.html',
   styleUrls: ['./vehicle-list.component.scss'],
 })
@@ -119,4 +121,20 @@ export class VehicleListComponent implements OnInit {
       this.snackBar.open('Erreur', 'Fermer', { duration: 3000 })
   });
 }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'vehicules';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['vehicules'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

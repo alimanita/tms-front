@@ -22,7 +22,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of pneus">
+        <tr *ngFor="let p of paginatedItems">
           <td><strong>{{ p.serialNumber }}</strong></td>
           <td>{{ p.brand }}</td>
           <td>{{ p.model }}</td>
@@ -50,5 +50,11 @@
         </tr>
       </tbody>
     </table>
+    <app-pagination-bar
+      [total]="pneus.length"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>

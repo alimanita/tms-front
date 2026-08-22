@@ -5,10 +5,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, MachineResponse } from '../../fleet.service';
 import { UpdateMachineHoursDialogComponent } from '../update-machine-hours/update-machine-hours-dialog';
 
+import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+
 @Component({
   selector: 'app-machine-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, UpdateMachineHoursDialogComponent],
+  imports: [CommonModule, MatSnackBarModule, UpdateMachineHoursDialogComponent, PaginationBarComponent],
   templateUrl: './machine-list.component.html',
   styleUrls: ['./machine-list.component.scss'],
 })
@@ -86,4 +88,20 @@ export class MachineListComponent implements OnInit {
     this.snackBar.open('Heures mises à jour', 'OK', { duration: 3000 });
     this.load();
   }
+
+  // --- Pagination ---
+  pageIndex = 0;
+  pageSize = 10;
+  private _displayVar = 'machines';
+
+  get paginatedItems(): any[] {
+    const start = this.pageIndex * this.pageSize;
+    return ((this as any)['machines'] as any[] || []).slice(start, start + this.pageSize);
+  }
+
+  onPageChange(e: PageChangeEvent): void {
+    this.pageIndex = e.pageIndex;
+    this.pageSize = e.pageSize;
+  }
+
 }

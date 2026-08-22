@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RolesService, RoleDto } from './roles.service';
+import { PaginationBarComponent, PageChangeEvent } from '../shared/components/pagination-bar/pagination-bar.component';
+import { PaginatePipe } from '../shared/pipes/paginate.pipe';
 
 @Component({
   selector: 'app-settings-settings-roles',
@@ -13,7 +15,8 @@ import { RolesService, RoleDto } from './roles.service';
     FormsModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    
+    PaginationBarComponent,
+    PaginatePipe
   ],
   templateUrl: './roles.html',
   styleUrl: './roles.scss'
@@ -25,6 +28,9 @@ export class SettingsSettingsRoles implements OnInit {
   filteredRoles: RoleDto[] = [];
   isLoading                = false;
   searchText               = '';
+  
+  pageIndex = 0;
+  pageSize = 10;
 
   // ── Formulaire ajout ───────────────────────────────────────
   showAddPanel    = false;
@@ -78,11 +84,17 @@ loadRoles(): void {
     this.filteredRoles = q
       ? this.roles.filter(r => r.roleName.toLowerCase().includes(q))
       : [...this.roles];
+    this.pageIndex = 0;
   }
 
   clearSearch(): void {
     this.searchText = '';
     this.applySearch();
+  }
+
+  onPageChange(event: PageChangeEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
   }
 
   // ── Ajout ─────────────────────────────────────────────────
