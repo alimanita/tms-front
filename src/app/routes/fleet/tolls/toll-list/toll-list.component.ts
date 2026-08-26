@@ -201,13 +201,16 @@ export class TollListComponent implements OnInit {
             let imgWidh = colWidh;
             let imgHeight = (imgProps.height * imgWidh) / imgProps.width;
             
-            const maxAllowedHeight = (maxPageHeight - 3 * marginY) / 2;
+            const textHeight = 5;
+            
+            // Calculer l'espace max pour l'image en prenant en compte les marges, l'espacement et le texte
+            // 3 * marginY (haut, milieu, bas), 1 * gap, 2 * textHeight
+            const maxAllowedHeight = (maxPageHeight - 3 * marginY - gap - 2 * textHeight - 10) / 2;
             if (imgHeight > maxAllowedHeight) {
                 imgHeight = maxAllowedHeight;
                 imgWidh = (imgProps.width * imgHeight) / imgProps.height;
             }
 
-            const textHeight = 5;
             const totalItemHeight = imgHeight + textHeight + 2;
 
             if (currentColumn >= colCount) {

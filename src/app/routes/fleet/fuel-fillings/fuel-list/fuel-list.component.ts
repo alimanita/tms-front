@@ -204,13 +204,15 @@ export class FuelListComponent implements OnInit {
             let imgWidth = colWidth;
             let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
             
-            const maxAllowedHeight = (maxPageHeight - 3 * marginY) / 2;
+            const textHeight = 5;
+            
+            // Calculer l'espace max pour l'image en prenant en compte les marges, l'espacement et le texte
+            const maxAllowedHeight = (maxPageHeight - 3 * marginY - gap - 2 * textHeight - 10) / 2;
             if (imgHeight > maxAllowedHeight) {
                 imgHeight = maxAllowedHeight;
                 imgWidth = (imgProps.width * imgHeight) / imgProps.height;
             }
 
-            const textHeight = 5;
             const totalItemHeight = imgHeight + textHeight + 2;
 
             if (currentColumn >= colCount) {
