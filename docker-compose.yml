@@ -5,4 +5,4 @@ services:
     container_name: tms-front
     restart: unless-stopped
     ports:
-      - "8091:80"
+      - "8080:80"
