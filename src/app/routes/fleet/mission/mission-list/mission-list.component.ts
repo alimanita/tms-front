@@ -145,6 +145,54 @@ export class MissionListComponent implements OnInit {
   get totalOtherExpenses(): number { return this.missions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
   get totalCost():    number { return this.missions.reduce((s, m) => s + (m.totalCost ?? 0), 0); }
 
+  // ── Multi-sort ────────────────────────────────────────────────
+  sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
+    { column: 'plannedDeparture', direction: 'desc' }
+  ];
+
+  getSortDirection(column: string): 'asc' | 'desc' | null {
+    const found = this.sortCriteria.find(c => c.column === column);
+    return found ? found.direction : null;
+  }
+
+  getSortRank(column: string): number | null {
+    const idx = this.sortCriteria.findIndex(c => c.column === column);
+    return idx >= 0 ? idx + 1 : null;
+  }
+
+  sortBy(column: string): void {
+    const existingIdx = this.sortCriteria.findIndex(c => c.column === column);
+    if (existingIdx >= 0) {
+      if (this.sortCriteria[existingIdx].direction === 'desc') {
+        this.sortCriteria[existingIdx] = { column, direction: 'asc' };
+      } else {
+        this.sortCriteria.splice(existingIdx, 1);
+      }
+    } else {
+      this.sortCriteria.unshift({ column, direction: 'desc' });
+    }
+    this.applySort();
+  }
+
+  private applySort(): void {
+    const dateColumns = ['plannedDeparture'];
+    this.missions = [...this.missions].sort((a: any, b: any) => {
+      for (const criterion of this.sortCriteria) {
+        let valA = a[criterion.column];
+        let valB = b[criterion.column];
+        if (dateColumns.includes(criterion.column)) {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+        if (valA == null) valA = '';
+        if (valB == null) valB = '';
+        const cmp = valA > valB ? 1 : valA < valB ? -1 : 0;
+        if (cmp !== 0) return criterion.direction === 'asc' ? cmp : -cmp;
+      }
+      return 0;
+    });
+  }
+
   constructor(
     private missionService: MissionService,
     private router: Router,

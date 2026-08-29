@@ -3,6 +3,20 @@
     <h2 class="fleet-title">Péages</h2>
     <div class="fl-topbar-actions">
       <div class="fl-filters">
+        <select class="fl-select" [(ngModel)]="selectedVehiculeId" (change)="onFilterChange()">
+          <option value="">Tous les véhicules</option>
+          <option *ngFor="let v of vehicules" [value]="v.id">
+            {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+          </option>
+        </select>
+        
+        <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
+          <option value="">Tous les chauffeurs</option>
+          <option *ngFor="let c of chauffeurs" [value]="c.id">
+            {{ c.nom }} {{ c.prenom }}
+          </option>
+        </select>
+
         <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
         <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
         
@@ -25,10 +39,24 @@
   <thead>
     <tr>
       <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
-      <th>Date</th>
+      <th (click)="sortBy('datePassage')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+        Date
+        <span [style.color]="getSortDirection('datePassage') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+          {{ getSortDirection('datePassage') === 'asc' ? '↑' : '↓' }}
+        </span>
+        <span *ngIf="getSortRank('datePassage') && sortCriteria.length > 1"
+              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('datePassage') }}</span>
+      </th>
       <th>Véhicule</th>
       <th>Chauffeur</th>
-      <th>Montant TTC</th>
+      <th (click)="sortBy('amountTTC')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+        Montant TTC
+        <span [style.color]="getSortDirection('amountTTC') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+          {{ getSortDirection('amountTTC') === 'asc' ? '↑' : '↓' }}
+        </span>
+        <span *ngIf="getSortRank('amountTTC') && sortCriteria.length > 1"
+              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('amountTTC') }}</span>
+      </th>
       <th>Gare / Description</th>
       <th>Justificatif</th>
       <th></th>
@@ -69,6 +97,13 @@
       <td colspan="8" class="fl-empty">Aucun péage enregistré</td>
     </tr>
   </tbody>
+  <tfoot *ngIf="tolls.length > 0">
+    <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
+      <td colspan="4" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
+      <td style="color: var(--text);">{{ getTotalAmountTTC() | number:'1.2-2' }} €</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
 </table>
 </div>
 <app-pagination-bar

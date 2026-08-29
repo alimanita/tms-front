@@ -105,6 +105,17 @@
     </div>
   </div>
 
+  <!-- Statut select -->
+  <div class="filter-group">
+    <label class="filter-label">Statut</label>
+    <div class="filter-select-wrapper">
+      <select class="filter-select" [(ngModel)]="filterStatut" (change)="onFilterChange()">
+        <option *ngFor="let opt of statutOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+      <mat-icon class="select-chevron">expand_more</mat-icon>
+    </div>
+  </div>
+
   <div class="filter-group">
     <label class="filter-label">Du</label>
     <div class="filter-date-wrapper">
@@ -146,13 +157,43 @@
         </th>
         <th class="col-ref">Référence</th>
         <th class="col-client">Chauffeurs / Véhicule</th>
-        <th class="col-date">Départ prévu</th>
+        <th class="col-date sort-th" (click)="sortBy('plannedDeparture')">
+          Départ prévu
+          <span class="sort-arrow" [style.color]="getSortDirection('plannedDeparture') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('plannedDeparture') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('plannedDeparture') && sortCriteria.length > 1">{{ getSortRank('plannedDeparture') }}</span>
+        </th>
         <th class="col-status">Statut</th>
-        <th class="col-revenue">Tarif</th>
-        <th class="col-fuel">Carburant</th>
-        <th class="col-toll">Péage</th>
+        <th class="col-revenue sort-th" (click)="sortBy('revenue')">
+          Tarif
+          <span class="sort-arrow" [style.color]="getSortDirection('revenue') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('revenue') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('revenue') && sortCriteria.length > 1">{{ getSortRank('revenue') }}</span>
+        </th>
+        <th class="col-fuel sort-th" (click)="sortBy('fuelCost')">
+          Carburant
+          <span class="sort-arrow" [style.color]="getSortDirection('fuelCost') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('fuelCost') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('fuelCost') && sortCriteria.length > 1">{{ getSortRank('fuelCost') }}</span>
+        </th>
+        <th class="col-toll sort-th" (click)="sortBy('tollCost')">
+          Péage
+          <span class="sort-arrow" [style.color]="getSortDirection('tollCost') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('tollCost') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('tollCost') && sortCriteria.length > 1">{{ getSortRank('tollCost') }}</span>
+        </th>
         <th class="col-other">Autres</th>
-        <th class="col-amount">Coût total</th>
+        <th class="col-amount sort-th" (click)="sortBy('totalCost')">
+          Coût total
+          <span class="sort-arrow" [style.color]="getSortDirection('totalCost') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('totalCost') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('totalCost') && sortCriteria.length > 1">{{ getSortRank('totalCost') }}</span>
+        </th>
         <th class="col-letter" title="Lettre de mission">
           <mat-icon style="font-size:16px;width:16px;height:16px;color:#94a3b8">description</mat-icon>
         </th>

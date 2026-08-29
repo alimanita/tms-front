@@ -5,9 +5,9 @@
 
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <div class="logo">TMS</div>
+      <div class="logo" style="font-weight: 800; font-size: 18px; letter-spacing: 1px;">CF</div>
       <div>
-        <strong> TMS</strong>
+        <strong>Colisfast</strong>
         <span>Transport & logistique</span>
       </div>
     </div>
@@ -82,6 +82,9 @@
         </div>
       </div>
       <div class="topbar-actions">
+        <button class="icon-btn" (click)="toggleTheme()" [attr.aria-label]="isDarkTheme() ? 'Passer au mode clair' : 'Passer au mode sombre'" style="background: transparent; border: none; cursor: pointer; color: var(--text); margin-right: 12px; display: flex; align-items: center; justify-content: center; padding: 8px;">
+          <mat-icon>{{ isDarkTheme() ? 'wb_sunny' : 'brightness_3' }}</mat-icon>
+        </button>
         @if (user()?.roles?.length) {
           <span class="role-badge">{{ getPrimaryRoleName() }}</span>
         }

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FleetService } from '../../fleet.service';
+import { FleetService, VehiculeResponse } from '../../fleet.service';
+import { ChauffeurResponse } from '../../chauffeurs/chauffeur.model';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,11 +22,20 @@ import { PaginatePipe } from '../../../../shared/pipes/paginate.pipe';
 export class TollListComponent implements OnInit {
   allTolls: PeageResponse[] = [];
   tolls: PeageResponse[] = [];
+  vehicules: VehiculeResponse[] = [];
+  chauffeurs: ChauffeurResponse[] = [];
   selectedIds: Set<number> = new Set();
   
+  // Multi-sort: tableau de critères triés par priorité
+  sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
+    { column: 'datePassage', direction: 'desc' }
+  ];
+
   pageIndex = 0;
   pageSize = 10;
 
+  selectedVehiculeId?: number | '';
+  selectedChauffeurId?: number | '';
   startDate?: string;
   endDate?: string;
   
@@ -47,7 +57,19 @@ export class TollListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.fleetService.getVehicules({ size: 1000 }).subscribe({
+      next: (page: any) => this.vehicules = page.content ?? page,
+      error: () => {}
+    });
+    
+    this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
+      next: (page: any) => this.chauffeurs = page.content ?? page,
+      error: () => {}
+    });
+
     this.route.queryParams.subscribe(qp => {
+      this.selectedVehiculeId = qp['vehiculeId'] ? +qp['vehiculeId'] : '';
+      this.selectedChauffeurId = qp['chauffeurId'] ? +qp['chauffeurId'] : '';
       this.startDate = qp['startDate'] || '';
       this.endDate = qp['endDate'] || '';
       this.load();
@@ -72,23 +94,94 @@ export class TollListComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.allTolls];
 
+    if (this.selectedVehiculeId) {
+      filtered = filtered.filter(p => p.vehiculeId == this.selectedVehiculeId);
+    }
+    
+    if (this.selectedChauffeurId) {
+      filtered = filtered.filter(p => p.chauffeurId == this.selectedChauffeurId);
+    }
+
     if (this.startDate) {
-      const start = new Date(this.startDate).getTime();
+      const start = new Date(this.startDate + 'T00:00:00').getTime();
       filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() >= start);
     }
 
     if (this.endDate) {
-      const end = new Date(this.endDate).getTime() + 86400000 - 1;
+      const end = new Date(this.endDate + 'T23:59:59').getTime();
       filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() <= end);
     }
+
+    // Multi-sort
+    const dateColumns = ['datePassage'];
+    filtered.sort((a: any, b: any) => {
+      for (const criterion of this.sortCriteria) {
+        let valA = a[criterion.column];
+        let valB = b[criterion.column];
+
+        if (dateColumns.includes(criterion.column)) {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+
+        if (valA == null) valA = '';
+        if (valB == null) valB = '';
+
+        let comparison = 0;
+        if (valA > valB) comparison = 1;
+        else if (valA < valB) comparison = -1;
+
+        if (comparison !== 0) {
+          return criterion.direction === 'asc' ? comparison : -comparison;
+        }
+      }
+      return 0;
+    });
 
     this.tolls = filtered;
     this.pageIndex = 0;
   }
 
+  // Retourne la direction active pour une colonne, ou null si non triée
+  getSortDirection(column: string): 'asc' | 'desc' | null {
+    const found = this.sortCriteria.find(c => c.column === column);
+    return found ? found.direction : null;
+  }
+
+  // Retourne le rang de priorité (1er, 2ème...) ou null
+  getSortRank(column: string): number | null {
+    const idx = this.sortCriteria.findIndex(c => c.column === column);
+    return idx >= 0 ? idx + 1 : null;
+  }
+
+  sortBy(column: string): void {
+    const existingIdx = this.sortCriteria.findIndex(c => c.column === column);
+    if (existingIdx >= 0) {
+      const current = this.sortCriteria[existingIdx];
+      if (current.direction === 'desc') {
+        // desc → asc
+        this.sortCriteria[existingIdx] = { column, direction: 'asc' };
+      } else {
+        // asc → suppression du critère
+        this.sortCriteria.splice(existingIdx, 1);
+      }
+    } else {
+      // Nouvelle colonne: ajout en premier critère
+      this.sortCriteria.unshift({ column, direction: 'desc' });
+    }
+    this.applyFilters();
+  }
+
+  resetSort(): void {
+    this.sortCriteria = [{ column: 'datePassage', direction: 'desc' }];
+    this.applyFilters();
+  }
+
   onFilterChange(): void {
     this.router.navigate([], {
       queryParams: { 
+        vehiculeId: this.selectedVehiculeId || null,
+        chauffeurId: this.selectedChauffeurId || null,
         startDate: this.startDate || null,
         endDate: this.endDate || null
       },
@@ -97,6 +190,8 @@ export class TollListComponent implements OnInit {
   }
 
   resetFilters(): void {
+    this.selectedVehiculeId = '';
+    this.selectedChauffeurId = '';
     this.startDate = '';
     this.endDate = '';
     this.onFilterChange();
@@ -315,5 +410,9 @@ export class TollListComponent implements OnInit {
       this.currentProofBlobUrl = null;
     }
     this.proofSafeUrl = null;
+  }
+
+  getTotalAmountTTC(): number {
+    return this.tolls.reduce((acc, t) => acc + (t.amountTTC || 0), 0);
   }
 }

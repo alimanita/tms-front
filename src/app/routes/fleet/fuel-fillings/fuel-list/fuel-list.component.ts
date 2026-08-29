@@ -25,6 +25,11 @@ export class FuelListComponent implements OnInit {
   chauffeurs: ChauffeurResponse[]  = [];
   
   selectedIds: Set<number> = new Set();
+  
+  // Multi-sort: tableau de critères triés par priorité
+  sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
+    { column: 'fillingDate', direction: 'desc' }
+  ];
 
   selectedVehiculeId?: number | '';
   selectedChauffeurId?: number | '';
@@ -94,16 +99,72 @@ export class FuelListComponent implements OnInit {
     }
 
     if (this.startDate) {
-      const start = new Date(this.startDate).getTime();
+      const start = new Date(this.startDate + 'T00:00:00').getTime();
       filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() >= start);
     }
 
     if (this.endDate) {
-      const end = new Date(this.endDate).getTime() + 86400000 - 1;
+      const end = new Date(this.endDate + 'T23:59:59').getTime();
       filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() <= end);
     }
 
+    // Multi-sort
+    const dateColumns = ['fillingDate'];
+    filtered.sort((a: any, b: any) => {
+      for (const criterion of this.sortCriteria) {
+        let valA = a[criterion.column];
+        let valB = b[criterion.column];
+
+        if (dateColumns.includes(criterion.column)) {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+
+        if (valA == null) valA = '';
+        if (valB == null) valB = '';
+
+        let comparison = 0;
+        if (valA > valB) comparison = 1;
+        else if (valA < valB) comparison = -1;
+
+        if (comparison !== 0) {
+          return criterion.direction === 'asc' ? comparison : -comparison;
+        }
+      }
+      return 0;
+    });
+
     this.pleins = filtered;
+  }
+
+  getSortDirection(column: string): 'asc' | 'desc' | null {
+    const found = this.sortCriteria.find(c => c.column === column);
+    return found ? found.direction : null;
+  }
+
+  getSortRank(column: string): number | null {
+    const idx = this.sortCriteria.findIndex(c => c.column === column);
+    return idx >= 0 ? idx + 1 : null;
+  }
+
+  sortBy(column: string): void {
+    const existingIdx = this.sortCriteria.findIndex(c => c.column === column);
+    if (existingIdx >= 0) {
+      const current = this.sortCriteria[existingIdx];
+      if (current.direction === 'desc') {
+        this.sortCriteria[existingIdx] = { column, direction: 'asc' };
+      } else {
+        this.sortCriteria.splice(existingIdx, 1);
+      }
+    } else {
+      this.sortCriteria.unshift({ column, direction: 'desc' });
+    }
+    this.applyFilters();
+  }
+
+  resetSort(): void {
+    this.sortCriteria = [{ column: 'fillingDate', direction: 'desc' }];
+    this.applyFilters();
   }
 
   onFilterChange(): void {
@@ -338,6 +399,14 @@ closeProofModal(): void {
   }
   this.proofSafeUrl = null;
 }
+
+  getTotalQuantity(): number {
+    return this.pleins.reduce((acc, p) => acc + (p.quantityLiters || 0), 0);
+  }
+
+  getTotalAmount(): number {
+    return this.pleins.reduce((acc, p) => acc + (p.totalAmount || 0), 0);
+  }
 
   // --- Pagination ---
   pageIndex = 0;

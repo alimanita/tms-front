@@ -165,7 +165,7 @@ nav a.active mat-icon {
   gap: 1rem;
   padding: 1.25rem 1.75rem;
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--surface);
 }
 
 .welcome {

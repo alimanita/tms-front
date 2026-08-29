@@ -65,9 +65,28 @@ export class MainLayoutComponent implements OnInit {
   });
 
   protected readonly sidebarOpen = signal<boolean>(false);
+  protected readonly isDarkTheme = signal<boolean>(false);
 
   ngOnInit(): void {
     this.menuService.loadMenu().subscribe();
+    
+    // Load theme preference
+    const savedTheme = localStorage.getItem('tms-theme');
+    if (savedTheme === 'dark') {
+      this.isDarkTheme.set(true);
+      document.body.classList.add('dark-theme');
+    }
+  }
+
+  toggleTheme(): void {
+    this.isDarkTheme.update(dark => !dark);
+    if (this.isDarkTheme()) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('tms-theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('tms-theme', 'light');
+    }
   }
 
   isExpanded(key: string): boolean {

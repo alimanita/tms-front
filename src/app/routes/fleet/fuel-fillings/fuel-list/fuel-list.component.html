@@ -42,11 +42,32 @@
       <th>Référence</th>
       <th>Véhicule</th>
       <th>Chauffeur</th>
-      <th>Date</th>
+      <th (click)="sortBy('fillingDate')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+        Date
+        <span [style.color]="getSortDirection('fillingDate') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+          {{ getSortDirection('fillingDate') === 'asc' ? '↑' : '↓' }}
+        </span>
+        <span *ngIf="getSortRank('fillingDate') && sortCriteria.length > 1"
+              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('fillingDate') }}</span>
+      </th>
       <th>Carburant</th>
-      <th>Quantité (L)</th>
+      <th (click)="sortBy('quantityLiters')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+        Quantité (L)
+        <span [style.color]="getSortDirection('quantityLiters') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+          {{ getSortDirection('quantityLiters') === 'asc' ? '↑' : '↓' }}
+        </span>
+        <span *ngIf="getSortRank('quantityLiters') && sortCriteria.length > 1"
+              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('quantityLiters') }}</span>
+      </th>
       <th>Prix/L</th>
-      <th>Total</th>
+      <th (click)="sortBy('totalAmount')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+        Total
+        <span [style.color]="getSortDirection('totalAmount') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+          {{ getSortDirection('totalAmount') === 'asc' ? '↑' : '↓' }}
+        </span>
+        <span *ngIf="getSortRank('totalAmount') && sortCriteria.length > 1"
+              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('totalAmount') }}</span>
+      </th>
       <th>Conso (L/100)</th>
       <th>Km avant</th>
       <th>Justificatif</th>
@@ -91,6 +112,15 @@
       <td colspan="12" class="fl-empty">Aucun plein enregistré</td>
     </tr>
   </tbody>
+  <tfoot *ngIf="pleins.length > 0">
+    <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
+      <td colspan="6" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
+      <td style="color: var(--text);">{{ getTotalQuantity() | number:'1.2-2' }} L</td>
+      <td></td>
+      <td style="color: var(--text);">{{ getTotalAmount() | number:'1.2-2' }} €</td>
+      <td colspan="4"></td>
+    </tr>
+  </tfoot>
 </table>
     <app-pagination-bar
       [total]="pleins.length"
