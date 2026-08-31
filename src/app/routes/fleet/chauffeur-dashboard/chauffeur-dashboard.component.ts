@@ -75,16 +75,25 @@ export class ChauffeurDashboardComponent implements OnInit, OnDestroy {
   };
 
   // Missions récentes
+  allMissions: MissionResponse[] = [];
   mesMissions: MissionResponse[] = [];
   missionColumns = ['reference', 'destination', 'statut', 'plannedDeparture', 'plannedReturn'];
   loadingMissions = false;
+  filterMissions: 'MOIS' | 'SEMAINE' = 'MOIS';
 
   // Historique pleins carburant
+  allPleins: PleinCarburantResponse[] = [];
   pleins: PleinCarburantResponse[] = [];
   pleinsColumns = ['fillingDate', 'fuelType', 'quantityLiters', 'totalAmount', 'mileageAfter'];
   loadingPleins = false;
+  filterPleins: 'MOIS' | 'SEMAINE' = 'MOIS';
 
-
+  // Péages
+  allPeages: any[] = [];
+  peages: any[] = [];
+  peagesColumns = ['datePassage', 'societeAutoroute', 'gareEntree', 'gareSortie', 'amountTTC'];
+  loadingPeages = false;
+  filterPeages: 'MOIS' | 'SEMAINE' = 'MOIS';
 
   // Taux de missions terminées / total missions
   get tauxMissionsTerminees(): number {
@@ -98,7 +107,7 @@ export class ChauffeurDashboardComponent implements OnInit, OnDestroy {
     this.loadStats();
     this.loadMissions();
     this.loadPleins();
-
+    this.loadPeages();
   }
 
   ngOnDestroy() { this.notifySub.unsubscribe(); }
@@ -129,7 +138,8 @@ export class ChauffeurDashboardComponent implements OnInit, OnDestroy {
     this.loadingMissions = true;
     this.missionService.findMesMissions().subscribe({
       next: missions => this.zone.run(() => {
-        this.mesMissions    = missions.slice(0, 8);
+        this.allMissions = missions || [];
+        this.applyMissionFilter();
         this.loadingMissions = false;
         this.cdr.detectChanges();
       }),
@@ -139,14 +149,79 @@ export class ChauffeurDashboardComponent implements OnInit, OnDestroy {
 
   loadPleins(): void {
     this.loadingPleins = true;
-    this.fleetService.getPleins({ page: 0, size: 8 }).subscribe({
+    // Assuming backend gets all when no paging, or size=100
+    this.fleetService.getPleins({ page: 0, size: 100 }).subscribe({
       next: page => this.zone.run(() => {
-        this.pleins       = page.content ?? page ?? [];
+        this.allPleins = page.content ?? page ?? [];
+        this.applyPleinFilter();
         this.loadingPleins = false;
         this.cdr.detectChanges();
       }),
       error: () => this.zone.run(() => { this.loadingPleins = false; this.cdr.detectChanges(); }),
     });
+  }
+
+  loadPeages(): void {
+    this.loadingPeages = true;
+    this.fleetService.getPeages({ page: 0, size: 100 }).subscribe({
+      next: page => this.zone.run(() => {
+        this.allPeages = page.content ?? page ?? [];
+        this.applyPeageFilter();
+        this.loadingPeages = false;
+        this.cdr.detectChanges();
+      }),
+      error: () => this.zone.run(() => { this.loadingPeages = false; this.cdr.detectChanges(); }),
+    });
+  }
+
+  isDateInCurrentFilter(dateStr: string | null | undefined, filter: 'MOIS' | 'SEMAINE'): boolean {
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
+    const now = new Date();
+    if (filter === 'MOIS') {
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    } else {
+      // Calculate if in current week
+      const currentWeekStart = new Date(now.setDate(now.getDate() - now.getDay() + 1));
+      currentWeekStart.setHours(0,0,0,0);
+      const currentWeekEnd = new Date(currentWeekStart);
+      currentWeekEnd.setDate(currentWeekEnd.getDate() + 6);
+      currentWeekEnd.setHours(23,59,59,999);
+      return date >= currentWeekStart && date <= currentWeekEnd;
+    }
+  }
+
+  applyMissionFilter(): void {
+    this.mesMissions = this.allMissions
+      .filter(m => this.isDateInCurrentFilter(m.plannedDeparture, this.filterMissions))
+      .slice(0, 8);
+  }
+
+  applyPleinFilter(): void {
+    this.pleins = this.allPleins
+      .filter(p => this.isDateInCurrentFilter(p.fillingDate, this.filterPleins))
+      .slice(0, 8);
+  }
+
+  applyPeageFilter(): void {
+    this.peages = this.allPeages
+      .filter(p => this.isDateInCurrentFilter(p.datePassage, this.filterPeages))
+      .slice(0, 8);
+  }
+
+  toggleMissionFilter(f: 'MOIS' | 'SEMAINE') {
+    this.filterMissions = f;
+    this.applyMissionFilter();
+  }
+
+  togglePleinFilter(f: 'MOIS' | 'SEMAINE') {
+    this.filterPleins = f;
+    this.applyPleinFilter();
+  }
+
+  togglePeageFilter(f: 'MOIS' | 'SEMAINE') {
+    this.filterPeages = f;
+    this.applyPeageFilter();
   }
 
   getStatutColor(statut: StatutMission | string): string {
