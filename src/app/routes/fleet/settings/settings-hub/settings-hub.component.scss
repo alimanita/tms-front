@@ -7,9 +7,8 @@ $bg: #f8fafc;
 :host { display: block; }
 
 .hub-page {
-  padding: 28px 24px;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 32px;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -55,8 +54,8 @@ $bg: #f8fafc;
 // ── Grid ──────────────────────────────────────────────────
 .hub-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
 }
 
 // ── Cards ─────────────────────────────────────────────────
@@ -65,10 +64,10 @@ $bg: #f8fafc;
   background: $surface;
   border: 1.5px solid $border;
   border-radius: 14px;
-  padding: 24px;
+  padding: 32px 24px;
   display: flex;
-  align-items: center;
-  gap: 18px;
+  align-items: flex-start;
+  gap: 20px;
   transition: all 0.18s;
   overflow: hidden;
 
@@ -93,13 +92,13 @@ $bg: #f8fafc;
 
 .soon-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 16px;
+  right: 16px;
   background: #f1f5f9;
   color: $muted;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border-radius: 20px;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -127,10 +126,10 @@ $bg: #f8fafc;
 }
 
 .card-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: $text;
-  margin: 0 0 6px;
+  margin: 0 0 10px;
 }
 
 .card-desc {
@@ -142,6 +141,7 @@ $bg: #f8fafc;
 
 .card-arrow {
   flex-shrink: 0;
+  align-self: center;
 
   mat-icon {
     color: #94a3b8;
