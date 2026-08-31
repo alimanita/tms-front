@@ -53,7 +53,8 @@ export class MainLayoutComponent implements OnInit {
         { label: 'Tableau de bord (Comptable)', route: '/accountant-dashboard', icon: 'insert_chart' },
         { label: 'Notifications', route: '/fleet/notifications', icon: 'notifications' },
         { label: 'Documents', route: '/fleet/documents', icon: 'description' },
-        { label: 'Administration', route: '/admin', icon: 'admin_panel_settings' }
+        { label: 'Administration', route: '/admin', icon: 'admin_panel_settings' },
+        { label: 'Paramètres Chauffeurs', route: '/fleet/settings/chauffeur', icon: 'tune' }
       ]
     }
   ];

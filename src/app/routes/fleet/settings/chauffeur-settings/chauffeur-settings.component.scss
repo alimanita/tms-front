@@ -1,0 +1,609 @@
+// ── Variables ─────────────────────────────────────────────
+$primary: #3b82f6;
+$primary-light: #eff6ff;
+$green: #22c55e;
+$green-light: #f0fdf4;
+$red: #ef4444;
+$red-light: #fef2f2;
+$border: #e2e8f0;
+$text: #0f172a;
+$muted: #64748b;
+$surface: #ffffff;
+$bg: #f8fafc;
+
+:host { display: block; }
+
+// ── Page Layout ───────────────────────────────────────────
+.settings-page {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+// ── Header ────────────────────────────────────────────────
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: $primary-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    color: $primary;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: $muted;
+  margin: 0;
+}
+
+// ── Cards ─────────────────────────────────────────────────
+.settings-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.card-icon {
+  color: $primary;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text;
+  margin: 0 0 4px;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: $muted;
+  margin: 0;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+
+  .sep { color: $border; font-size: 14px; }
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: $primary;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover { text-decoration: underline; }
+  &.danger { color: $red; }
+}
+
+// ── Mode selector ─────────────────────────────────────────
+.mode-selector {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border: 2px solid $border;
+  border-radius: 10px;
+  background: $bg;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: $muted;
+    flex-shrink: 0;
+  }
+
+  .mode-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text;
+  }
+
+  .mode-desc {
+    display: block;
+    font-size: 12px;
+    color: $muted;
+    margin-top: 2px;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-light;
+  }
+
+  &--active {
+    border-color: $primary;
+    background: $primary-light;
+
+    mat-icon { color: $primary; }
+    .mode-label { color: $primary; }
+  }
+}
+
+// ── Toggles ───────────────────────────────────────────────
+.toggles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.toggle-divider {
+  height: 1px;
+  background: $border;
+  margin: 4px 0;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toggle-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+
+  .toggle-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    transition: color 0.2s;
+
+    &.icon-active { color: $green; }
+    &.icon-inactive { color: $muted; }
+  }
+
+  .toggle-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: $text;
+  }
+
+  .toggle-desc {
+    display: block;
+    font-size: 12px;
+    color: $muted;
+    margin-top: 2px;
+  }
+}
+
+// Toggle switch
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+
+  &.toggle-on {
+    background: $green-light;
+    color: darken($green, 5%);
+
+    .toggle-thumb {
+      background: $green;
+      transform: translateX(22px);
+    }
+  }
+
+  &.toggle-off {
+    background: $red-light;
+    color: $red;
+
+    .toggle-thumb {
+      background: $red;
+      transform: translateX(0);
+    }
+  }
+
+  &:before {
+    content: '';
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+    border-radius: 11px;
+    background: currentColor;
+    opacity: 0.15;
+    flex-shrink: 0;
+    position: relative;
+  }
+}
+
+// rebuild the switch visually
+.toggle-switch {
+  position: relative;
+  background: none !important;
+  padding: 0;
+
+  &.toggle-on {
+    .toggle-track { background: $green; }
+    .toggle-text { color: darken($green, 5%); }
+  }
+
+  &.toggle-off {
+    .toggle-track { background: $red; }
+    .toggle-text { color: $red; }
+  }
+}
+
+// Simplified visual toggle
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.toggle-thumb {
+  display: none; // handled below
+}
+
+// Final clean toggle design
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 26px;
+    border-radius: 13px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+
+  &.toggle-on {
+    &::before { background: $green; }
+    &::after { transform: translateX(22px); }
+    .toggle-text { color: darken($green, 5%); font-weight: 600; }
+  }
+
+  &.toggle-off {
+    &::before { background: $red; }
+    &::after { transform: translateX(0); }
+    .toggle-text { color: $red; font-weight: 600; }
+  }
+}
+
+.toggle-text {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 50px;
+}
+
+// ── Search ────────────────────────────────────────────────
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 40px;
+  margin-bottom: 20px;
+
+  mat-icon { color: $muted; font-size: 18px; width: 18px; height: 18px; }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13px;
+    color: $text;
+
+    &::placeholder { color: #cbd5e1; }
+  }
+}
+
+// ── Chauffeur grid ────────────────────────────────────────
+.chauffeur-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.chauffeur-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 2px solid $border;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: $bg;
+  position: relative;
+  flex-wrap: wrap;
+
+  &:hover {
+    border-color: $primary;
+    background: $primary-light;
+  }
+
+  &--selected {
+    border-color: $primary;
+    background: $primary-light;
+  }
+}
+
+.chauffeur-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: $muted;
+  flex-shrink: 0;
+  text-transform: uppercase;
+
+  &.avatar-active {
+    background: $primary;
+    color: white;
+  }
+}
+
+.chauffeur-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chauffeur-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chauffeur-statut {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 2px;
+
+  &.statut-actif { background: $green-light; color: darken($green, 10%); }
+  &.statut-inactif { background: $red-light; color: $red; }
+}
+
+.chauffeur-check {
+  mat-icon { color: $primary; font-size: 18px; width: 18px; height: 18px; }
+}
+
+.chauffeur-badges {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+  padding-top: 6px;
+  border-top: 1px solid $border;
+  margin-top: 4px;
+
+  .badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 6px;
+
+    &.badge-on { background: $green-light; color: darken($green, 10%); }
+    &.badge-off { background: $red-light; color: $red; }
+  }
+}
+
+.empty-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px;
+  color: $muted;
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; }
+  p { margin: 0; font-size: 14px; }
+}
+
+// ── Save Bar ──────────────────────────────────────────────
+.save-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface, $surface);
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 16px 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.save-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: $muted;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: $primary; }
+  strong { color: $text; }
+  .warn { color: #f59e0b; }
+}
+
+.save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover:not(:disabled) { background: darken($primary, 5%); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+// ── Loading ───────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px;
+  color: $muted;
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid $border;
+    border-top-color: $primary;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  p { margin: 0; font-size: 14px; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Dark Mode ─────────────────────────────────────────────
+:host-context(.dark-theme) {
+  .settings-card { background: var(--surface); border-color: var(--border); }
+  .card-title, .page-title, .toggle-label, .chauffeur-name, .mode-label { color: var(--text); }
+  .card-subtitle, .page-subtitle, .toggle-desc, .mode-desc { color: var(--muted); }
+  .mode-btn { background: var(--surface-2); border-color: var(--border); }
+  .mode-btn--active { background: rgba(59,130,246,.15); border-color: $primary; }
+  .chauffeur-card { background: var(--surface-2); border-color: var(--border); }
+  .chauffeur-card--selected { background: rgba(59,130,246,.15); border-color: $primary; }
+  .search-bar { background: var(--surface-2); border-color: var(--border); }
+  .search-bar input { color: var(--text); }
+  .save-bar { background: var(--surface); border-color: var(--border); }
+  .chauffeur-avatar { background: var(--surface); color: var(--text); }
+  .toggle-divider { background: var(--border); }
+}
+
+// ── Responsive ────────────────────────────────────────────
+@media (max-width: 640px) {
+  .settings-page { padding: 16px; }
+  .mode-selector { flex-direction: column; }
+  .mode-btn { min-width: unset; }
+  .toggle-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .save-bar { flex-direction: column; align-items: stretch; }
+  .save-btn { justify-content: center; }
+  .chauffeur-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 400px) {
+  .chauffeur-grid { grid-template-columns: 1fr; }
+}

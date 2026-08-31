@@ -103,6 +103,18 @@ export const routes : Routes = [
         .then(m => m.PayslipsComponent),
   },
   {
+    path: 'settings',
+    loadComponent: () =>
+      import('./settings/settings-hub/settings-hub.component')
+        .then(m => m.SettingsHubComponent),
+  },
+  {
+    path: 'settings/chauffeur',
+    loadComponent: () =>
+      import('./settings/chauffeur-settings/chauffeur-settings.component')
+        .then(m => m.ChauffeurSettingsComponent),
+  },
+  {
     path: 'notifications',
     loadComponent: () =>
       import('./notifications/notification-list/notification-list.component')

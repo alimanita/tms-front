@@ -1,0 +1,168 @@
+$border: #e2e8f0;
+$text: #0f172a;
+$muted: #64748b;
+$surface: #ffffff;
+$bg: #f8fafc;
+
+:host { display: block; }
+
+.hub-page {
+  padding: 28px 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+// ── Header ────────────────────────────────────────────────
+.hub-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+    color: #3b82f6;
+  }
+}
+
+.hub-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: $text;
+  margin: 0 0 4px;
+}
+
+.hub-subtitle {
+  font-size: 14px;
+  color: $muted;
+  margin: 0;
+}
+
+// ── Grid ──────────────────────────────────────────────────
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+// ── Cards ─────────────────────────────────────────────────
+.hub-card {
+  position: relative;
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: all 0.18s;
+  overflow: hidden;
+
+  &--available {
+    cursor: pointer;
+
+    &:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
+      transform: translateY(-2px);
+
+      .card-arrow mat-icon { transform: translateX(4px); }
+    }
+  }
+
+  &--disabled {
+    cursor: default;
+    opacity: 0.65;
+    background: $bg;
+  }
+}
+
+.soon-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #f1f5f9;
+  color: $muted;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.card-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text;
+  margin: 0 0 6px;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: $muted;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.card-arrow {
+  flex-shrink: 0;
+
+  mat-icon {
+    color: #94a3b8;
+    transition: transform 0.15s;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ── Dark mode ─────────────────────────────────────────────
+:host-context(.dark-theme) {
+  .hub-card { background: var(--surface); border-color: var(--border); }
+  .hub-card--disabled { background: var(--surface-2); }
+  .hub-title, .card-title { color: var(--text); }
+  .hub-subtitle, .card-desc { color: var(--muted); }
+  .soon-badge { background: var(--surface-2); color: var(--muted); }
+}
+
+// ── Responsive ────────────────────────────────────────────
+@media (max-width: 640px) {
+  .hub-page { padding: 16px; }
+  .hub-grid { grid-template-columns: 1fr; }
+}

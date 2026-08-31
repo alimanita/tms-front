@@ -820,4 +820,9 @@ getDocumentFile(id: number) {
   deleteDocumentFlotte(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/documents/${id}`);
   }
+
+  // ── Paramètres Chauffeurs ──────────────────────────────────
+  updateChauffeurSettings(request: import('./chauffeurs/chauffeur.model').ChauffeurConfigRequest): Observable<ChauffeurResponse[]> {
+    return this.http.put<ChauffeurResponse[]>(`${this.base}/chauffeurs/settings`, request);
+  }
 }

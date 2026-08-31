@@ -1,0 +1,43 @@
+<div class="hub-page">
+
+  <!-- Header -->
+  <div class="hub-header">
+    <div class="header-icon">
+      <mat-icon>settings</mat-icon>
+    </div>
+    <div>
+      <h1 class="hub-title">Paramètres</h1>
+      <p class="hub-subtitle">Configurez et personnalisez les modules de l'application</p>
+    </div>
+  </div>
+
+  <!-- Grid de cartes -->
+  <div class="hub-grid">
+    <div class="hub-card"
+         *ngFor="let card of cards"
+         [class.hub-card--available]="card.available"
+         [class.hub-card--disabled]="!card.available"
+         (click)="navigate(card)">
+
+      <!-- Badge "Bientôt disponible" -->
+      <span class="soon-badge" *ngIf="!card.available">Bientôt disponible</span>
+
+      <!-- Icône colorée -->
+      <div class="card-icon-wrap" [style.background]="card.color + '18'">
+        <mat-icon [style.color]="card.color">{{ card.icon }}</mat-icon>
+      </div>
+
+      <!-- Contenu -->
+      <div class="card-body">
+        <h2 class="card-title">{{ card.title }}</h2>
+        <p class="card-desc">{{ card.description }}</p>
+      </div>
+
+      <!-- Flèche -->
+      <div class="card-arrow" *ngIf="card.available">
+        <mat-icon>chevron_right</mat-icon>
+      </div>
+    </div>
+  </div>
+
+</div>

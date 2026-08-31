@@ -1,0 +1,193 @@
+<div class="settings-page">
+
+  <!-- Header -->
+  <div class="settings-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <mat-icon>tune</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">Paramètres Chauffeurs</h1>
+        <p class="page-subtitle">Configurez les informations visibles par les chauffeurs</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-body" *ngIf="!loading; else loadingTpl">
+
+    <!-- ── Carte 1 : Mode d'application ── -->
+    <div class="settings-card">
+      <div class="card-header">
+        <mat-icon class="card-icon">people_alt</mat-icon>
+        <div>
+          <h2 class="card-title">Application des paramètres</h2>
+          <p class="card-subtitle">Choisissez si la règle s'applique à tous les chauffeurs ou seulement à une sélection</p>
+        </div>
+      </div>
+
+      <div class="mode-selector">
+        <button class="mode-btn" [class.mode-btn--active]="isGlobal" (click)="isGlobal = true; clearSelection()">
+          <mat-icon>public</mat-icon>
+          <div>
+            <span class="mode-label">Générale</span>
+            <span class="mode-desc">S'applique à tous les chauffeurs</span>
+          </div>
+        </button>
+        <button class="mode-btn" [class.mode-btn--active]="!isGlobal" (click)="isGlobal = false">
+          <mat-icon>person_pin</mat-icon>
+          <div>
+            <span class="mode-label">Personnalisée</span>
+            <span class="mode-desc">Sélectionnez les chauffeurs concernés</span>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Carte 2 : Visibilité ── -->
+    <div class="settings-card">
+      <div class="card-header">
+        <mat-icon class="card-icon">visibility</mat-icon>
+        <div>
+          <h2 class="card-title">Visibilité des informations</h2>
+          <p class="card-subtitle">Activez ou désactivez les informations que les chauffeurs peuvent voir</p>
+        </div>
+      </div>
+
+      <div class="toggles-list">
+
+        <!-- Toggle Tarif -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <mat-icon class="toggle-icon" [class.icon-active]="globalShowTarif" [class.icon-inactive]="!globalShowTarif">
+              payments
+            </mat-icon>
+            <div>
+              <span class="toggle-label">Tarif / Revenus</span>
+              <span class="toggle-desc">Le chauffeur peut voir le tarif et les revenus des missions</span>
+            </div>
+          </div>
+          <button class="toggle-switch" [class.toggle-on]="globalShowTarif" [class.toggle-off]="!globalShowTarif"
+                  (click)="globalShowTarif = !globalShowTarif">
+            <span class="toggle-thumb"></span>
+            <span class="toggle-text">{{ globalShowTarif ? 'Visible' : 'Masqué' }}</span>
+          </button>
+        </div>
+
+        <div class="toggle-divider"></div>
+
+        <!-- Toggle Coût -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <mat-icon class="toggle-icon" [class.icon-active]="globalShowCout" [class.icon-inactive]="!globalShowCout">
+              calculate
+            </mat-icon>
+            <div>
+              <span class="toggle-label">Coûts & Dépenses</span>
+              <span class="toggle-desc">Le chauffeur peut voir le coût total et les dépenses des missions</span>
+            </div>
+          </div>
+          <button class="toggle-switch" [class.toggle-on]="globalShowCout" [class.toggle-off]="!globalShowCout"
+                  (click)="globalShowCout = !globalShowCout">
+            <span class="toggle-thumb"></span>
+            <span class="toggle-text">{{ globalShowCout ? 'Visible' : 'Masqué' }}</span>
+          </button>
+        </div>
+
+        <div class="toggle-divider"></div>
+
+        <!-- Toggle Carburant -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <mat-icon class="toggle-icon" [class.icon-active]="globalShowCarburant" [class.icon-inactive]="!globalShowCarburant">
+              local_gas_station
+            </mat-icon>
+            <div>
+              <span class="toggle-label">Carburant</span>
+              <span class="toggle-desc">Le chauffeur peut voir les coûts et détails de carburant</span>
+            </div>
+          </div>
+          <button class="toggle-switch" [class.toggle-on]="globalShowCarburant" [class.toggle-off]="!globalShowCarburant"
+                  (click)="globalShowCarburant = !globalShowCarburant">
+            <span class="toggle-thumb"></span>
+            <span class="toggle-text">{{ globalShowCarburant ? 'Visible' : 'Masqué' }}</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Carte 3 : Sélection des chauffeurs (mode personnalisé) ── -->
+    <div class="settings-card" *ngIf="!isGlobal">
+      <div class="card-header">
+        <mat-icon class="card-icon">checklist</mat-icon>
+        <div>
+          <h2 class="card-title">Sélectionner les chauffeurs</h2>
+          <p class="card-subtitle">{{ selectedIds.size }} chauffeur(s) sélectionné(s)</p>
+        </div>
+        <div class="card-actions">
+          <button class="link-btn" (click)="selectAll()">Tout sélectionner</button>
+          <span class="sep">|</span>
+          <button class="link-btn danger" (click)="clearSelection()">Effacer</button>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Rechercher un chauffeur..." [(ngModel)]="searchText"/>
+      </div>
+
+      <div class="chauffeur-grid">
+        <div class="chauffeur-card" *ngFor="let c of filteredChauffeurs"
+             [class.chauffeur-card--selected]="isSelected(c.id)"
+             (click)="toggleChauffeur(c.id)">
+          <div class="chauffeur-avatar" [class.avatar-active]="isSelected(c.id)">
+            {{ c.prenom.charAt(0) }}{{ c.nom.charAt(0) }}
+          </div>
+          <div class="chauffeur-info">
+            <span class="chauffeur-name">{{ c.prenom }} {{ c.nom }}</span>
+            <span class="chauffeur-statut" [class.statut-actif]="c.actif" [class.statut-inactif]="!c.actif">
+              {{ c.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+          <div class="chauffeur-check" *ngIf="isSelected(c.id)">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <!-- Mini-indicateurs de visibilité actuels -->
+          <div class="chauffeur-badges">
+            <span class="badge" [class.badge-on]="c.showTarif ?? true" [class.badge-off]="!(c.showTarif ?? true)" title="Tarif">€</span>
+            <span class="badge" [class.badge-on]="c.showCout ?? true" [class.badge-off]="!(c.showCout ?? true)" title="Coût">₦</span>
+            <span class="badge" [class.badge-on]="c.showCarburant ?? true" [class.badge-off]="!(c.showCarburant ?? true)" title="Carburant">⛽</span>
+          </div>
+        </div>
+
+        <div *ngIf="filteredChauffeurs.length === 0" class="empty-list">
+          <mat-icon>person_off</mat-icon>
+          <p>Aucun chauffeur trouvé</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Résumé et sauvegarde ── -->
+    <div class="save-bar">
+      <div class="save-summary">
+        <mat-icon>info_outline</mat-icon>
+        <span *ngIf="isGlobal">Ces paramètres seront appliqués à <strong>tous les chauffeurs</strong></span>
+        <span *ngIf="!isGlobal && selectedIds.size > 0">Ces paramètres seront appliqués à <strong>{{ selectedIds.size }} chauffeur(s)</strong></span>
+        <span *ngIf="!isGlobal && selectedIds.size === 0" class="warn">⚠ Sélectionnez au moins un chauffeur</span>
+      </div>
+      <button class="save-btn" (click)="save()" [disabled]="saving">
+        <mat-icon>{{ saving ? 'hourglass_empty' : 'save' }}</mat-icon>
+        {{ saving ? 'Sauvegarde...' : 'Enregistrer les paramètres' }}
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des chauffeurs...</p>
+  </div>
+</ng-template>

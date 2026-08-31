@@ -165,29 +165,29 @@
           <span class="sort-rank" *ngIf="getSortRank('plannedDeparture') && sortCriteria.length > 1">{{ getSortRank('plannedDeparture') }}</span>
         </th>
         <th class="col-status">Statut</th>
-        <th class="col-revenue sort-th" (click)="sortBy('revenue')">
+        <th class="col-revenue sort-th" (click)="sortBy('revenue')" *ngIf="showTarif">
           Tarif
           <span class="sort-arrow" [style.color]="getSortDirection('revenue') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('revenue') === 'asc' ? '↑' : '↓' }}
           </span>
           <span class="sort-rank" *ngIf="getSortRank('revenue') && sortCriteria.length > 1">{{ getSortRank('revenue') }}</span>
         </th>
-        <th class="col-fuel sort-th" (click)="sortBy('fuelCost')">
+        <th class="col-fuel sort-th" (click)="sortBy('fuelCost')" *ngIf="showCarburant">
           Carburant
           <span class="sort-arrow" [style.color]="getSortDirection('fuelCost') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('fuelCost') === 'asc' ? '↑' : '↓' }}
           </span>
           <span class="sort-rank" *ngIf="getSortRank('fuelCost') && sortCriteria.length > 1">{{ getSortRank('fuelCost') }}</span>
         </th>
-        <th class="col-toll sort-th" (click)="sortBy('tollCost')">
+        <th class="col-toll sort-th" (click)="sortBy('tollCost')" *ngIf="showCout">
           Péage
           <span class="sort-arrow" [style.color]="getSortDirection('tollCost') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('tollCost') === 'asc' ? '↑' : '↓' }}
           </span>
           <span class="sort-rank" *ngIf="getSortRank('tollCost') && sortCriteria.length > 1">{{ getSortRank('tollCost') }}</span>
         </th>
-        <th class="col-other">Autres</th>
-        <th class="col-amount sort-th" (click)="sortBy('totalCost')">
+        <th class="col-other" *ngIf="showCout">Autres</th>
+        <th class="col-amount sort-th" (click)="sortBy('totalCost')" *ngIf="showCout">
           Coût total
           <span class="sort-arrow" [style.color]="getSortDirection('totalCost') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('totalCost') === 'asc' ? '↑' : '↓' }}
@@ -251,23 +251,23 @@
           </div>
         </td>
 
-        <td class="col-revenue">
+        <td class="col-revenue" *ngIf="showTarif">
           <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
-        <td class="col-fuel">
+        <td class="col-fuel" *ngIf="showCarburant">
           <span class="amount-ttc montant-fuel">{{ (m.fuelCost ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
-        <td class="col-toll">
+        <td class="col-toll" *ngIf="showCout">
           <span class="amount-ttc montant-toll">{{ (m.tollCost ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
-        <td class="col-other">
+        <td class="col-other" *ngIf="showCout">
           <span class="amount-ttc montant-other">{{ (m.otherExpenses ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
-        <td class="col-amount">
+        <td class="col-amount" *ngIf="showCout">
           <span class="amount-ttc montant-normal">{{ (m.totalCost ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
@@ -341,19 +341,19 @@
         <td class="col-status">
           <span class="totals-label">{{ missions.length }} mission(s)</span>
         </td>
-        <td class="col-revenue">
+        <td class="col-revenue" *ngIf="showTarif">
           <span class="totals-amount revenue">{{ totalRevenue | number:'1.2-2' }} €</span>
         </td>
-        <td class="col-fuel">
+        <td class="col-fuel" *ngIf="showCarburant">
           <span class="totals-amount fuel">{{ totalFuel | number:'1.2-2' }} €</span>
         </td>
-        <td class="col-toll">
+        <td class="col-toll" *ngIf="showCout">
           <span class="totals-amount toll">{{ totalToll | number:'1.2-2' }} €</span>
         </td>
-        <td class="col-other">
+        <td class="col-other" *ngIf="showCout">
           <span class="totals-amount other">{{ totalOtherExpenses | number:'1.2-2' }} €</span>
         </td>
-        <td class="col-amount">
+        <td class="col-amount" *ngIf="showCout">
           <span class="totals-amount cost">{{ totalCost | number:'1.2-2' }} €</span>
         </td>
         <td class="col-letter"></td>

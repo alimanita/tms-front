@@ -23,6 +23,10 @@ export interface ChauffeurResponse {
   utilisateurEmail?: string | null;
   typeSalaire?: string | null;
   valeurSalaire?: number | null;
+  // Paramètres de visibilité
+  showTarif?: boolean;
+  showCout?: boolean;
+  showCarburant?: boolean;
 }
 
 export interface ChauffeurRequest {
@@ -45,3 +49,11 @@ export interface ChauffeurRequest {
   actif?: boolean;
   idUtilisateur?: number | null;
 }
+
+export interface ChauffeurConfigRequest {
+  isGlobal: boolean;
+  chauffeurIds?: number[];
+  showTarif?: boolean;
+  showCout?: boolean;
+  showCarburant?: boolean;
+}

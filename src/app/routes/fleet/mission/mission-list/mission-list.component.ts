@@ -38,6 +38,11 @@ export class MissionListComponent implements OnInit {
   isChauffeurScope = false;
   monChauffeurId: number | null = null;
 
+  // ── Paramètres de visibilité (pour chauffeurs) ──
+  showTarif = true;
+  showCout = true;
+  showCarburant = true;
+
   // ── Filtres ────────────────────────────────────────────────────────────
   filterStatut: StatutMission | '' = '';
   filterDateDebut = '';
@@ -219,6 +224,23 @@ export class MissionListComponent implements OnInit {
     if (this.isGestion) {
       this.loadChauffeurs();
       this.loadVehicules();
+    }
+
+    if (this.isChauffeurScope) {
+      // Charger l'utilisateur courant pour obtenir les paramètres de visibilité
+      this.authService.loadCurrentUser().subscribe({
+        next: (user) => {
+          if (user) {
+            this.showTarif = user.showTarif ?? true;
+            this.showCout = user.showCout ?? true;
+            this.showCarburant = user.showCarburant ?? true;
+            console.log('Paramètres visibilité:', { showTarif: this.showTarif, showCout: this.showCout, showCarburant: this.showCarburant });
+          }
+        },
+        error: (err) => {
+          console.error('Erreur lors de la récupération du profil:', err);
+        }
+      });
     }
   }
 

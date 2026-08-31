@@ -2,8 +2,12 @@ export interface User {
   id: number;
   username: string;
   fullName: string;
-   entrepriseId: number;
+  entrepriseId: number;
   roles: string[];
+  // Paramètres visibilité chauffeur
+  showTarif?: boolean;
+  showCout?: boolean;
+  showCarburant?: boolean;
 }
 
 export interface AuthResponse {

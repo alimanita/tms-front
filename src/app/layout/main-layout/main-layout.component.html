@@ -39,7 +39,7 @@
               </button>
               @if (isExpanded(item.route)) {
                 <nav class="submenu-items">
-                  @for (child of item.children; track child.route) {
+                  @for (child of item.children; track child.name) {
                     <a [routerLink]="child.route" routerLinkActive="active">
                       @if (child.icon) {
                         <mat-icon class="sub-icon">{{ child.icon }}</mat-icon>
