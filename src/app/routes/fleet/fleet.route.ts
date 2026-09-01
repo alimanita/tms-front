@@ -134,6 +134,10 @@ export const routes : Routes = [
   loadComponent: () => import('./mission/mission-form/mission-form.component').then(m => m.MissionFormComponent),
 },
 { path: 'missions/:id', component: MissionDetailComponent },
+{
+  path: 'partenaires',
+  loadComponent: () => import('./partenaire/partenaire-list/partenaire-list.component').then(m => m.PartenaireListComponent),
+},
 
 {path : 'maintenances', loadComponent: () => import('./ordre-travail/entretien-list/entretien-list.component').then(m => m.EntretienListComponent)},
 {

@@ -165,3 +165,43 @@ $radius  : 8px;
 @media (max-width: 700px) {
   .fl-grid { grid-template-columns: 1fr; }
 }
+
+// ── Mode d'exécution toggle ──────────────────────────────────
+.mode-toggle {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.active {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+
+  &:hover:not(.active) {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+  }
+}

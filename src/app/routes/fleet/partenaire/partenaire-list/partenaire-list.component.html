@@ -1,0 +1,116 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">
+      <mat-icon>handshake</mat-icon>
+      Sociétés Partenaires
+    </h2>
+    <button class="fl-btn fl-btn-primary" (click)="openNew()">
+      <mat-icon>add</mat-icon> Nouveau partenaire
+    </button>
+  </div>
+
+  <!-- Formulaire slide-in -->
+  <div class="partenaire-form-panel" *ngIf="showForm">
+    <div class="panel-header">
+      <h3>{{ editId ? 'Modifier le partenaire' : 'Nouveau partenaire' }}</h3>
+      <button class="close-btn" (click)="closeForm()"><mat-icon>close</mat-icon></button>
+    </div>
+    <form [formGroup]="form" class="panel-body" (ngSubmit)="onSave()">
+      <div class="form-grid">
+        <div class="form-field full-width">
+          <label>Nom de la société *</label>
+          <input formControlName="nom" placeholder="Ex: Transport Express SARL"/>
+          <span class="err" *ngIf="form.get('nom')?.touched && form.get('nom')?.invalid">Champ obligatoire</span>
+        </div>
+        <div class="form-field">
+          <label>Matricule fiscal</label>
+          <input formControlName="matriculeFiscal" placeholder="Ex: 123456789"/>
+        </div>
+        <div class="form-field">
+          <label>Statut</label>
+          <select formControlName="statut">
+            <option value="ACTIF">Actif</option>
+            <option value="INACTIF">Inactif</option>
+            <option value="EN_ATTENTE">En attente</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Contact</label>
+          <input formControlName="contact" placeholder="Nom du responsable"/>
+        </div>
+        <div class="form-field">
+          <label>Téléphone</label>
+          <input formControlName="telephone" placeholder="+216 xx xxx xxx"/>
+        </div>
+        <div class="form-field">
+          <label>Email</label>
+          <input formControlName="email" placeholder="contact@partenaire.com"/>
+        </div>
+        <div class="form-field">
+          <label>Commission par défaut (%)</label>
+          <input type="number" step="0.01" min="0" max="100" formControlName="tauxCommissionDefaut" placeholder="Ex: 10"/>
+        </div>
+        <div class="form-field">
+          <label>IBAN / RIB</label>
+          <input formControlName="iban" placeholder="FR76 ..."/>
+        </div>
+        <div class="form-field full-width">
+          <label>Adresse</label>
+          <input formControlName="adresse" placeholder="Adresse complète"/>
+        </div>
+      </div>
+      <div class="panel-actions">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="closeForm()">Annuler</button>
+        <button type="submit" class="fl-btn fl-btn-primary" [disabled]="saving">
+          {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tableau -->
+  <div class="fleet-body">
+    <div *ngIf="loading" class="loading-state">Chargement…</div>
+    <div *ngIf="!loading && partenaires.length === 0" class="empty-state">
+      <mat-icon>handshake</mat-icon>
+      <p>Aucun partenaire enregistré</p>
+    </div>
+
+    <table *ngIf="!loading && partenaires.length > 0" class="fl-table">
+      <thead>
+        <tr>
+          <th>Société</th>
+          <th>Contact</th>
+          <th>Téléphone</th>
+          <th>Commission défaut</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of partenaires">
+          <td>
+            <strong>{{ p.nom }}</strong>
+            <div class="sub-text" *ngIf="p.matriculeFiscal">{{ p.matriculeFiscal }}</div>
+          </td>
+          <td>{{ p.contact || '—' }}</td>
+          <td>{{ p.telephone || '—' }}</td>
+          <td>
+            <span *ngIf="p.tauxCommissionDefaut != null" class="commission-badge">
+              {{ p.tauxCommissionDefaut }}%
+            </span>
+            <span *ngIf="p.tauxCommissionDefaut == null">—</span>
+          </td>
+          <td>
+            <span class="statut-badge" [ngClass]="p.statut.toLowerCase()">{{ statutLabel(p.statut) }}</span>
+          </td>
+          <td>
+            <button class="icon-btn" (click)="openEdit(p)" title="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

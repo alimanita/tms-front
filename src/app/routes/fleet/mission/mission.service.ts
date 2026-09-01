@@ -121,5 +121,19 @@ demarrer(id: number, mileageAtDeparture?: number) {
     return this.http.get<MissionResponse[]>(`${this.baseUrl}/en-cours`);
   }
 
-  
+  extractMissionData(file: File): Observable<{
+    title?: string;
+    departureLocation?: string;
+    arrivalLocation?: string;
+    plannedDeparture?: string;
+    plannedReturn?: string;
+    revenue?: number;
+    cargoDescription?: string;
+    notes?: string;
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/extract-ai`, formData);
+  }
+
 }

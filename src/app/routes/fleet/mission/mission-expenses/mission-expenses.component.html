@@ -25,7 +25,7 @@
       </div>
 
       <div class="expense-field">
-        <label>Montant () *</label>
+        <label>Montant (€) *</label>
         <input type="number" step="0.001" min="0" formControlName="montant"
                [class.error]="submitted && form.get('montant')?.invalid"/>
       </div>
@@ -45,13 +45,47 @@
 
       <div class="expense-field expense-field--full">
         <label>Description</label>
-        <input type="text" formControlName="description" placeholder="Ex: Plein gasoil station X"/>
+        <input type="text" formControlName="description" placeholder="Ex: Achat fournitures"/>
+      </div>
+
+      <div class="expense-field expense-field--full">
+        <label>Justificatif (photo, reçu scanné...)</label>
+        <div class="file-upload" [class.has-file]="!!genericSelectedFile">
+          <input type="file" id="genericFile" (change)="onGenericFileSelected($event)" accept="image/*,.pdf" hidden/>
+          <input type="file" id="genericCamera" (change)="onGenericFileSelected($event)" accept="image/*" capture="environment" hidden/>
+          
+          <ng-container *ngIf="!genericSelectedFile">
+            <div class="upload-actions">
+              <label for="genericCamera" class="upload-btn camera-btn" title="Prendre une photo">
+                <mat-icon>photo_camera</mat-icon> Prendre photo
+              </label>
+              <span class="upload-or">ou</span>
+              <label for="genericFile" class="upload-btn file-btn" title="Choisir un fichier">
+                <mat-icon>attach_file</mat-icon> Parcourir
+              </label>
+            </div>
+          </ng-container>
+          
+          <ng-container *ngIf="genericSelectedFile">
+            <div class="file-info">
+              <img *ngIf="genericPreviewUrl" [src]="genericPreviewUrl" alt="Aperçu" class="file-preview"/>
+              <mat-icon *ngIf="!genericPreviewUrl" class="file-icon">description</mat-icon>
+              <span class="file-name">{{ genericSelectedFile.name }}</span>
+              <button type="button" class="remove-file-btn" (click)="removeGenericFile()" title="Supprimer">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </ng-container>
+        </div>
       </div>
 
     </div>
 
     <div class="expense-form-actions">
-      <button type="submit" class="save-expense-btn">Enregistrer</button>
+      <button type="submit" class="save-expense-btn">
+        <mat-spinner *ngIf="savingGeneric" diameter="20" style="display:inline-block; vertical-align: middle; margin-right: 8px;"></mat-spinner>
+        {{ savingGeneric ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
     </div>
   </form>
 

@@ -110,9 +110,35 @@ export class MissionExpensesComponent implements OnInit {
   toggleForm(): void {
     this.showForm = !this.showForm;
     this.submitted = false;
+    this.genericSelectedFile = null;
+    this.genericPreviewUrl = null;
     if (this.showForm) {
       this.form.reset({ expenseType: TypeDepense.MEAL, isReimbursable: true });
     }
+  }
+
+  // -- Generic Form --
+  genericSelectedFile: File | null = null;
+  genericPreviewUrl: string | null = null;
+  savingGeneric = false;
+
+  onGenericFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.genericSelectedFile = input.files[0];
+      if (this.genericSelectedFile.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = () => (this.genericPreviewUrl = reader.result as string);
+        reader.readAsDataURL(this.genericSelectedFile);
+      } else {
+        this.genericPreviewUrl = null;
+      }
+    }
+  }
+
+  removeGenericFile(): void {
+    this.genericSelectedFile = null;
+    this.genericPreviewUrl = null;
   }
 
   isFuelDrawerOpen = false;
@@ -217,6 +243,7 @@ export class MissionExpensesComponent implements OnInit {
       return;
     }
 
+    this.savingGeneric = true;
     const fv = this.form.value;
     const request = {
       expenseType:    fv.expenseType,
@@ -226,17 +253,21 @@ export class MissionExpensesComponent implements OnInit {
       isReimbursable: fv.isReimbursable,
     };
 
-    this.missionService.addDepense(this.missionId, request).subscribe({
+    this.missionService.addDepense(this.missionId, request, this.genericSelectedFile || undefined).subscribe({
       next: (created) => this.zone.run(() => {
         this.depenses = [...this.depenses, created];
         this.snackBar.open('Dépense ajoutée', 'Fermer', { duration: 2500 });
         this.showForm = false;
+        this.savingGeneric = false;
+        this.genericSelectedFile = null;
+        this.genericPreviewUrl = null;
         this.cdr.detectChanges();
       }),
       error: (err) => this.zone.run(() => {
         this.snackBar.open(
           err.error?.message ?? "Erreur lors de l'ajout de la dépense", 'Fermer', { duration: 3000 }
         );
+        this.savingGeneric = false;
         this.cdr.detectChanges();
       }),
     });

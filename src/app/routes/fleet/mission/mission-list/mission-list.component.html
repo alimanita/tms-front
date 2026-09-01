@@ -156,7 +156,7 @@
                  [checked]="allSelected" (change)="toggleAll($event)">
         </th>
         <th class="col-ref">Référence</th>
-        <th class="col-client">Chauffeurs / Véhicule</th>
+        <th class="col-client">Exécution</th>
         <th class="col-date sort-th" (click)="sortBy('plannedDeparture')">
           Départ prévu
           <span class="sort-arrow" [style.color]="getSortDirection('plannedDeparture') ? 'var(--primary)' : 'var(--muted)'">
@@ -224,7 +224,8 @@
         </td>
 
         <td class="col-client">
-          <div class="client-info">
+          <!-- Flotte Propre -->
+          <div class="client-info" *ngIf="m.modeExecution !== 'SUBCONTRACTED'">
             <div class="client-avatar"><mat-icon>local_shipping</mat-icon></div>
             <div class="client-details">
               <span class="client-name chauffeurs-cell"
@@ -235,6 +236,21 @@
                 {{ getChauffeursLabel(m) }}
               </span>
               <span class="client-sub">{{ m.vehiculeRef || 'Véhicule #' + m.vehiculeId }}</span>
+            </div>
+          </div>
+
+          <!-- Sous-traitance -->
+          <div class="client-info" *ngIf="m.modeExecution === 'SUBCONTRACTED'">
+            <div class="client-avatar" style="background: #fef3c7; color: #d97706;">
+              <mat-icon>handshake</mat-icon>
+            </div>
+            <div class="client-details">
+              <span class="client-name" style="color: #92400e; font-weight: 600;">
+                {{ m.partenaireNom || 'Partenaire inconnu' }}
+              </span>
+              <span class="client-sub" *ngIf="m.externeCamion || m.externeChauffeur">
+                {{ m.externeCamion || '?' }} - {{ m.externeChauffeur || '?' }}
+              </span>
             </div>
           </div>
         </td>

@@ -7,11 +7,20 @@ export enum StatutMission {
 export interface MissionResponse {
   id: number;
   reference: string;
-  vehiculeId: number;
+  vehiculeId?: number;
   vehiculeRef?: string;
   vehiculeImmatriculation?: string;
-  chauffeurIds: number[];
+  chauffeurIds?: number[];
   chauffeursNoms?: string;
+  modeExecution?: string;
+  partenaireId?: number;
+  partenaireNom?: string;
+  tauxCommission?: number;
+  montantCommission?: number;
+  montantReversePartenaire?: number;
+  externeCamion?: string;
+  externeChauffeur?: string;
+  statutSousTraitance?: string;
   destination?: string;
   motif?: string;
   statut: StatutMission;
@@ -36,8 +45,13 @@ export interface MissionResponse {
 export interface MissionRequest {
   title: string;
   clientId?: number;
-  vehiculeId: number;
-  chauffeurIds: number[];
+  vehiculeId?: number;
+  chauffeurIds?: number[];
+  modeExecution?: string;
+  partenaireId?: number;
+  tauxCommission?: number;
+  externeCamion?: string;
+  externeChauffeur?: string;
   departureLocation: string;
   arrivalLocation: string;
   plannedDeparture: string;       // ISO LocalDateTime, ex: "2026-07-10T08:00:00"

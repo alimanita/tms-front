@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MissionService } from '../mission.service';
 import { MissionRequest } from '../mission.model';
 import { FleetService, VehiculeResponse } from '../../fleet.service';
+import { PartenaireService } from '../../partenaire/partenaire.service';
+import { SocietePartenaireResponse } from '../../partenaire/partenaire.model';
 
 @Component({
   selector: 'app-mission-form',
@@ -27,12 +29,23 @@ export class MissionFormComponent implements OnInit {
 
   vehicules: VehiculeResponse[] = [];
   chauffeurs: { id: number; nom: string; prenom: string }[] = [];
+  partenaires: SocietePartenaireResponse[] = [];
   letterFile: File | null = null;
+
+  // IA extraction
+  aiFile: File | null = null;
+  aiPreviewUrl: string | null = null;
+  aiLoading = false;
+
+  get isSubcontracted(): boolean {
+    return this.form?.get('modeExecution')?.value === 'SUBCONTRACTED';
+  }
 
   constructor(
     private fb: FormBuilder,
     private missionService: MissionService,
     private fleetService: FleetService,
+    private partenaireService: PartenaireService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -67,8 +80,13 @@ export class MissionFormComponent implements OnInit {
     this.form = this.fb.group({
       title:             ['', [Validators.required, Validators.maxLength(200)]],
       clientId:          [null],
-      vehiculeId:        [null, Validators.required],
-      chauffeurIds:      [[], Validators.required],
+      modeExecution:     ['INTERNAL'],
+      vehiculeId:        [null],
+      chauffeurIds:      [[]],
+      partenaireId:      [null],
+      tauxCommission:    [null],
+      externeCamion:     [''],
+      externeChauffeur:  [''],
       departureLocation: ['', Validators.required],
       arrivalLocation:   ['', Validators.required],
       plannedDeparture:  [this.getNowDateTimeLocal(), Validators.required],
@@ -80,6 +98,7 @@ export class MissionFormComponent implements OnInit {
 
     this.loadVehicules();
     this.loadChauffeurs();
+    this.loadPartenaires();
 
     this.route.params.subscribe(p => {
       if (p['id']) {
@@ -104,13 +123,25 @@ export class MissionFormComponent implements OnInit {
     });
   }
 
+  private loadPartenaires(): void {
+    this.partenaireService.findAllActive().subscribe({
+      next: (list) => this.partenaires = list,
+      error: () => this.snackBar.open('Erreur chargement partenaires', 'Fermer', { duration: 3000 })
+    });
+  }
+
   private loadMission(id: number): void {
     this.missionService.findById(id).subscribe({
       next: m => this.form.patchValue({
         title:             (m as any).title ?? '',
         clientId:          (m as any).clientId ?? null,
+        modeExecution:     m.modeExecution ?? 'INTERNAL',
         vehiculeId:        m.vehiculeId,
         chauffeurIds:      m.chauffeurIds,
+        partenaireId:      m.partenaireId ?? null,
+        tauxCommission:    m.tauxCommission ?? null,
+        externeCamion:     m.externeCamion ?? '',
+        externeChauffeur:  m.externeChauffeur ?? '',
         departureLocation: (m as any).departureLocation ?? '',
         arrivalLocation:   (m as any).arrivalLocation ?? m.destination ?? '',
         plannedDeparture:  m.plannedDeparture?.slice(0, 16),
@@ -136,6 +167,7 @@ export class MissionFormComponent implements OnInit {
     if (input) input.value = '';
   }
 
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessage = null;
@@ -151,8 +183,13 @@ export class MissionFormComponent implements OnInit {
     const request: MissionRequest = {
       title:             fv.title,
       clientId:          fv.clientId || undefined,
-      vehiculeId:        fv.vehiculeId,
-      chauffeurIds:      fv.chauffeurIds,
+      modeExecution:     fv.modeExecution,
+      vehiculeId:        fv.vehiculeId || undefined,
+      chauffeurIds:      fv.chauffeurIds || [],
+      partenaireId:      fv.partenaireId || undefined,
+      tauxCommission:    fv.tauxCommission ?? undefined,
+      externeCamion:     fv.externeCamion || undefined,
+      externeChauffeur:  fv.externeChauffeur || undefined,
       departureLocation: fv.departureLocation,
       arrivalLocation:   fv.arrivalLocation,
       plannedDeparture:  fv.plannedDeparture,
@@ -232,5 +269,52 @@ export class MissionFormComponent implements OnInit {
   isChauffeurSelected(id: number): boolean {
     const current = this.form.get('chauffeurIds')?.value as number[] || [];
     return current.includes(id);
+  }
+
+  onAiFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.aiFile = file;
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => (this.aiPreviewUrl = reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      this.aiPreviewUrl = null;
+    }
+    // reset input so same file can be re-selected
+    (event.target as HTMLInputElement).value = '';
+  }
+
+  removeAiFile(): void {
+    this.aiFile = null;
+    this.aiPreviewUrl = null;
+  }
+
+  extractData(): void {
+    if (!this.aiFile) return;
+    this.aiLoading = true;
+    this.snackBar.open("L'IA analyse votre document...", '', { duration: 4000 });
+    this.missionService.extractMissionData(this.aiFile).subscribe({
+      next: (data) => {
+        this.aiLoading = false;
+        this.snackBar.open('Données extraites avec succès !', 'Fermer', { duration: 3000 });
+        const patch: any = {};
+        if (data.title)             patch.title             = data.title;
+        if (data.departureLocation) patch.departureLocation = data.departureLocation;
+        if (data.arrivalLocation)   patch.arrivalLocation   = data.arrivalLocation;
+        if (data.plannedDeparture)  patch.plannedDeparture  = data.plannedDeparture.slice(0, 16);
+        if (data.plannedReturn)     patch.plannedReturn     = data.plannedReturn.slice(0, 16);
+        if (data.revenue != null)   patch.revenue           = data.revenue;
+        if (data.cargoDescription)  patch.cargoDescription  = data.cargoDescription;
+        if (data.notes)             patch.notes             = data.notes;
+        this.form.patchValue(patch);
+      },
+      error: () => {
+        this.aiLoading = false;
+        this.snackBar.open("Erreur lors de l'extraction IA", 'Fermer', { duration: 5000 });
+      }
+    });
   }
 }

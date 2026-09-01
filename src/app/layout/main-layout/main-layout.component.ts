@@ -41,6 +41,7 @@ export class MainLayoutComponent implements OnInit {
         { label: 'Véhicules', route: '/fleet/vehicules', icon: 'directions_car' },
         { label: 'Chauffeurs', route: '/fleet/chauffeurs', icon: 'badge' },
         { label: 'Missions', route: '/fleet/missions', icon: 'alt_route' },
+        { label: 'Partenaires', route: '/fleet/partenaires', icon: 'handshake' },
         { label: 'Carburant', route: '/fleet/fuel-fillings', icon: 'local_gas_station' },
         { label: 'Entretien', route: '/fleet/maintenances', icon: 'build' },
         { label: 'Pièces détachées', route: '/fleet/pieces-rechange', icon: 'extension' }

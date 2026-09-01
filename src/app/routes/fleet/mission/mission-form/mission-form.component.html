@@ -48,23 +48,62 @@
                  [class.error]="submitted && form.get('title')?.invalid"/>
         </div>
 
-        <div class="fl-field">
-          <label>Véhicule *</label>
-          <select formControlName="vehiculeId"
-                  [class.error]="submitted && form.get('vehiculeId')?.invalid">
-            <option [ngValue]="null">— Sélectionner —</option>
-            <option *ngFor="let v of vehicules" [value]="v.id">
-              {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
-            </option>
-          </select>
+        <!-- Mode d'exécution -->
+        <div class="fl-field fl-field--full">
+          <label>Mode d'exécution</label>
+          <div class="mode-toggle">
+            <button type="button" class="mode-btn" [class.active]="!isSubcontracted"
+                    (click)="form.patchValue({modeExecution:'INTERNAL'})">
+              <mat-icon>local_shipping</mat-icon> Flotte propre
+            </button>
+            <button type="button" class="mode-btn" [class.active]="isSubcontracted"
+                    (click)="form.patchValue({modeExecution:'SUBCONTRACTED'})">
+              <mat-icon>handshake</mat-icon> Sous-traitance
+            </button>
+          </div>
         </div>
 
-        <div class="fl-field chauffeur-dropdown-wrapper" style="position: relative;">
+        <!-- Véhicule (uniquement si INTERNAL) -->
+        <ng-container *ngIf="!isSubcontracted">
+          <div class="fl-field">
+            <label>Véhicule *</label>
+            <select formControlName="vehiculeId">
+              <option [ngValue]="null">— Sélectionner —</option>
+              <option *ngFor="let v of vehicules" [value]="v.id">
+                {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+              </option>
+            </select>
+          </div>
+        </ng-container>
+
+        <!-- Champs sous-traitance (uniquement si SUBCONTRACTED) -->
+        <ng-container *ngIf="isSubcontracted">
+          <div class="fl-field">
+            <label>Société partenaire *</label>
+            <select formControlName="partenaireId">
+              <option [ngValue]="null">— Sélectionner un partenaire —</option>
+              <option *ngFor="let p of partenaires" [value]="p.id">{{ p.nom }}</option>
+            </select>
+          </div>
+          <div class="fl-field">
+            <label>Commission (%)</label>
+            <input type="number" step="0.01" min="0" max="100" formControlName="tauxCommission" placeholder="Ex: 10"/>
+          </div>
+          <div class="fl-field">
+            <label>Camion du partenaire</label>
+            <input formControlName="externeCamion" placeholder="Immatriculation ou identifiant"/>
+          </div>
+          <div class="fl-field">
+            <label>Chauffeur du partenaire</label>
+            <input formControlName="externeChauffeur" placeholder="Nom / Téléphone"/>
+          </div>
+        </ng-container>
+
+        <div *ngIf="!isSubcontracted" class="fl-field chauffeur-dropdown-wrapper" style="position: relative;">
           <label>Chauffeurs *</label>
           <!-- Trigger button -->
           <div class="chauffeur-trigger"
                (click)="toggleDropdown($event)"
-               [class.error]="submitted && form.get('chauffeurIds')?.invalid"
                style="display: flex; align-items: center; justify-content: space-between;
                       border: 1px solid #d1d5db; border-radius: 6px; padding: 0 12px;
                       height: 40px; cursor: pointer; background: white; font-size: 14px;
@@ -127,25 +166,52 @@
           <input type="number" step="0.001" formControlName="revenue" min="0" placeholder="Ex: 450.00"/>
         </div>
 
-        <!-- Lettre de mission -->
+        <!-- Lettre de mission + Extraction IA -->
         <div class="fl-field fl-field--full">
-          <label>Lettre de mission (PDF, image…)</label>
-          <div class="fl-upload-zone" [class.has-file]="!!letterFile">
-            <input type="file" id="letterInput" accept=".pdf,image/*,.doc,.docx"
-                   (change)="onLetterSelected($event)" hidden />
+          <label>Document de mission (PDF, image…)</label>
+          <div class="fl-upload-zone" [class.has-file]="!!aiFile">
+            <!-- Inputs cachés -->
+            <input type="file" id="aiFileInput"   accept=".pdf,image/*,.doc,.docx" (change)="onAiFileSelected($event)" hidden />
+            <input type="file" id="aiCameraInput" accept="image/*" capture="environment" (change)="onAiFileSelected($event)" hidden />
+            <input type="file" id="letterInput"   accept=".pdf,image/*,.doc,.docx" (change)="onLetterSelected($event)" hidden />
 
-            <ng-container *ngIf="!letterFile">
-              <label for="letterInput" class="fl-btn fl-btn-ghost file-btn" style="cursor:pointer;">
-                <mat-icon style="vertical-align:middle;margin-right:4px;">attach_file</mat-icon>
-                Joindre la lettre de mission
-              </label>
+            <!-- Boutons quand aucun fichier -->
+            <ng-container *ngIf="!aiFile && !letterFile">
+              <div class="upload-actions">
+                <label for="aiCameraInput" class="fl-btn camera-btn" title="Prendre une photo">
+                  <mat-icon style="vertical-align:middle;margin-right:4px;">photo_camera</mat-icon> Prendre une photo
+                </label>
+                <span class="upload-or">ou</span>
+                <label for="aiFileInput" class="fl-btn fl-btn-ghost file-btn" title="Choisir un fichier">
+                  <mat-icon style="vertical-align:middle;margin-right:4px;">attach_file</mat-icon> Parcourir
+                </label>
+              </div>
             </ng-container>
 
-            <span *ngIf="letterFile" class="fl-file-name">
-              <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">description</mat-icon>
-              {{ letterFile.name }}
-              <button type="button" class="fl-file-remove" (click)="removeLetterFile()" title="Supprimer">✕</button>
-            </span>
+            <!-- Fichier sélectionné pour extraction IA -->
+            <ng-container *ngIf="aiFile">
+              <span class="fl-file-name">
+                <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">image</mat-icon>
+                {{ aiFile.name }}
+                <button type="button" class="fl-file-remove" (click)="removeAiFile()" title="Supprimer">✕</button>
+              </span>
+              <div style="margin-top:10px;">
+                <button type="button" class="fl-btn fl-btn-primary" (click)="extractData()" [disabled]="aiLoading" style="width:100%;">
+                  <mat-icon style="vertical-align:middle;margin-right:4px;">auto_awesome</mat-icon>
+                  {{ aiLoading ? 'Analyse en cours…' : "Extraire avec l'IA" }}
+                </button>
+              </div>
+              <img *ngIf="aiPreviewUrl" [src]="aiPreviewUrl" alt="Aperçu" class="fl-preview-img" style="margin-top:10px;max-height:150px;"/>
+            </ng-container>
+
+            <!-- Lettre jointe séparément -->
+            <ng-container *ngIf="!aiFile && letterFile">
+              <span class="fl-file-name">
+                <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">description</mat-icon>
+                {{ letterFile.name }}
+                <button type="button" class="fl-file-remove" (click)="removeLetterFile()" title="Supprimer">✕</button>
+              </span>
+            </ng-container>
           </div>
         </div>
 
