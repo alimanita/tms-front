@@ -47,6 +47,7 @@ export class MissionListComponent implements OnInit {
   filterStatut: StatutMission | '' = '';
   filterDateDebut = '';
   filterDateFin = '';
+  filterMode: 'ALL' | 'INTERNAL' | 'SUBCONTRACTED' = 'ALL';
 
   // ── Multi-select chauffeur ──────────────────────────────────────────
   chauffeurs: { id: number; nom: string }[] = [];
@@ -280,6 +281,8 @@ export class MissionListComponent implements OnInit {
   private applyClientFilters(list: MissionResponse[]): MissionResponse[] {
     return list.filter(m => {
       if (this.filterStatut && m.statut !== this.filterStatut) return false;
+      if (this.filterMode === 'INTERNAL' && (m as any).modeExecution === 'SUBCONTRACTED') return false;
+      if (this.filterMode === 'SUBCONTRACTED' && (m as any).modeExecution !== 'SUBCONTRACTED') return false;
       if (this.selectedChauffeurIds.length) {
         if (!m.chauffeurIds || !m.chauffeurIds.some(id => this.selectedChauffeurIds.includes(id))) {
           return false;
@@ -448,6 +451,7 @@ private updateMissionInList(updated: MissionResponse): void {
     this.filterStatut = '';
     this.filterDateDebut = '';
     this.filterDateFin = '';
+    this.filterMode = 'ALL';
     this.selectedChauffeurIds = [];
     this.selectedVehiculeIds = [];
     this.chauffeurSearch = '';

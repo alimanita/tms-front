@@ -117,6 +117,18 @@
   </div>
 
   <div class="filter-group">
+    <label class="filter-label">Exécution</label>
+    <div class="filter-select-wrapper">
+      <select class="filter-select" [(ngModel)]="filterMode" (change)="onFilterChange()">
+        <option value="ALL">Toutes les missions</option>
+        <option value="INTERNAL">Flotte propre</option>
+        <option value="SUBCONTRACTED">Sous-traitance</option>
+      </select>
+      <mat-icon class="select-chevron">expand_more</mat-icon>
+    </div>
+  </div>
+
+  <div class="filter-group">
     <label class="filter-label">Du</label>
     <div class="filter-date-wrapper">
       <mat-icon class="date-icon">event</mat-icon>
