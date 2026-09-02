@@ -84,7 +84,12 @@
       <div class="fl-field fl-field--full">
   <label>Justificatif (photo, reçu scanné…)</label>
 
-  <div class="fl-upload-zone" [class.has-file]="!!selectedFile">
+  <div class="fl-upload-zone" 
+       [class.has-file]="!!selectedFile"
+       [class.drag-over]="isDragging"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
     <input type="file" id="proofFile" accept="image/*,.pdf" (change)="onFileSelected($event)" hidden/>
     <!-- Input spécifique pour forcer l'appareil photo sur mobile -->
     <input type="file" id="proofCamera" accept="image/*" capture="environment" (change)="onFileSelected($event)" hidden/>
@@ -98,6 +103,9 @@
         <label for="proofFile" class="fl-btn fl-btn-ghost file-btn" title="Choisir un fichier">
           <mat-icon style="vertical-align: middle; margin-right: 4px;">attach_file</mat-icon> Parcourir
         </label>
+      </div>
+      <div style="text-align: center; margin-top: 12px; font-size: 0.85rem; color: #6b7280;">
+        Vous pouvez aussi <strong>glisser-déposer</strong> un fichier ici ou faire <strong>Ctrl+V</strong> pour coller une image (ex: depuis WhatsApp Web).
       </div>
     </ng-container>
 

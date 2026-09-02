@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -168,14 +168,56 @@ export class FuelFormComponent implements OnInit {
 
   onCancel(): void { this.router.navigate(['/fleet/fuel-fillings']); }
 
+  isDragging = false;
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (!file) return;
+    if (file) {
+      this.handleFile(file);
+    }
+  }
 
-    // On garde le fichier d'origine tel quel. Le service gérera le nom.
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const newFile = new File([file], `carburant_colle_${new Date().getTime()}.png`, { type: file.type });
+          this.handleFile(newFile);
+          break;
+        }
+      }
+    }
+  }
+
+  handleFile(file: File): void {
     this.selectedFile = file;
-
     if (this.selectedFile.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = () => (this.previewUrl = reader.result as string);
@@ -183,8 +225,6 @@ export class FuelFormComponent implements OnInit {
     } else {
       this.previewUrl = null;
     }
-
-    // Réinitialise les deux inputs pour éviter les conflits lors d'une 2ème sélection
     (document.getElementById('proofFile') as HTMLInputElement | null)?.value !== undefined &&
       ((document.getElementById('proofFile') as HTMLInputElement).value = '');
     (document.getElementById('proofCamera') as HTMLInputElement | null)?.value !== undefined &&

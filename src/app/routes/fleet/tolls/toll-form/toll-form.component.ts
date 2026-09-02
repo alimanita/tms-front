@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -57,11 +57,55 @@ export class TollFormComponent implements OnInit {
     // Optionnel : charger les missions en cours
   }
 
+  isDragging = false;
+
   onFileSelected(event: any): void {
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     if (file) {
-      this.selectedFile = file;
+      this.handleFile(file);
     }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const newFile = new File([file], `peage_colle_${new Date().getTime()}.png`, { type: file.type });
+          this.handleFile(newFile);
+          break;
+        }
+      }
+    }
+  }
+
+  handleFile(file: File): void {
+    this.selectedFile = file;
   }
 
   extractData(): void {

@@ -12,7 +12,54 @@
   </div>
 </div>
 
-<!-- Modal Lettre de mission -->
+  <!-- Hidden file input for uploading letter from list -->
+  <input type="file" #letterFileInput style="display: none" (change)="onLetterFileSelected($event)" accept=".pdf,image/*">
+
+  <!-- Modal Upload Lettre de mission -->
+  <div class="fl-modal-overlay" *ngIf="uploadModalOpen" (click)="closeUploadModal()">
+    <div class="fl-modal" (click)="$event.stopPropagation()" style="max-width: 500px; padding: 24px;">
+      <div class="fl-modal-header" style="margin-bottom: 20px;">
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #1f2937;">Joindre une lettre de mission</h3>
+        <button class="fl-modal-close" (click)="closeUploadModal()" style="background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer;">&times;</button>
+      </div>
+
+      <div class="fl-modal-body">
+        <div class="fl-upload-zone" 
+             style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 32px; text-align: center; background-color: #f9fafb; cursor: pointer; transition: all 0.2s ease;"
+             [class.has-file]="!!selectedUploadFile"
+             [style.border-color]="isDragging ? '#3b82f6' : '#d1d5db'"
+             [style.background-color]="isDragging ? '#eff6ff' : '#f9fafb'"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             (click)="letterFileInput.click()">
+             
+          <ng-container *ngIf="!selectedUploadFile">
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #9ca3af; margin-bottom: 16px;">cloud_upload</mat-icon>
+            <div style="font-size: 1rem; color: #4b5563; margin-bottom: 8px;">
+              Cliquez pour <strong>parcourir</strong> ou
+            </div>
+            <div style="font-size: 0.85rem; color: #6b7280;">
+              <strong>glissez-déposez</strong> un fichier ici, ou faites <strong>Ctrl+V</strong> pour coller une image.
+            </div>
+          </ng-container>
+
+          <div *ngIf="selectedUploadFile" style="display: flex; flex-direction: column; align-items: center;">
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #10b981; margin-bottom: 16px;">check_circle</mat-icon>
+            <strong style="color: #1f2937; word-break: break-all;">{{ selectedUploadFile.name }}</strong>
+            <span style="color: #6b7280; font-size: 0.875rem; margin-top: 4px;">Fichier prêt à être envoyé</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fl-modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="fl-btn fl-btn-ghost" style="background:#f1f5f9; color:#374151; border-radius:8px; padding:8px 16px; border:none; cursor:pointer;" (click)="closeUploadModal()">Annuler</button>
+        <button class="fl-btn fl-btn-primary" style="background:#3b82f6; color:white; border-radius:8px; padding:8px 16px; border:none; cursor:pointer;" [disabled]="!selectedUploadFile" (click)="confirmUploadLetter()">Joindre</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Lettre de mission (View) -->
 <div class="fl-modal-overlay" *ngIf="letterModalOpen" (click)="closeLetterModal()">
   <div class="fl-modal" (click)="$event.stopPropagation()">
     <div class="fl-modal-header">
@@ -303,10 +350,15 @@
         <td class="col-letter">
           <div class="fl-actions">
             <ng-container *ngIf="m.letterMissionUrl; else noLetter">
-              <button class="fl-btn fl-btn-ghost" (click)="viewLetter(m)" title="Voir">👁</button>
+              <button class="fl-btn fl-btn-ghost" (click)="viewLetter(m)" title="Voir">👀</button>
               <button class="fl-btn fl-btn-ghost" (click)="downloadLetter(m)" title="Télécharger">⬇</button>
             </ng-container>
-            <ng-template #noLetter><span class="text-muted">—</span></ng-template>
+            <ng-template #noLetter>
+              <button class="fl-btn fl-btn-ghost" *ngIf="m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS; else justDash" (click)="triggerUploadLetter(m.id)" title="Joindre">
+                <mat-icon style="font-size:16px;width:16px;height:16px;color:#3b82f6;">attach_file</mat-icon>
+              </button>
+              <ng-template #justDash><span class="text-muted">—</span></ng-template>
+            </ng-template>
           </div>
         </td>
 

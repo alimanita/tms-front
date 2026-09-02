@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -144,6 +144,93 @@ export class MissionListComponent implements OnInit {
   private letterBlobUrl: string | null = null;
   private currentLetterMission: MissionResponse | null = null;
 
+  @ViewChild('letterFileInput') letterFileInput!: ElementRef<HTMLInputElement>;
+  uploadModalOpen = false;
+  isDragging = false;
+  selectedUploadFile: File | null = null;
+  private missionIdForUpload: number | null = null;
+
+  triggerUploadLetter(missionId: number): void {
+    this.missionIdForUpload = missionId;
+    this.uploadModalOpen = true;
+    this.selectedUploadFile = null;
+    this.isDragging = false;
+  }
+
+  closeUploadModal(): void {
+    this.uploadModalOpen = false;
+    this.selectedUploadFile = null;
+    this.missionIdForUpload = null;
+  }
+
+  onLetterFileSelected(event: any): void {
+    const file = event.target.files?.[0];
+    if (file) this.handleUploadFile(file);
+  }
+
+  onDragOver(event: DragEvent): void {
+    if (!this.uploadModalOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    if (!this.uploadModalOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    if (!this.uploadModalOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleUploadFile(files[0]);
+    }
+  }
+
+  @HostListener('window:paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
+    if (!this.uploadModalOpen) return;
+    const items = event.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const file = items[i].getAsFile();
+        if (file) {
+          const newFile = new File([file], `lettre_collee_${new Date().getTime()}.png`, { type: file.type });
+          this.handleUploadFile(newFile);
+          break;
+        }
+      }
+    }
+  }
+
+  handleUploadFile(file: File): void {
+    this.selectedUploadFile = file;
+  }
+
+  confirmUploadLetter(): void {
+    if (!this.selectedUploadFile || !this.missionIdForUpload) return;
+    
+    this.loading = true;
+    this.missionService.uploadLetter(this.missionIdForUpload, this.selectedUploadFile).subscribe({
+      next: () => {
+        this.snackBar.open('Lettre de mission jointe avec succès', 'Fermer', { duration: 3000 });
+        this.closeUploadModal();
+        this.load();
+      },
+      error: () => {
+        this.loading = false;
+        this.snackBar.open('Erreur lors du téléchargement de la lettre', 'Fermer', { duration: 3000 });
+      },
+    });
+  }
+
   // ── Totaux calculés sur la page courante ─────────────────────
   get totalRevenue(): number { return this.missions.reduce((s, m) => s + (m.revenue ?? 0), 0); }
   get totalFuel():    number { return this.missions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
@@ -284,7 +371,7 @@ export class MissionListComponent implements OnInit {
       if (this.filterMode === 'INTERNAL' && (m as any).modeExecution === 'SUBCONTRACTED') return false;
       if (this.filterMode === 'SUBCONTRACTED' && (m as any).modeExecution !== 'SUBCONTRACTED') return false;
       if (this.selectedChauffeurIds.length) {
-        if (!m.chauffeurIds || !m.chauffeurIds.some(id => this.selectedChauffeurIds.includes(id))) {
+        if (!m.chauffeurs || !m.chauffeurs.some(c => this.selectedChauffeurIds.includes(c.chauffeurId))) {
           return false;
         }
       }
@@ -518,24 +605,38 @@ private updateMissionInList(updated: MissionResponse): void {
     });
   }
 
-  /** Affiche les noms des chauffeurs tronqués : "Ali Ben" ou "Ali Ben, Sara +1" */
+  /** Affiche les noms des chauffeurs tronqus : "Ali Ben" ou "Ali Ben, Sara +1" */
   getChauffeursLabel(m: MissionResponse): string {
-    const noms = (m.chauffeursNoms || '').trim();
-    if (!noms) return '—';
-    const names = noms.split(', ').map(n => n.trim()).filter(n => n.length > 0);
-    if (names.length === 0) return '—';
-    if (names.length === 1) return names[0];
-    // 2 premiers noms, puis "+N" si plus
-    const visible = names.slice(0, 2).join(', ');
-    return names.length > 2 ? `${visible} +${names.length - 2}` : visible;
+    const slots = m.chauffeurs || [];
+    if (slots.length === 0) return '-';
+    
+    // Si c'est un créneau multi-chauffeurs, afficher nom + heure
+    if (slots.length === 1) {
+        let text = slots[0].nom || '-';
+        if (slots[0].heureDebut) text += ` (dès ${this.formatTime(slots[0].heureDebut)})`;
+        return text;
+    }
+
+    const visible = slots.slice(0, 2).map(s => s.nom).join(', ');
+    return slots.length > 2 ? `${visible} +${slots.length - 2}` : visible;
   }
 
-  /** Texte du tooltip : liste numérotée de tous les chauffeurs (si >1) */
+  private formatTime(dt: string): string {
+      if (!dt) return '';
+      const d = new Date(dt);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /** Texte du tooltip : liste numrote de tous les chauffeurs (si >1) */
   getChauffeursTooltip(m: MissionResponse): string {
-    const noms = (m.chauffeursNoms || '').trim();
-    if (!noms) return '';
-    const names = noms.split(', ').map(n => n.trim()).filter(n => n.length > 0);
-    if (names.length <= 1) return '';   // pas de tooltip pour 1 seul
-    return names.map((n, i) => `${i + 1}. ${n}`).join('\n');
+    const slots = m.chauffeurs || [];
+    if (slots.length === 0) return '';
+    return slots.map((s, i) => {
+        let t = `${i + 1}. ${s.nom}`;
+        if (s.heureDebut || s.heureFin) {
+            t += ` (${s.heureDebut ? this.formatTime(s.heureDebut) : '?'} -> ${s.heureFin ? this.formatTime(s.heureFin) : '?'})`;
+        }
+        return t;
+    }).join('\n');
   }
 }

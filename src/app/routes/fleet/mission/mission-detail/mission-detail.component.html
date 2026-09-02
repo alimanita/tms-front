@@ -44,10 +44,16 @@
     <div class="detail-card">
       <h3>Informations générales</h3>
       <div class="detail-grid">
-        <div class="detail-field">
-          <label>Chauffeurs</label>
-          <span>{{ mission.chauffeursNoms || 'Chauffeurs non définis' }}</span>
-        </div>
+          <div class="detail-field">
+            <label>Chauffeurs</label>
+            <span *ngIf="!mission?.chauffeurs?.length">Chauffeurs non définis</span>
+            <div *ngFor="let c of mission?.chauffeurs" style="margin-bottom:2px;">
+              <strong>{{ c.nom }}</strong>
+              <span *ngIf="c.heureDebut || c.heureFin" style="color:#6b7280; font-size:12px; margin-left:6px;">
+                {{ c.heureDebut ? (c.heureDebut | date:'dd/MM HH:mm') : '?' }} → {{ c.heureFin ? (c.heureFin | date:'dd/MM HH:mm') : '?' }}
+              </span>
+            </div>
+          </div>
         <div class="detail-field">
           <label>Véhicule</label>
           <span>{{ mission.vehiculeRef || 'Véhicule #' + mission.vehiculeId }}</span>

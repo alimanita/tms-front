@@ -4,14 +4,21 @@ export enum StatutMission {
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
 }
+export interface ChauffeurSlot {
+  chauffeurId: number;
+  nom?: string;
+  heureDebut?: string;
+  heureFin?: string;
+}
+
 export interface MissionResponse {
   id: number;
   reference: string;
+  title: string;
   vehiculeId?: number;
   vehiculeRef?: string;
   vehiculeImmatriculation?: string;
-  chauffeurIds?: number[];
-  chauffeursNoms?: string;
+  chauffeurs?: ChauffeurSlot[];
   modeExecution?: string;
   partenaireId?: number;
   partenaireNom?: string;
@@ -21,6 +28,8 @@ export interface MissionResponse {
   externeCamion?: string;
   externeChauffeur?: string;
   statutSousTraitance?: string;
+  departureLocation?: string;
+  arrivalLocation?: string;
   destination?: string;
   motif?: string;
   statut: StatutMission;
@@ -46,7 +55,7 @@ export interface MissionRequest {
   title: string;
   clientId?: number;
   vehiculeId?: number;
-  chauffeurIds?: number[];
+  chauffeurs?: ChauffeurSlot[];
   modeExecution?: string;
   partenaireId?: number;
   tauxCommission?: number;

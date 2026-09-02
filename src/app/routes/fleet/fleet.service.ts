@@ -555,6 +555,13 @@ toggleVehicleActif(id: number): Observable<VehiculeResponse> {
   );
 }
   // Chauffeurs
+
+  // ── Partenaires ──────────────────────────────────
+  getPartenaires(pageable?: { page?: number; size?: number }): Observable<any> {
+    const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
+    return this.http.get(`${this.base}/partenaires`, { params });
+  }
+
   getChauffeurs(pageable?: { page?: number; size?: number }): Observable<any> {
     const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
     return this.http.get(`${this.base}/chauffeurs`, { params });
@@ -819,6 +826,12 @@ getDocumentFile(id: number) {
 
   deleteDocumentFlotte(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/documents/${id}`);
+  }
+
+  extractDocumentData(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    return this.http.post<any>(`${this.base}/documents/extract-ai`, formData);
   }
 
   // ── Paramètres Chauffeurs ──────────────────────────────────

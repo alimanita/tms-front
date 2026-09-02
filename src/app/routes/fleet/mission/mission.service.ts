@@ -48,6 +48,12 @@ findAll(pageIndex: number, pageSize: number) {
     return this.http.get(`${this.baseUrl}/${id}/letter`, { responseType: 'blob' });
   }
 
+  uploadLetter(id: number, file: File): Observable<MissionResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<MissionResponse>(`${this.baseUrl}/${id}/letter`, formData);
+  }
+
   soumettre(id: number): Observable<MissionResponse> {
     return this.http.patch<MissionResponse>(`${this.baseUrl}/${id}/soumettre`, {});
   }
