@@ -87,6 +87,24 @@
   </div>
 </div>
 
+<!-- Search Bar -->
+<div class="search-bar-wrapper">
+  <div class="search-input-wrap">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Rechercher par référence, titre, chauffeur, lieu…"
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onFilterChange()"
+      autocomplete="off"
+    />
+    <button *ngIf="searchQuery" class="search-clear-btn" type="button" (click)="searchQuery = ''; onFilterChange()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>
+
 <!-- Filters Bar -->
 <div class="filters-bar">
 

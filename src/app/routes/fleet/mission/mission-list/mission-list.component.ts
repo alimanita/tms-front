@@ -48,6 +48,7 @@ export class MissionListComponent implements OnInit {
   filterDateDebut = '';
   filterDateFin = '';
   filterMode: 'ALL' | 'INTERNAL' | 'SUBCONTRACTED' = 'ALL';
+  searchQuery = '';
 
   // ── Multi-select chauffeur ──────────────────────────────────────────
   chauffeurs: { id: number; nom: string }[] = [];
@@ -374,6 +375,19 @@ export class MissionListComponent implements OnInit {
 
   private applyClientFilters(list: MissionResponse[]): MissionResponse[] {
     return list.filter(m => {
+      // Recherche textuelle (référence, titre, chauffeur, lieu départ/arrivée)
+      if (this.searchQuery.trim()) {
+        const q = this.searchQuery.trim().toLowerCase();
+        const ref = (m.reference ?? '').toLowerCase();
+        const title = ((m as any).title ?? '').toLowerCase();
+        const chauffeurs = (m.chauffeurs ?? []).map((c: any) => `${c.chauffeurNom ?? ''} ${c.chauffeurPrenom ?? ''}`.toLowerCase()).join(' ');
+        const lieuDepart = ((m as any).departureLocation ?? '').toLowerCase();
+        const lieuArrivee = ((m as any).arrivalLocation ?? '').toLowerCase();
+        const client = ((m as any).clientName ?? '').toLowerCase();
+        if (!ref.includes(q) && !title.includes(q) && !chauffeurs.includes(q) && !lieuDepart.includes(q) && !lieuArrivee.includes(q) && !client.includes(q)) {
+          return false;
+        }
+      }
       if (this.filterStatut && m.statut !== this.filterStatut) return false;
       if (this.filterMode === 'INTERNAL' && (m as any).modeExecution === 'SUBCONTRACTED') return false;
       if (this.filterMode === 'SUBCONTRACTED' && (m as any).modeExecution !== 'SUBCONTRACTED') return false;
@@ -532,6 +546,7 @@ private updateMissionInList(updated: MissionResponse): void {
     this.filterDateDebut = '';
     this.filterDateFin = '';
     this.filterMode = 'ALL';
+    this.searchQuery = '';
     this.selectedChauffeurIds = [];
     this.selectedVehiculeIds = [];
     this.chauffeurSearch = '';
