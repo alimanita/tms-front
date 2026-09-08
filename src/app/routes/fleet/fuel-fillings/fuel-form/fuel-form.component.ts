@@ -41,7 +41,7 @@ export class FuelFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       vehiculeId:     [null, Validators.required],
-      chauffeurId:    [null],
+      chauffeurId:    [null, Validators.required],
       missionId:      [null],
       fillingDate:    [new Date().toISOString().slice(0, 16), Validators.required],
       fuelType:       ['DIESEL', Validators.required],
@@ -89,6 +89,7 @@ export class FuelFormComponent implements OnInit {
   next: data => {
     this.form.patchValue({
       vehiculeId: (data as any).vehiculeId,
+      chauffeurId: (data as any).chauffeurId,
       fillingDate:    data.fillingDate?.slice(0, 16),
       fuelType:       data.fuelType,
       quantityLiters: data.quantityLiters,
@@ -145,6 +146,7 @@ export class FuelFormComponent implements OnInit {
 
     const request: PleinCarburantRequest = {
       vehiculeId:     fv.vehiculeId,
+      chauffeurId:    fv.chauffeurId    ?? undefined,
       fillingDate:    fv.fillingDate,
       fuelType:       fv.fuelType,
       quantityLiters: fv.quantityLiters,

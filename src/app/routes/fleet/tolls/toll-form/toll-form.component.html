@@ -26,9 +26,9 @@
 
         <!-- Chauffeur -->
         <div class="fl-field">
-          <label>Chauffeur</label>
+          <label>Chauffeur *</label>
           <select formControlName="chauffeurId">
-            <option [ngValue]="null">— Aucun —</option>
+            <option [ngValue]="null">— Sélectionner —</option>
             <option *ngFor="let c of chauffeurs" [value]="c.id">
               {{ c.nom }} {{ c.prenom }}
             </option>

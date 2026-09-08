@@ -34,7 +34,7 @@ export class TollFormComponent implements OnInit {
   ) {
     this.peageForm = this.fb.group({
       vehiculeId: [null, Validators.required],
-      chauffeurId: [null],
+      chauffeurId: [null, Validators.required],
       missionId: [null],
       datePassage: ['', Validators.required],
       amountTTC: [null, [Validators.required, Validators.min(0.01)]],
