@@ -49,49 +49,45 @@
         </div>
 
         <!-- Mode d'exécution -->
-        <div class="fl-field fl-field--full">
+        <div class="fl-field full-width mode-selector">
           <label>Mode d'exécution</label>
-          <div class="mode-toggle">
-            <button type="button" class="mode-btn" [class.active]="!isSubcontracted"
-                    (click)="form.patchValue({modeExecution:'INTERNAL'})">
+          <div class="mode-toggle" style="display:flex; gap:10px;">
+            <button type="button" class="mode-btn" [class.active]="isInternal"
+                    (click)="form.patchValue({modeExecution:'INTERNAL'})" style="flex:1;">
               <mat-icon>local_shipping</mat-icon> Flotte propre
             </button>
             <button type="button" class="mode-btn" [class.active]="isSubcontracted"
-                    (click)="form.patchValue({modeExecution:'SUBCONTRACTED'})">
+                    (click)="form.patchValue({modeExecution:'SUBCONTRACTED'})" style="flex:1;">
               <mat-icon>handshake</mat-icon> Sous-traitance
+            </button>
+            <button type="button" class="mode-btn" [class.active]="isPartnerMission"
+                    (click)="form.patchValue({modeExecution:'PARTNER_MISSION'})" style="flex:1;">
+              <mat-icon>assignment_return</mat-icon> Mission Partenaire
             </button>
           </div>
         </div>
 
-        <!-- Véhicule (uniquement si INTERNAL) -->
-        <ng-container *ngIf="!isSubcontracted">
+        <!-- Véhicule (INTERNAL ou PARTNER_MISSION) -->
+        <ng-container *ngIf="isInternal || isPartnerMission">
           <div class="fl-field">
-            <label>Véhicule *</label>
+            <label>Véhicule <span *ngIf="isInternal">*</span></label>
             <select formControlName="vehiculeId">
-              <option [ngValue]="null">— Sélectionner —</option>
+              <option [ngValue]="null">-- Sélectionner un véhicule --</option>
               <option *ngFor="let v of vehicules" [value]="v.id">
-                {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+                {{ v.immatriculation }} - {{ v.marque }} {{ v.modele }}
               </option>
             </select>
           </div>
         </ng-container>
 
-        <!-- Champs sous-traitance (uniquement si SUBCONTRACTED) -->
-        <ng-container *ngIf="isSubcontracted">
+        <!-- Champs Partenaire (SUBCONTRACTED ou PARTNER_MISSION) -->
+        <ng-container *ngIf="isSubcontracted || isPartnerMission">
           <div class="fl-field">
             <label>Société partenaire *</label>
             <select formControlName="partenaireId">
-              <option [ngValue]="null">— Sélectionner un partenaire —</option>
+              <option [ngValue]="null">-- Sélectionner un partenaire --</option>
               <option *ngFor="let p of partenaires" [value]="p.id">{{ p.nom }}</option>
             </select>
-          </div>
-          <div class="fl-field">
-            <label>Commission (%)</label>
-            <input type="number" step="0.01" min="0" max="100" formControlName="tauxCommission" placeholder="Ex: 10"/>
-          </div>
-          <div class="fl-field">
-            <label>Camion du partenaire</label>
-            <input formControlName="externeCamion" placeholder="Immatriculation ou identifiant"/>
           </div>
           <div class="fl-field">
             <label>Chauffeur du partenaire</label>

@@ -12,6 +12,7 @@ import { MissionsReportComponent } from './reports/missions-report/missions-repo
 import { AmazonReportComponent } from './reports/amazon-report/amazon-report';
 import { FinanceStatsComponent } from './reports/finance-stats/finance-stats';
 import { ChauffeurReportComponent } from './reports/chauffeur-report/chauffeur-report';
+import { BilanExploitationComponent } from './reports/bilan-exploitation/bilan-exploitation';
 
 import { TvaReportComponent } from './tva-report/tva-report.component';
 
@@ -31,4 +32,5 @@ export const routes: Routes = [
   { path: 'finance-stats', component: FinanceStatsComponent },
   { path: 'tva-report', component: TvaReportComponent },
   { path: 'chauffeur-report', component: ChauffeurReportComponent },
+  { path: 'bilan-exploitation', component: BilanExploitationComponent },
 ];

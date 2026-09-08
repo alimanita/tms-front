@@ -232,7 +232,14 @@ export class MissionListComponent implements OnInit {
   }
 
   // ── Totaux calculés sur la page courante ─────────────────────
-  get totalRevenue(): number { return this.missions.reduce((s, m) => s + (m.revenue ?? 0), 0); }
+   get totalRevenue(): number {
+    return this.missions.reduce((s, m: any) => {
+      if (m.modeExecution === 'SUBCONTRACTED') {
+        return s + (m.montantCommission ?? 0);
+      }
+      return s + (m.revenue ?? 0);
+    }, 0);
+  }
   get totalFuel():    number { return this.missions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
   get totalToll():    number { return this.missions.reduce((s, m) => s + (m.tollCost ?? 0), 0); }
   get totalOtherExpenses(): number { return this.missions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
@@ -445,14 +452,7 @@ export class MissionListComponent implements OnInit {
   editMission(m: MissionResponse): void { this.router.navigate(['/fleet/missions', m.id, 'edit']); }
 
  demarrer(m: MissionResponse): void {
-  const input = window.prompt('Kilométrage actuel du véhicule au départ (km) :');
-  if (input === null) return; // annulé
-  const km = input.trim() ? parseFloat(input) : undefined;
-  if (km !== undefined && isNaN(km)) {
-    this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
-    return;
-  }
-  this.missionService.demarrer(m.id, km).subscribe({
+  this.missionService.demarrer(m.id, undefined).subscribe({
     next: (updated) => {
       this.updateMissionInList(updated);
       this.snackBar.open('Mission démarrée', 'Fermer', { duration: 2500 });
@@ -462,14 +462,7 @@ export class MissionListComponent implements OnInit {
 }
 
 cloturer(m: MissionResponse): void {
-  const input = window.prompt('Kilométrage actuel du véhicule au retour (km) :');
-  if (input === null) return; // annulé
-  const km = input.trim() ? parseFloat(input) : undefined;
-  if (km !== undefined && isNaN(km)) {
-    this.snackBar.open('Kilométrage invalide', 'Fermer', { duration: 3000 });
-    return;
-  }
-  this.missionService.cloturer(m.id, km).subscribe({
+  this.missionService.cloturer(m.id, undefined).subscribe({
     next: (updated) => {
       this.updateMissionInList(updated);
       this.snackBar.open('Mission clôturée', 'Fermer', { duration: 2500 });

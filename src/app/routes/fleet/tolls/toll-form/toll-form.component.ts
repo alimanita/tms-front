@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService } from '../../fleet.service';
 import { PeageRequest } from '../peage.model';
 import { MatIconModule } from '@angular/material/icon';
+import { MissionService } from '../../mission/mission.service';
 
 @Component({
   selector: 'app-toll-form',
@@ -27,6 +28,7 @@ export class TollFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private fleetService: FleetService,
+    private missionService: MissionService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -54,7 +56,7 @@ export class TollFormComponent implements OnInit {
   loadDropdowns(): void {
     this.fleetService.getVehicules({ size: 1000 }).subscribe((page: any) => this.vehicules = page.content ?? page);
     this.fleetService.getChauffeurs({ size: 1000 }).subscribe((page: any) => this.chauffeurs = page.content ?? page);
-    // Optionnel : charger les missions en cours
+    this.missionService.findAll(0, 1000).subscribe((page: any) => this.missions = page.content ?? page);
   }
 
   isDragging = false;

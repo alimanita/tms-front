@@ -70,6 +70,11 @@
       }
     ],
     "outputHashing": "all",
+    "optimization": {
+      "fonts": {
+        "inline": false
+      }
+    },
     "fileReplacements": [
       {
         "replace": "src/environments/environment.ts",

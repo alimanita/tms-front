@@ -25,6 +25,18 @@
         </div>
 
         <div class="fl-field">
+          <label>Chauffeur (Optionnel)</label>
+          <select formControlName="chauffeurId">
+            <option [ngValue]="null">-- Sélectionner --</option>
+            <option *ngFor="let c of chauffeurs" [value]="c.id">
+              {{ c.nom }} {{ c.prenom }}
+            </option>
+          </select>
+        </div>
+
+
+
+        <div class="fl-field">
           <label>Date et heure *</label>
           <input type="datetime-local" formControlName="fillingDate"
                  [class.error]="submitted && form.get('fillingDate')?.invalid"/>

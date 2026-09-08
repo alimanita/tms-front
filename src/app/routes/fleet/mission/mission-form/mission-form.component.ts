@@ -39,8 +39,16 @@ export class MissionFormComponent implements OnInit {
   errorMessage: string | null = null;
   errorDetails: string[] = [];
 
+  get isInternal(): boolean {
+    return this.form?.get('modeExecution')?.value === 'INTERNAL';
+  }
+  
   get isSubcontracted(): boolean {
     return this.form?.get('modeExecution')?.value === 'SUBCONTRACTED';
+  }
+
+  get isPartnerMission(): boolean {
+    return this.form?.get('modeExecution')?.value === 'PARTNER_MISSION';
   }
 
   constructor(

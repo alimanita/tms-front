@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, VehiculeResponse, PleinCarburantRequest } from '../../fleet.service';
+import { MissionService } from '../../mission/mission.service';
 
 import { MatIconModule } from '@angular/material/icon';
 
@@ -20,15 +21,18 @@ export class FuelFormComponent implements OnInit {
   pleinId?: number;
   loading   = false;
   submitted = false;
-  vehicules: VehiculeResponse[] = [];
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   existingProofUrl: string | null = null;
+  vehicules: VehiculeResponse[] = [];
+  chauffeurs: any[] = [];
+  missions: any[] = [];
   readonly fuelTypes = ['DIESEL', 'ESSENCE', 'GPL', 'ELECTRIQUE'];
 
   constructor(
     private fb: FormBuilder,
     private fleetService: FleetService,
+    private missionService: MissionService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -37,6 +41,8 @@ export class FuelFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       vehiculeId:     [null, Validators.required],
+      chauffeurId:    [null],
+      missionId:      [null],
       fillingDate:    [new Date().toISOString().slice(0, 16), Validators.required],
       fuelType:       ['DIESEL', Validators.required],
       quantityLiters: [null, [Validators.required, Validators.min(0.001)]],
@@ -59,6 +65,20 @@ export class FuelFormComponent implements OnInit {
         }
       },
       error: () => this.snackBar.open('Erreur chargement véhicules', 'Fermer', { duration: 3000 })
+    });
+
+    this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
+      next: (page: any) => { this.chauffeurs = page.content ?? page; }
+    });
+
+    this.missionService.findAll(0, 1000).subscribe({
+      next: (page: any) => {
+        this.missions = page.content ?? page;
+        const qpMissionId = this.route.snapshot.queryParams['missionId'];
+        if (qpMissionId && !this.isEdit) {
+          this.form.patchValue({ missionId: +qpMissionId });
+        }
+      }
     });
 
     this.route.params.subscribe(p => {

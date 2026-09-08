@@ -327,7 +327,19 @@
         </td>
 
         <td class="col-revenue" *ngIf="showTarif">
-          <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+          <!-- Mission interne : affiche le tarif complet -->
+          <ng-container *ngIf="m.modeExecution !== 'SUBCONTRACTED'">
+            <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+          </ng-container>
+          <!-- Mission sous-traitée : affiche uniquement le bénéfice (commission) -->
+          <ng-container *ngIf="m.modeExecution === 'SUBCONTRACTED'">
+            <span class="amount-ttc montant-normal" title="Bénéfice {{ m.tauxCommission }}% sur {{ m.revenue | number:'1.2-2' }}€">
+              {{ (m.montantCommission ?? 0) | number:'1.2-2' }} €
+            </span>
+            <small class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
+              (ST {{ m.tauxCommission }}% × {{ (m.revenue ?? 0) | number:'1.0-0' }}€)
+            </small>
+          </ng-container>
         </td>
 
         <td class="col-fuel" *ngIf="showCarburant">
