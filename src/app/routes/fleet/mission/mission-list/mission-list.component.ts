@@ -47,7 +47,7 @@ export class MissionListComponent implements OnInit {
   filterStatut: StatutMission | '' = '';
   filterDateDebut = '';
   filterDateFin = '';
-  filterMode: 'ALL' | 'INTERNAL' | 'SUBCONTRACTED' = 'ALL';
+  filterMode: 'ALL' | 'INTERNAL' | 'SUBCONTRACTED' | 'PARTNER_MISSION' = 'ALL';
   searchQuery = '';
 
   // ── Multi-select chauffeur ──────────────────────────────────────────
@@ -235,7 +235,7 @@ export class MissionListComponent implements OnInit {
   // ── Totaux calculés sur la page courante ─────────────────────
    get totalRevenue(): number {
     return this.missions.reduce((s, m: any) => {
-      if (m.modeExecution === 'SUBCONTRACTED') {
+      if (m.modeExecution === 'SUBCONTRACTED' || m.modeExecution === 'PARTNER_MISSION') {
         return s + (m.montantCommission ?? 0);
       }
       return s + (m.revenue ?? 0);
@@ -340,15 +340,16 @@ export class MissionListComponent implements OnInit {
     }
   }
 
+  allMissionsRaw: MissionResponse[] = [];
+
   load(): void {
     this.loading = true;
 
     if (this.isGestion) {
-      this.missionService.findAll(this.pageIndex, this.pageSize).subscribe({
+      this.missionService.findAll(0, 1000).subscribe({
         next: page => {
-          this.missions = this.applyClientFilters(page.content);
-          this.totalPages = page.totalPages;
-          this.totalElements = page.totalElements;
+          this.allMissionsRaw = page.content ?? page;
+          this.filterAndPaginate();
           this.loading = false;
         },
         error: () => {
@@ -361,9 +362,8 @@ export class MissionListComponent implements OnInit {
 
     this.missionService.findMesMissions().subscribe({
       next: (list) => {
-        this.missions = this.applyClientFilters(list);
-        this.totalElements = this.missions.length;
-        this.totalPages = 1;
+        this.allMissionsRaw = list;
+        this.filterAndPaginate();
         this.loading = false;
       },
       error: () => {
@@ -371,6 +371,17 @@ export class MissionListComponent implements OnInit {
         this.snackBar.open('Erreur lors du chargement de vos missions', 'Fermer', { duration: 3000 });
       }
     });
+  }
+
+  filterAndPaginate(): void {
+    const filtered = this.applyClientFilters(this.allMissionsRaw);
+    this.totalElements = filtered.length;
+    this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
+    if (this.pageIndex >= this.totalPages) {
+      this.pageIndex = 0;
+    }
+    const start = this.pageIndex * this.pageSize;
+    this.missions = filtered.slice(start, start + this.pageSize);
   }
 
   private applyClientFilters(list: MissionResponse[]): MissionResponse[] {
@@ -389,8 +400,12 @@ export class MissionListComponent implements OnInit {
         }
       }
       if (this.filterStatut && m.statut !== this.filterStatut) return false;
-      if (this.filterMode === 'INTERNAL' && (m as any).modeExecution === 'SUBCONTRACTED') return false;
-      if (this.filterMode === 'SUBCONTRACTED' && (m as any).modeExecution !== 'SUBCONTRACTED') return false;
+      if (this.filterMode !== 'ALL') {
+        const mode = (m as any).modeExecution ?? 'INTERNAL';
+        if (this.filterMode === 'INTERNAL' && mode !== 'INTERNAL') return false;
+        if (this.filterMode === 'SUBCONTRACTED' && mode !== 'SUBCONTRACTED') return false;
+        if (this.filterMode === 'PARTNER_MISSION' && mode !== 'PARTNER_MISSION') return false;
+      }
       if (this.selectedChauffeurIds.length) {
         if (!m.chauffeurs || !m.chauffeurs.some(c => this.selectedChauffeurIds.includes(c.chauffeurId))) {
           return false;
@@ -445,7 +460,7 @@ export class MissionListComponent implements OnInit {
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.load();
+    this.filterAndPaginate();
   }
 
   get startIndex(): number { return this.pageIndex * this.pageSize; }
@@ -502,7 +517,8 @@ supprimer(m: MissionResponse): void {
   if (!confirmation) return;
   this.missionService.delete(m.id).subscribe({
     next: () => {
-      this.missions = this.missions.filter(x => x.id !== m.id);
+      this.allMissionsRaw = this.allMissionsRaw.filter(x => x.id !== m.id);
+      this.filterAndPaginate();
       this.snackBar.open('Mission supprimée avec succès', 'Fermer', { duration: 2500 });
     },
     error: (err) => this.snackBar.open(err.error?.message ?? 'Erreur lors de la suppression', 'Fermer', { duration: 3000 }),
@@ -510,11 +526,11 @@ supprimer(m: MissionResponse): void {
 }
 
 private updateMissionInList(updated: MissionResponse): void {
-  const index = this.missions.findIndex(m => m.id === updated.id);
+  const index = this.allMissionsRaw.findIndex(m => m.id === updated.id);
   if (index !== -1) {
-    this.missions[index] = updated;
-    this.missions = [...this.missions]; // nouvelle référence pour déclencher le re-render
+    this.allMissionsRaw[index] = updated;
   }
+  this.filterAndPaginate();
 }
   getStatusClass(s: StatutMission): string {
     const map: Record<StatutMission, string> = {
@@ -537,7 +553,7 @@ private updateMissionInList(updated: MissionResponse): void {
 
   onFilterChange(): void {
     this.pageIndex = 0;
-    this.load();
+    this.filterAndPaginate();
   }
 
   resetFilters(): void {

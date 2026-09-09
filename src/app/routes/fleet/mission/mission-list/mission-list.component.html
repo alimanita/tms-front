@@ -187,7 +187,8 @@
       <select class="filter-select" [(ngModel)]="filterMode" (change)="onFilterChange()">
         <option value="ALL">Toutes les missions</option>
         <option value="INTERNAL">Flotte propre</option>
-        <option value="SUBCONTRACTED">Sous-traitance</option>
+        <option value="SUBCONTRACTED">Sous-traitance (confiée)</option>
+        <option value="PARTNER_MISSION">Partenaire (reçue)</option>
       </select>
       <mat-icon class="select-chevron">expand_more</mat-icon>
     </div>
@@ -346,7 +347,7 @@
 
         <td class="col-revenue" *ngIf="showTarif">
           <!-- Mission interne : affiche le tarif complet -->
-          <ng-container *ngIf="m.modeExecution !== 'SUBCONTRACTED'">
+          <ng-container *ngIf="m.modeExecution === 'INTERNAL' || !m.modeExecution">
             <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
           </ng-container>
           <!-- Mission sous-traitée : affiche uniquement le bénéfice (commission) -->
@@ -356,6 +357,15 @@
             </span>
             <small class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
               (ST {{ m.tauxCommission }}% × {{ (m.revenue ?? 0) | number:'1.0-0' }}€)
+            </small>
+          </ng-container>
+          <!-- Mission partenaire (reçue) : tarif net après déduction du pourcentage partenaire -->
+          <ng-container *ngIf="m.modeExecution === 'PARTNER_MISSION'">
+            <span class="amount-ttc montant-normal" title="Tarif net (-{{ m.tauxCommission }}%) sur {{ m.revenue | number:'1.2-2' }}€">
+              {{ (m.montantCommission ?? 0) | number:'1.2-2' }} €
+            </span>
+            <small class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
+              ({{ (m.revenue ?? 0) | number:'1.0-0' }}€ - {{ m.tauxCommission }}%)
             </small>
           </ng-container>
         </td>
