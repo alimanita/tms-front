@@ -1,33 +1,35 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
-    <h2 class="fleet-title">Pleins carburant</h2>
-    <div class="fl-topbar-actions">
-      <div class="fl-filters">
-        <select class="fl-select" [(ngModel)]="selectedVehiculeId" (change)="onFilterChange()">
-          <option value="">Tous les véhicules</option>
-          <option *ngFor="let v of vehicules" [value]="v.id">
-            {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
-          </option>
-        </select>
-        
-        <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
-          <option value="">Tous les chauffeurs</option>
-          <option *ngFor="let c of chauffeurs" [value]="c.id">
-            {{ c.nom }} {{ c.prenom }}
-          </option>
-        </select>
-
-        <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
-        <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
-        
-        <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
-          <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
-        </button>
+    <div class="fleet-header-row">
+      <h2 class="fleet-title">Pleins carburant</h2>
+      <div class="fl-action-buttons">
+        <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
+        <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
+        <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
       </div>
+    </div>
+
+    <div class="fl-filters">
+      <select class="fl-select" [(ngModel)]="selectedVehiculeId" (change)="onFilterChange()">
+        <option value="">Tous les véhicules</option>
+        <option *ngFor="let v of vehicules" [value]="v.id">
+          {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+        </option>
+      </select>
       
-      <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
-      <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
-      <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Ajouter</button>
+      <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
+        <option value="">Tous les chauffeurs</option>
+        <option *ngFor="let c of chauffeurs" [value]="c.id">
+          {{ c.nom }} {{ c.prenom }}
+        </option>
+      </select>
+
+      <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
+      <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
+      
+      <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
+      </button>
     </div>
   </div>
 
