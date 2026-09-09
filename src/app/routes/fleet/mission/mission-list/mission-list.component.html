@@ -233,7 +233,7 @@
           <input type="checkbox" class="table-checkbox"
                  [checked]="allSelected" (change)="toggleAll($event)">
         </th>
-        <th class="col-ref">Référence</th>
+        <th class="col-ref">Titre</th>
         <th class="col-client">Exécution</th>
         <th class="col-date sort-th" (click)="sortBy('plannedDeparture')">
           Départ prévu
@@ -298,7 +298,7 @@
         </td>
 
         <td class="col-ref">
-          <span class="ref-link" (click)="openDetail(m)">{{ m.reference }}</span>
+          <span class="ref-link" (click)="openDetail(m)" [title]="'Réf: ' + m.reference">{{ m.title || m.reference }}</span>
         </td>
 
         <td class="col-client">
