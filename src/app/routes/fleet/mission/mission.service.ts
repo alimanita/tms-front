@@ -44,6 +44,10 @@ findAll(pageIndex: number, pageSize: number) {
     return this.http.put<MissionResponse>(`${this.baseUrl}/${id}`, formData);
   }
 
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
   downloadLetterBlob(id: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/${id}/letter`, { responseType: 'blob' });
   }

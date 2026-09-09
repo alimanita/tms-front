@@ -435,6 +435,11 @@
               <span>Annuler</span>
             </button>
 
+            <button mat-menu-item *ngIf="isAdmin" (click)="supprimer(m)">
+              <mat-icon class="menu-icon icon-delete" style="color: #ef4444;">delete</mat-icon>
+              <span style="color: #ef4444;">Supprimer</span>
+            </button>
+
           </mat-menu>
         </td>
 

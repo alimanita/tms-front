@@ -11,6 +11,7 @@ import { PeageResponse } from '../peage.model';
 import { jsPDF } from 'jspdf';
 import { PaginationBarComponent, PageChangeEvent } from '../../../../shared/components/pagination-bar/pagination-bar.component';
 import { PaginatePipe } from '../../../../shared/pipes/paginate.pipe';
+import { isAdminRole } from 'app/core/authentication/helpers';
 
 @Component({
   selector: 'app-toll-list',
@@ -20,6 +21,7 @@ import { PaginatePipe } from '../../../../shared/pipes/paginate.pipe';
   styleUrls: ['./toll-list.component.scss'],
 })
 export class TollListComponent implements OnInit {
+  isAdmin = isAdminRole();
   allTolls: PeageResponse[] = [];
   tolls: PeageResponse[] = [];
   vehicules: VehiculeResponse[] = [];

@@ -134,7 +134,7 @@ export class MissionListComponent implements OnInit {
   // ── Sélection ──────────────────────────────────────────────────────────
   selectedRows = new Set<number>();
   allSelected = false;
-  isAdmin = false;
+  isAdmin = isAdminRole();
   readonly statut = StatutMission;
 
   // ── Modal Lettre de mission ──────────────────────────────────
@@ -497,18 +497,17 @@ annuler(m: MissionResponse): void {
   });
 }
 
-// supprimer(m: MissionResponse): void {
-//   const confirmation = window.confirm(`Supprimer définitivement la mission ${m.reference} ?`);
-//   if (!confirmation) return;
-//   this.missionService.supprimer(m.id).subscribe({
-//     next: () => {
-//       this.missions = this.missions.filter(x => x.id !== m.id);
-//       this.totalElements--;
-//       this.snackBar.open('Mission supprimée', 'Fermer', { duration: 2500 });
-//     },
-//     error: (err) => this.snackBar.open(err.error?.message ?? 'Erreur lors de la suppression', 'Fermer', { duration: 3000 }),
-//   });
-// }
+supprimer(m: MissionResponse): void {
+  const confirmation = window.confirm(`Supprimer définitivement la mission ${m.reference} ?`);
+  if (!confirmation) return;
+  this.missionService.delete(m.id).subscribe({
+    next: () => {
+      this.missions = this.missions.filter(x => x.id !== m.id);
+      this.snackBar.open('Mission supprimée avec succès', 'Fermer', { duration: 2500 });
+    },
+    error: (err) => this.snackBar.open(err.error?.message ?? 'Erreur lors de la suppression', 'Fermer', { duration: 3000 }),
+  });
+}
 
 private updateMissionInList(updated: MissionResponse): void {
   const index = this.missions.findIndex(m => m.id === updated.id);

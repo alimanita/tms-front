@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { jsPDF } from 'jspdf';
 
 import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/pagination-bar/pagination-bar.component';
+import { isAdminRole } from 'app/core/authentication/helpers';
 
 @Component({
   selector: 'app-fuel-list',
@@ -19,6 +20,7 @@ import { PaginationBarComponent, PageChangeEvent } from 'app/shared/components/p
   styleUrls: ['./fuel-list.component.scss'],
 })
 export class FuelListComponent implements OnInit {
+  isAdmin = isAdminRole();
   allPleins: PleinCarburantResponse[] = [];
   pleins: PleinCarburantResponse[] = [];
   vehicules: VehiculeResponse[]    = [];

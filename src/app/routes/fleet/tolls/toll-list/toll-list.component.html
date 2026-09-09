@@ -89,7 +89,7 @@
       <td>
         <div class="fl-actions">
           <button class="fl-btn fl-btn-ghost" (click)="goEdit(t)" title="Modifier">✎</button>
-          <button class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer">🗑</button>
+          <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer" style="color: #ef4444;">🗑</button>
         </div>
       </td>
     </tr>
