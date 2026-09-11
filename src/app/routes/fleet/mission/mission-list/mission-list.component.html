@@ -94,7 +94,7 @@
     <input
       class="search-input"
       type="text"
-      placeholder="Rechercher par référence, titre, chauffeur, lieu…"
+      placeholder="Rechercher par référence, titre, chauffeur, lieu, tarif…"
       [(ngModel)]="searchQuery"
       (ngModelChange)="onFilterChange()"
       autocomplete="off"
@@ -250,20 +250,7 @@
           </span>
           <span class="sort-rank" *ngIf="getSortRank('revenue') && sortCriteria.length > 1">{{ getSortRank('revenue') }}</span>
         </th>
-        <th class="col-fuel sort-th" (click)="sortBy('fuelCost')" *ngIf="showCarburant">
-          Carburant
-          <span class="sort-arrow" [style.color]="getSortDirection('fuelCost') ? 'var(--primary)' : 'var(--muted)'">
-            {{ getSortDirection('fuelCost') === 'asc' ? '↑' : '↓' }}
-          </span>
-          <span class="sort-rank" *ngIf="getSortRank('fuelCost') && sortCriteria.length > 1">{{ getSortRank('fuelCost') }}</span>
-        </th>
-        <th class="col-toll sort-th" (click)="sortBy('tollCost')" *ngIf="showCout">
-          Péage
-          <span class="sort-arrow" [style.color]="getSortDirection('tollCost') ? 'var(--primary)' : 'var(--muted)'">
-            {{ getSortDirection('tollCost') === 'asc' ? '↑' : '↓' }}
-          </span>
-          <span class="sort-rank" *ngIf="getSortRank('tollCost') && sortCriteria.length > 1">{{ getSortRank('tollCost') }}</span>
-        </th>
+        <th class="col-net" *ngIf="showTarif">Tarif net</th>
         <th class="col-other" *ngIf="showCout">Autres</th>
         <th class="col-amount sort-th" (click)="sortBy('totalCost')" *ngIf="showCout">
           Coût total
@@ -346,36 +333,24 @@
         </td>
 
         <td class="col-revenue" *ngIf="showTarif">
-          <!-- Mission interne : affiche le tarif complet -->
+          <!-- Tarif brut (prix de la course avant déduction) pour tous les modes -->
+          <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+          <small *ngIf="m.modeExecution === 'SUBCONTRACTED'" class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
+            ST {{ m.tauxCommission }}%
+          </small>
+          <small *ngIf="m.modeExecution === 'PARTNER_MISSION'" class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
+            Partenaire {{ m.tauxCommission }}%
+          </small>
+        </td>
+
+        <!-- Tarif net : montant après application du % (commission/bénéfice) -->
+        <td class="col-net" *ngIf="showTarif">
+          <ng-container *ngIf="m.modeExecution === 'SUBCONTRACTED' || m.modeExecution === 'PARTNER_MISSION'">
+            <span class="amount-ttc" style="color:#10b981;font-weight:600;">{{ (m.montantCommission ?? 0) | number:'1.2-2' }} €</span>
+          </ng-container>
           <ng-container *ngIf="m.modeExecution === 'INTERNAL' || !m.modeExecution">
-            <span class="amount-ttc montant-normal">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+            <span class="text-muted">—</span>
           </ng-container>
-          <!-- Mission sous-traitée : affiche uniquement le bénéfice (commission) -->
-          <ng-container *ngIf="m.modeExecution === 'SUBCONTRACTED'">
-            <span class="amount-ttc montant-normal" title="Bénéfice {{ m.tauxCommission }}% sur {{ m.revenue | number:'1.2-2' }}€">
-              {{ (m.montantCommission ?? 0) | number:'1.2-2' }} €
-            </span>
-            <small class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
-              (ST {{ m.tauxCommission }}% × {{ (m.revenue ?? 0) | number:'1.0-0' }}€)
-            </small>
-          </ng-container>
-          <!-- Mission partenaire (reçue) : tarif net après déduction du pourcentage partenaire -->
-          <ng-container *ngIf="m.modeExecution === 'PARTNER_MISSION'">
-            <span class="amount-ttc montant-normal" title="Tarif net (-{{ m.tauxCommission }}%) sur {{ m.revenue | number:'1.2-2' }}€">
-              {{ (m.montantCommission ?? 0) | number:'1.2-2' }} €
-            </span>
-            <small class="sous-traitance-label" style="display:block;color:var(--muted);font-size:10px;">
-              ({{ (m.revenue ?? 0) | number:'1.0-0' }}€ - {{ m.tauxCommission }}%)
-            </small>
-          </ng-container>
-        </td>
-
-        <td class="col-fuel" *ngIf="showCarburant">
-          <span class="amount-ttc montant-fuel">{{ (m.fuelCost ?? 0) | number:'1.2-2' }} €</span>
-        </td>
-
-        <td class="col-toll" *ngIf="showCout">
-          <span class="amount-ttc montant-toll">{{ (m.tollCost ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
         <td class="col-other" *ngIf="showCout">
@@ -469,11 +444,8 @@
         <td class="col-revenue" *ngIf="showTarif">
           <span class="totals-amount revenue">{{ totalRevenue | number:'1.2-2' }} €</span>
         </td>
-        <td class="col-fuel" *ngIf="showCarburant">
-          <span class="totals-amount fuel">{{ totalFuel | number:'1.2-2' }} €</span>
-        </td>
-        <td class="col-toll" *ngIf="showCout">
-          <span class="totals-amount toll">{{ totalToll | number:'1.2-2' }} €</span>
+        <td class="col-net" *ngIf="showTarif">
+          <span class="totals-amount" style="color:#10b981;font-weight:600;">{{ totalNet | number:'1.2-2' }} €</span>
         </td>
         <td class="col-other" *ngIf="showCout">
           <span class="totals-amount other">{{ totalOtherExpenses | number:'1.2-2' }} €</span>

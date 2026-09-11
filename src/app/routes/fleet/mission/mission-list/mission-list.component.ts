@@ -233,18 +233,24 @@ export class MissionListComponent implements OnInit {
   }
 
   // ── Totaux calculés sur la page courante ─────────────────────
-   get totalRevenue(): number {
+  get totalRevenue(): number {
+    // Tarif brut : toujours le revenue (prix de la course avant déduction)
+    return this.missions.reduce((s, m: any) => s + (m.revenue ?? 0), 0);
+  }
+  get totalNet(): number {
+    // Tarif net : montantCommission pour ST/PARTNER, revenue pour INTERNAL
     return this.missions.reduce((s, m: any) => {
       if (m.modeExecution === 'SUBCONTRACTED' || m.modeExecution === 'PARTNER_MISSION') {
         return s + (m.montantCommission ?? 0);
       }
-      return s + (m.revenue ?? 0);
+      return s;
     }, 0);
   }
   get totalFuel():    number { return this.missions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
   get totalToll():    number { return this.missions.reduce((s, m) => s + (m.tollCost ?? 0), 0); }
   get totalOtherExpenses(): number { return this.missions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
   get totalCost():    number { return this.missions.reduce((s, m) => s + (m.totalCost ?? 0), 0); }
+
 
   // ── Multi-sort ────────────────────────────────────────────────
   sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
@@ -348,7 +354,7 @@ export class MissionListComponent implements OnInit {
     if (this.isGestion) {
       this.missionService.findAll(0, 1000).subscribe({
         next: page => {
-          this.allMissionsRaw = page.content ?? page;
+          this.allMissionsRaw = page.content ?? (Array.isArray(page) ? page : []);
           this.filterAndPaginate();
           this.loading = false;
         },
@@ -386,16 +392,23 @@ export class MissionListComponent implements OnInit {
 
   private applyClientFilters(list: MissionResponse[]): MissionResponse[] {
     return list.filter(m => {
-      // Recherche textuelle (référence, titre, chauffeur, lieu départ/arrivée)
+      // Recherche textuelle et numérique (référence, titre, chauffeur, lieu, client, tarif, commission, partenaire)
       if (this.searchQuery.trim()) {
         const q = this.searchQuery.trim().toLowerCase();
         const ref = (m.reference ?? '').toLowerCase();
         const title = ((m as any).title ?? '').toLowerCase();
-        const chauffeurs = (m.chauffeurs ?? []).map((c: any) => `${c.chauffeurNom ?? ''} ${c.chauffeurPrenom ?? ''}`.toLowerCase()).join(' ');
+        const chauffeurs = (m.chauffeurs ?? []).map((c: any) => `${c.nom ?? ''} ${c.chauffeurNom ?? ''} ${c.chauffeurPrenom ?? ''}`.toLowerCase()).join(' ');
         const lieuDepart = ((m as any).departureLocation ?? '').toLowerCase();
         const lieuArrivee = ((m as any).arrivalLocation ?? '').toLowerCase();
         const client = ((m as any).clientName ?? '').toLowerCase();
-        if (!ref.includes(q) && !title.includes(q) && !chauffeurs.includes(q) && !lieuDepart.includes(q) && !lieuArrivee.includes(q) && !client.includes(q)) {
+        const partenaire = ((m as any).partenaireNom ?? '').toLowerCase();
+        const revenue = (m.revenue != null ? String(m.revenue) : '').toLowerCase();
+        const commission = (m.montantCommission != null ? String(m.montantCommission) : '').toLowerCase();
+        
+        const matchText = ref.includes(q) || title.includes(q) || chauffeurs.includes(q) || 
+                          lieuDepart.includes(q) || lieuArrivee.includes(q) || client.includes(q) || 
+                          partenaire.includes(q) || revenue.includes(q) || commission.includes(q);
+        if (!matchText) {
           return false;
         }
       }
@@ -460,7 +473,11 @@ export class MissionListComponent implements OnInit {
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.filterAndPaginate();
+    if (this.isGestion) {
+      this.load();
+    } else {
+      this.filterAndPaginate();
+    }
   }
 
   get startIndex(): number { return this.pageIndex * this.pageSize; }
@@ -553,7 +570,11 @@ private updateMissionInList(updated: MissionResponse): void {
 
   onFilterChange(): void {
     this.pageIndex = 0;
-    this.filterAndPaginate();
+    if (this.isGestion) {
+      this.load();
+    } else {
+      this.filterAndPaginate();
+    }
   }
 
   resetFilters(): void {

@@ -22,6 +22,39 @@ findAll(pageIndex: number, pageSize: number) {
   );
 }
 
+findAllFiltered(params: {
+  page?: number;
+  size?: number;
+  statut?: string;
+  modeExecution?: string;
+  chauffeurIds?: number[];
+  vehiculeIds?: number[];
+  dateDebut?: string;
+  dateFin?: string;
+  search?: string;
+}): Observable<PageResponse<MissionResponse>> {
+  let httpParams = new HttpParams()
+    .set('page', String(params.page ?? 0))
+    .set('size', String(params.size ?? 10));
+
+  if (params.statut)        httpParams = httpParams.set('statut', params.statut);
+  if (params.modeExecution) httpParams = httpParams.set('modeExecution', params.modeExecution);
+  if (params.dateDebut)     httpParams = httpParams.set('dateDebut', params.dateDebut);
+  if (params.dateFin)       httpParams = httpParams.set('dateFin', params.dateFin);
+  if (params.search)        httpParams = httpParams.set('search', params.search);
+  for (const id of params.chauffeurIds ?? []) {
+    httpParams = httpParams.append('chauffeurIds', String(id));
+  }
+  for (const id of params.vehiculeIds ?? []) {
+    httpParams = httpParams.append('vehiculeIds', String(id));
+  }
+
+  return this.http.get<PageResponse<MissionResponse>>(this.baseUrl, {
+    params: httpParams,
+    headers: { 'Cache-Control': 'no-cache' }
+  });
+}
+
   findById(id: number): Observable<MissionResponse> {
     return this.http.get<MissionResponse>(`${this.baseUrl}/${id}`);
   }

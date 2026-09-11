@@ -70,7 +70,7 @@
         <!-- Véhicule (INTERNAL ou PARTNER_MISSION) -->
         <ng-container *ngIf="isInternal || isPartnerMission">
           <div class="fl-field">
-            <label>Véhicule <span *ngIf="isInternal">*</span></label>
+            <label>Véhicule</label>
             <select formControlName="vehiculeId">
               <option [ngValue]="null">-- Sélectionner un véhicule --</option>
               <option *ngFor="let v of vehicules" [value]="v.id">
