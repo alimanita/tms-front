@@ -449,6 +449,10 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     return this.http.get(`${this.base}/peages`, { params });
   }
 
+  getPeageById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/peages/${id}`);
+  }
+
   savePeage(request: any, proof?: File): Observable<any> {
     const formData = new FormData();
     formData.append(
@@ -463,6 +467,22 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
       formData.append('proof', proof, safeName);
     }
     return this.http.post<any>(`${this.base}/peages`, formData);
+  }
+
+  updatePeage(id: number, request: any, proof?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    if (proof) {
+      const ext = proof.type?.split('/')[1] || 'jpg';
+      const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+        ? proof.name
+        : `photo_peage_${Date.now()}.${ext}`;
+      formData.append('proof', proof, safeName);
+    }
+    return this.http.put<any>(`${this.base}/peages/${id}`, formData);
   }
 
   getPeageProofFile(peageId: number) {

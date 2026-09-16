@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
+import { jwtDecode } from 'jwt-decode';
 import { AuthResponse, LoginRequest, User } from './auth.models';
 import { environment } from 'environments/environment';
 import { setEntrepriseData } from 'app/core/authentication/helpers';
@@ -24,7 +25,23 @@ export class AuthService {
 
   private readonly userSignal = signal<User | null>(this.loadStoredUser());
   readonly user = this.userSignal.asReadonly();
-  readonly isAuthenticated = computed(() => !!this.getAccessToken() && !!this.userSignal());
+  readonly isAuthenticated = computed(() => {
+    const token = this.getAccessToken();
+    return !!token && !this.isTokenExpired(token) && !!this.userSignal();
+  });
+
+  isTokenExpired(token?: string | null): boolean {
+    const jwt = token ?? this.getAccessToken();
+    if (!jwt) return true;
+
+    try {
+      const decoded: any = jwtDecode(jwt);
+      if (!decoded || !decoded.exp) return false;
+      return Date.now() >= decoded.exp * 1000;
+    } catch {
+      return true;
+    }
+  }
 
   login(request: LoginRequest): Observable<User> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, request).pipe(
@@ -53,10 +70,12 @@ export class AuthService {
   }
 
   logout(): void {
-    // Optionally call backend logout endpoint, ignoring the result
-    this.http.post(`${this.apiUrl}/auth/logout`, {}).pipe(
-      catchError(() => of(null))
-    ).subscribe();
+    const token = this.getAccessToken();
+    if (token && !this.isTokenExpired(token)) {
+      this.http.post(`${this.apiUrl}/auth/logout`, {}).pipe(
+        catchError(() => of(null))
+      ).subscribe();
+    }
     
     this.clearSession();
     this.router.navigate(['/login']);

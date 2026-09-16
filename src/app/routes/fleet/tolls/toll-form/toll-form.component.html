@@ -1,10 +1,10 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
-    <h2 class="fleet-title">Nouveau Péage</h2>
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier le Péage' : 'Nouveau Péage' }}</h2>
     <div class="fl-topbar-actions">
       <button class="fl-btn fl-btn-ghost" (click)="cancel()">← Retour</button>
       <button class="fl-btn fl-btn-primary" (click)="savePeage()" [disabled]="loading">
-        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+        {{ loading ? 'Enregistrement…' : (isEdit ? 'Mettre à jour' : 'Enregistrer') }}
       </button>
     </div>
   </div>
@@ -80,7 +80,7 @@
           <label>Justificatif (photo du ticket…)</label>
 
           <div class="fl-upload-zone" 
-               [class.has-file]="!!selectedFile"
+               [class.has-file]="!!selectedFile || !!existingProofUrl"
                [class.drag-over]="isDragging"
                (dragover)="onDragOver($event)"
                (dragleave)="onDragLeave($event)"
@@ -88,7 +88,7 @@
             <input type="file" id="proofFile" accept="image/*,.pdf" (change)="onFileSelected($event)" hidden />
             <input type="file" id="proofCamera" accept="image/*" capture="environment" (change)="onFileSelected($event)" hidden />
 
-            <ng-container *ngIf="!selectedFile">
+            <ng-container *ngIf="!selectedFile && !existingProofUrl">
               <div class="upload-actions">
                 <label for="proofCamera" class="fl-btn camera-btn" title="Prendre une photo">
                   <mat-icon style="vertical-align: middle; margin-right: 4px;">photo_camera</mat-icon> Prendre une photo
@@ -105,7 +105,13 @@
 
             <span *ngIf="selectedFile" class="fl-file-name">
               {{ selectedFile.name }}
-              <button type="button" class="fl-file-remove" (click)="selectedFile = null" title="Supprimer">✕</button>
+              <button type="button" class="fl-file-remove" (click)="removeFile()" title="Supprimer">✕</button>
+            </span>
+
+            <span *ngIf="!selectedFile && existingProofUrl" class="fl-file-name">
+              Justificatif existant
+              <a [href]="existingProofUrl" target="_blank" style="margin: 0 8px; color: #2563eb; text-decoration: underline;">Voir</a>
+              <button type="button" class="fl-file-remove" (click)="existingProofUrl = null" title="Remplacer">✕</button>
             </span>
 
             <div *ngIf="selectedFile && !extracting" style="margin-top: 10px;">

@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService } from '../../fleet.service';
 import { PeageRequest } from '../peage.model';
@@ -19,9 +19,12 @@ export class TollFormComponent implements OnInit {
   peageForm: FormGroup;
   vehicules: any[] = [];
   chauffeurs: any[] = [];
-  missions: any[] = []; // Peut être vide, ou à charger si on a un endpoint getMissions
+  missions: any[] = [];
 
+  isEdit = false;
+  peageId?: number;
   selectedFile: File | null = null;
+  existingProofUrl: string | null = null;
   loading = false;
   extracting = false;
 
@@ -29,6 +32,7 @@ export class TollFormComponent implements OnInit {
     private fb: FormBuilder,
     private fleetService: FleetService,
     private missionService: MissionService,
+    private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
@@ -36,7 +40,7 @@ export class TollFormComponent implements OnInit {
       vehiculeId: [null, Validators.required],
       chauffeurId: [null, Validators.required],
       missionId: [null],
-      datePassage: ['', Validators.required],
+      datePassage: [new Date().toISOString().slice(0, 16), Validators.required],
       amountTTC: [null, [Validators.required, Validators.min(0.01)]],
       amountHT: [null],
       tvaAmount: [null],
@@ -51,12 +55,66 @@ export class TollFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDropdowns();
+
+    this.route.params.subscribe(p => {
+      if (p['id']) {
+        this.isEdit = true;
+        this.peageId = +p['id'];
+        this.loadPeage(this.peageId);
+      }
+    });
   }
 
   loadDropdowns(): void {
-    this.fleetService.getVehicules({ size: 1000 }).subscribe((page: any) => this.vehicules = page.content ?? page);
-    this.fleetService.getChauffeurs({ size: 1000 }).subscribe((page: any) => this.chauffeurs = page.content ?? page);
-    this.missionService.findAll(0, 1000).subscribe((page: any) => this.missions = page.content ?? page);
+    this.fleetService.getVehicules({ size: 1000 }).subscribe((page: any) => {
+      this.vehicules = page.content ?? page;
+      const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];
+      if (qpVehiculeId && !this.isEdit) {
+        this.peageForm.patchValue({ vehiculeId: +qpVehiculeId });
+      }
+    });
+
+    this.fleetService.getChauffeurs({ size: 1000 }).subscribe((page: any) => {
+      this.chauffeurs = page.content ?? page;
+      const qpChauffeurId = this.route.snapshot.queryParams['chauffeurId'];
+      if (qpChauffeurId && !this.isEdit) {
+        this.peageForm.patchValue({ chauffeurId: +qpChauffeurId });
+      }
+    });
+
+    this.missionService.findAll(0, 1000).subscribe((page: any) => {
+      this.missions = page.content ?? page;
+      const qpMissionId = this.route.snapshot.queryParams['missionId'];
+      if (qpMissionId && !this.isEdit) {
+        this.peageForm.patchValue({ missionId: +qpMissionId });
+      }
+    });
+  }
+
+  loadPeage(id: number): void {
+    this.fleetService.getPeageById(id).subscribe({
+      next: (data: any) => {
+        this.peageForm.patchValue({
+          vehiculeId: data.vehiculeId,
+          chauffeurId: data.chauffeurId,
+          missionId: data.missionId,
+          datePassage: data.datePassage ? data.datePassage.slice(0, 16) : '',
+          amountTTC: data.amountTTC,
+          amountHT: data.amountHT,
+          tvaAmount: data.tvaAmount,
+          tvaRate: data.tvaRate ?? 20.0,
+          gareEntree: data.gareEntree,
+          gareSortie: data.gareSortie,
+          receiptNumber: data.receiptNumber,
+          societeAutoroute: data.societeAutoroute,
+          notes: data.notes
+        });
+        if (data.proofUrl) {
+          this.existingProofUrl = data.proofUrl;
+        }
+      },
+      error: () => this.snackBar.open('Erreur chargement péage', 'Fermer', { duration: 3000 })
+    });
   }
 
   isDragging = false;
@@ -143,6 +201,11 @@ export class TollFormComponent implements OnInit {
     });
   }
 
+  removeFile(): void {
+    this.selectedFile = null;
+    this.existingProofUrl = null;
+  }
+
   savePeage(): void {
     if (this.peageForm.invalid) {
       this.snackBar.open('Veuillez remplir les champs obligatoires', 'Fermer', { duration: 3000 });
@@ -152,14 +215,20 @@ export class TollFormComponent implements OnInit {
     this.loading = true;
     const request: PeageRequest = this.peageForm.value;
 
-    this.fleetService.savePeage(request, this.selectedFile || undefined).subscribe({
+    const obs$ = this.isEdit && this.peageId
+      ? this.fleetService.updatePeage(this.peageId, request, this.selectedFile || undefined)
+      : this.fleetService.savePeage(request, this.selectedFile || undefined);
+
+    obs$.subscribe({
       next: () => {
-        this.snackBar.open('Péage enregistré avec succès', 'Fermer', { duration: 3000 });
+        this.loading = false;
+        this.snackBar.open(this.isEdit ? 'Péage mis à jour avec succès' : 'Péage enregistré avec succès', 'Fermer', { duration: 3000 });
         this.router.navigate(['/fleet/tolls']);
       },
-      error: () => {
+      error: (err: any) => {
         this.loading = false;
-        this.snackBar.open("Erreur lors de l'enregistrement", 'Fermer', { duration: 3000 });
+        const msg = err?.error?.detail || err?.error?.message || "Erreur lors de l'enregistrement";
+        this.snackBar.open(msg, 'Fermer', { duration: 3000 });
       }
     });
   }

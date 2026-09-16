@@ -191,7 +191,7 @@
             <ng-container *ngIf="aiFile">
               <span class="fl-file-name">
                 <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">image</mat-icon>
-                {{ aiFile?.name }}
+                {{ aiFile.name }}
                 <button type="button" class="fl-file-remove" (click)="removeAiFile()" title="Supprimer">✕</button>
               </span>
               <div style="margin-top:10px;">
@@ -207,7 +207,7 @@
             <ng-container *ngIf="!aiFile && letterFile">
               <span class="fl-file-name">
                 <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">description</mat-icon>
-                {{ letterFile?.name }}
+                {{ letterFile.name }}
                 <button type="button" class="fl-file-remove" (click)="removeLetterFile()" title="Supprimer">✕</button>
               </span>
             </ng-container>
