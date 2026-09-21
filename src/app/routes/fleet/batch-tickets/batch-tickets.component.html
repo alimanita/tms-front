@@ -212,10 +212,22 @@
                   <div class="details-summary" *ngIf="t.ticketType === 'PEAGE'">
                     <span *ngIf="t.gareEntree || t.gareSortie">{{ t.gareEntree || '?' }} ➔ {{ t.gareSortie || '?' }}</span>
                     <span *ngIf="t.societeAutoroute" class="sub-detail">({{ t.societeAutoroute }})</span>
+                    <div class="ref-tag" *ngIf="t.receiptNumber">
+                      <span class="ref-badge" title="Référence unique du ticket">Réf: {{ t.receiptNumber }}</span>
+                    </div>
+                    <div class="ref-tag" *ngIf="!t.receiptNumber">
+                      <span class="ref-badge-missing" (click)="toggleEdit(t)" title="Cliquer pour renseigner le numéro du ticket">⚠️ Réf non détectée</span>
+                    </div>
                   </div>
                   <div class="details-summary" *ngIf="t.ticketType === 'CARBURANT'">
                     <span *ngIf="t.quantityLiters">{{ t.quantityLiters }} L - {{ t.fuelType || 'DIESEL' }}</span>
                     <span *ngIf="t.pricePerLiter" class="sub-detail">({{ t.pricePerLiter }} €/L)</span>
+                    <div class="ref-tag" *ngIf="t.receiptNumber">
+                      <span class="ref-badge" title="Référence unique du ticket">Réf: {{ t.receiptNumber }}</span>
+                    </div>
+                    <div class="ref-tag" *ngIf="!t.receiptNumber">
+                      <span class="ref-badge-missing" (click)="toggleEdit(t)" title="Cliquer pour renseigner le numéro du ticket">⚠️ Réf non détectée</span>
+                    </div>
                   </div>
                 </td>
 

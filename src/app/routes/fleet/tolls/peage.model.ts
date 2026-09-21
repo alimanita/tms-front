@@ -36,3 +36,10 @@ export interface PeageResponse {
   proofUrl?: string;
   createdAt?: string;
 }
+
+export interface PeageSummaryResponse {
+  totalAmountTTC: number;
+  totalAmountHT: number;
+  totalCount: number;
+}
+

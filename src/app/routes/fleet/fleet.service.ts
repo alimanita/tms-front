@@ -424,6 +424,15 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     return this.http.get(`${this.base}/pleins-carburant`, { params });
   }
 
+  getPleinSummary(paramsObj?: any): Observable<any> {
+    let params: any = {};
+    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    return this.http.get(`${this.base}/pleins-carburant/summary`, { params });
+  }
+
   getPleinById(id: number): Observable<PleinCarburantResponse> {
     return this.http.get<PleinCarburantResponse>(`${this.base}/pleins-carburant/${id}`);
   }
@@ -457,6 +466,15 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
     if (paramsObj?.sort) params.sort = paramsObj.sort;
     return this.http.get(`${this.base}/peages`, { params });
+  }
+
+  getPeageSummary(paramsObj?: any): Observable<any> {
+    let params: any = {};
+    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    return this.http.get(`${this.base}/peages/summary`, { params });
   }
 
   getPeageById(id: number): Observable<any> {

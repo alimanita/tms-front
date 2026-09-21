@@ -79,6 +79,7 @@ export class TollListComponent implements OnInit {
   }
 
   totalElements = 0;
+  summaryTotalTTC = 0;
 
   load(): void {
     this.loading = true;
@@ -106,6 +107,19 @@ export class TollListComponent implements OnInit {
         this.snackBar.open('Erreur chargement', 'Fermer', { duration: 3000 });
         this.loading = false;
       }
+    });
+
+    const summaryParams: any = {
+      vehiculeId: this.selectedVehiculeId || '',
+      chauffeurId: this.selectedChauffeurId || '',
+      startDate: this.startDate || '',
+      endDate: this.endDate || ''
+    };
+    this.fleetService.getPeageSummary(summaryParams).subscribe({
+      next: (summary: any) => {
+        this.summaryTotalTTC = summary?.totalAmountTTC ?? 0;
+      },
+      error: () => {}
     });
   }
 
@@ -386,6 +400,6 @@ export class TollListComponent implements OnInit {
   }
 
   getTotalAmountTTC(): number {
-    return this.tolls.reduce((acc, t) => acc + (t.amountTTC || 0), 0);
+    return this.summaryTotalTTC;
   }
 }
