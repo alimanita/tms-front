@@ -167,7 +167,7 @@
               <th>Détails Extraits</th>
               <th>Véhicule / Chauffeur</th>
               <th>Statut</th>
-              <th style="width: 100px;">Actions</th>
+              <th style="width: 120px;">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -236,10 +236,13 @@
                 </td>
 
                 <!-- Actions -->
-                <td>
-                  <button type="button" class="fl-btn fl-btn-ghost" (click)="toggleEdit(t)">
+                <td class="action-cell">
+                  <button type="button" class="fl-btn fl-btn-ghost fl-btn-xs" (click)="toggleEdit(t)" [title]="t.isEditing ? 'Fermer la modification' : 'Modifier les données'">
                     <mat-icon>{{ t.isEditing ? 'expand_less' : 'edit' }}</mat-icon>
                     {{ t.isEditing ? 'Fermer' : 'Éditer' }}
+                  </button>
+                  <button type="button" class="fl-btn fl-btn-danger-ghost fl-btn-xs" (click)="removeTicket(i)" title="Supprimer / Retirer ce ticket de la liste">
+                    <mat-icon>delete_outline</mat-icon>
                   </button>
                 </td>
               </tr>
@@ -249,13 +252,20 @@
                 <td colspan="9">
                   <div class="inline-editor">
                     <div class="editor-header">
-                      <strong>Correction manuelle — Ticket #{{ i + 1 }} ({{ t.fileName }})</strong>
-                      <div class="type-buttons">
-                        <button type="button" class="btn-type" [class.active]="t.ticketType === 'PEAGE'" (click)="updateType(t, 'PEAGE')">
-                          <mat-icon>toll</mat-icon> Péage
-                        </button>
-                        <button type="button" class="btn-type" [class.active]="t.ticketType === 'CARBURANT'" (click)="updateType(t, 'CARBURANT')">
-                          <mat-icon>local_gas_station</mat-icon> Carburant
+                      <div class="editor-title-group">
+                        <strong>Correction manuelle — Ticket #{{ i + 1 }} ({{ t.fileName }})</strong>
+                      </div>
+                      <div class="editor-actions-group">
+                        <div class="type-buttons">
+                          <button type="button" class="btn-type" [class.active]="t.ticketType === 'PEAGE'" (click)="updateType(t, 'PEAGE')">
+                            <mat-icon>toll</mat-icon> Péage
+                          </button>
+                          <button type="button" class="btn-type" [class.active]="t.ticketType === 'CARBURANT'" (click)="updateType(t, 'CARBURANT')">
+                            <mat-icon>local_gas_station</mat-icon> Carburant
+                          </button>
+                        </div>
+                        <button type="button" class="fl-btn fl-btn-danger-ghost fl-btn-xs" (click)="removeTicket(i)" title="Retirer ce ticket du lot">
+                          <mat-icon>delete_outline</mat-icon> Supprimer du lot
                         </button>
                       </div>
                     </div>

@@ -17,7 +17,20 @@ export class BatchTicketService {
     return this.http.post<BatchTicketItem[]>(`${this.baseUrl}/analyze`, formData);
   }
 
-  saveBatch(payload: BatchSaveRequestPayload): Observable<BatchSaveResultResponse> {
-    return this.http.post<BatchSaveResultResponse>(`${this.baseUrl}/save`, payload);
+  saveBatch(payload: BatchSaveRequestPayload, filesMap?: Map<number, File>): Observable<BatchSaveResultResponse> {
+    const formData = new FormData();
+    const jsonBlob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    formData.append('data', jsonBlob);
+
+    if (filesMap) {
+      filesMap.forEach((file, index) => {
+        if (file) {
+          formData.append(`file_${index}`, file, file.name);
+        }
+      });
+    }
+
+    return this.http.post<BatchSaveResultResponse>(`${this.baseUrl}/save`, formData);
   }
 }
+

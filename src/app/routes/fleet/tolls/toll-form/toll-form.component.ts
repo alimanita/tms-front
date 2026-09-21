@@ -212,6 +212,11 @@ export class TollFormComponent implements OnInit {
       return;
     }
 
+    if (!this.isEdit && !this.selectedFile) {
+      this.snackBar.open('Le justificatif (photo du ticket ou PDF) est obligatoire pour enregistrer un péage', 'Fermer', { duration: 3500 });
+      return;
+    }
+
     this.loading = true;
     const request: PeageRequest = this.peageForm.value;
 

@@ -177,6 +177,21 @@ export class BatchTicketsComponent implements OnInit {
     ticket.isEditing = !ticket.isEditing;
   }
 
+  removeTicket(index: number): void {
+    const removed = this.tickets.splice(index, 1);
+    // Re-assigner les indices pour garder une suite cohérente #1, #2, ...
+    this.tickets.forEach((t, idx) => {
+      t.ticketIndex = idx + 1;
+    });
+
+    if (this.tickets.length === 0) {
+      this.resetBatch();
+      this.snackBar.open('Tous les tickets ont été retirés du lot.', 'Info', { duration: 3000 });
+    } else {
+      this.snackBar.open('Ticket retiré du lot avec succès.', 'OK', { duration: 2500 });
+    }
+  }
+
   updateType(ticket: BatchTicketItem, type: TicketType): void {
     ticket.ticketType = type;
     if (type === 'PEAGE' && !ticket.amountTTC && ticket.totalCost) {
@@ -229,8 +244,15 @@ export class BatchTicketsComponent implements OnInit {
       fuelType: t.fuelType
     }));
 
+    const filesMap = new Map<number, File>();
+    this.tickets.forEach(t => {
+      if (t.file) {
+        filesMap.set(t.ticketIndex, t.file);
+      }
+    });
+
     this.isSaving = true;
-    this.batchService.saveBatch({ items: payloadItems }).subscribe({
+    this.batchService.saveBatch({ items: payloadItems }, filesMap).subscribe({
       next: (res) => {
         this.isSaving = false;
         this.saveResult = res;

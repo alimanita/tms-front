@@ -415,6 +415,12 @@
     border-bottom: 1px solid #e2e8f0;
     padding-bottom: 8px;
 
+    .editor-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .type-buttons {
       display: flex;
       gap: 6px;
@@ -548,8 +554,30 @@
   &.fl-btn-primary { background: #2563eb; color: white; &:hover { background: #1d4ed8; } }
   &.fl-btn-success { background: #10b981; color: white; &:hover { background: #059669; } }
   &.fl-btn-ghost { background: transparent; border-color: #cbd5e1; color: #0f172a; &:hover { background: #f8fafc; } }
+  &.fl-btn-danger-ghost { 
+    background: transparent; 
+    border-color: #fecaca; 
+    color: #dc2626; 
+    &:hover { 
+      background: #fee2e2; 
+      border-color: #f87171; 
+    } 
+  }
   &.fl-btn-lg { padding: 10px 24px; font-size: 14px; }
+  &.fl-btn-xs { 
+    padding: 4px 8px; 
+    font-size: 11px; 
+    gap: 4px;
+    mat-icon { font-size: 15px; width: 15px; height: 15px; } 
+  }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.action-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .btn-link { background: none; border: none; color: #2563eb; cursor: pointer; font-weight: 600; &.text-danger { color: #ef4444; } }
