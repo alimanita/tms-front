@@ -78,12 +78,28 @@ export class TollListComponent implements OnInit {
     });
   }
 
+  totalElements = 0;
+
   load(): void {
     this.loading = true;
-    this.fleetService.getPeages({ page: 0, size: 2000 }).subscribe({
+    
+    const params: any = {
+      page: this.pageIndex,
+      size: this.pageSize,
+      vehiculeId: this.selectedVehiculeId || '',
+      chauffeurId: this.selectedChauffeurId || '',
+      startDate: this.startDate || '',
+      endDate: this.endDate || ''
+    };
+    
+    if (this.sortCriteria.length > 0) {
+      params.sort = this.sortCriteria.map(c => `${c.column},${c.direction}`);
+    }
+
+    this.fleetService.getPeages(params).subscribe({
       next: (data: any) => {
-        this.allTolls = Array.isArray(data) ? data : (data.content ?? []);
-        this.applyFilters();
+        this.tolls = Array.isArray(data) ? data : (data.content ?? []);
+        this.totalElements = data.totalElements ?? this.tolls.length;
         this.loading = false;
       },
       error: () => {
@@ -94,54 +110,8 @@ export class TollListComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let filtered = [...this.allTolls];
-
-    if (this.selectedVehiculeId) {
-      filtered = filtered.filter(p => p.vehiculeId == this.selectedVehiculeId);
-    }
-    
-    if (this.selectedChauffeurId) {
-      filtered = filtered.filter(p => p.chauffeurId == this.selectedChauffeurId);
-    }
-
-    if (this.startDate) {
-      const start = new Date(this.startDate + 'T00:00:00').getTime();
-      filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() >= start);
-    }
-
-    if (this.endDate) {
-      const end = new Date(this.endDate + 'T23:59:59').getTime();
-      filtered = filtered.filter(p => p.datePassage && new Date(p.datePassage).getTime() <= end);
-    }
-
-    // Multi-sort
-    const dateColumns = ['datePassage'];
-    filtered.sort((a: any, b: any) => {
-      for (const criterion of this.sortCriteria) {
-        let valA = a[criterion.column];
-        let valB = b[criterion.column];
-
-        if (dateColumns.includes(criterion.column)) {
-          valA = valA ? new Date(valA).getTime() : 0;
-          valB = valB ? new Date(valB).getTime() : 0;
-        }
-
-        if (valA == null) valA = '';
-        if (valB == null) valB = '';
-
-        let comparison = 0;
-        if (valA > valB) comparison = 1;
-        else if (valA < valB) comparison = -1;
-
-        if (comparison !== 0) {
-          return criterion.direction === 'asc' ? comparison : -comparison;
-        }
-      }
-      return 0;
-    });
-
-    this.tolls = filtered;
     this.pageIndex = 0;
+    this.load();
   }
 
   // Retourne la direction active pour une colonne, ou null si non triée
@@ -202,6 +172,7 @@ export class TollListComponent implements OnInit {
   onPageChange(event: PageChangeEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
+    this.load();
   }
 
   addPeage(): void {

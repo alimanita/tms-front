@@ -1,0 +1,401 @@
+<div class="batch-page">
+  
+  <!-- Clean Fleet Page Topbar -->
+  <div class="fleet-topbar">
+    <div class="topbar-title-group">
+      <h2 class="fleet-title">Traitement en Masse par IA</h2>
+      <p class="fleet-subtitle">Traitement automatique des tickets de péage et de carburant par reconnaissance d'image / OCR (jusqu'à 20 tickets par lot)</p>
+    </div>
+  </div>
+
+  <div class="fleet-body">
+
+    <!-- STEP 1: UPLOAD & GLOBAL SELECTION -->
+    <div *ngIf="step === 'UPLOAD'" class="batch-card">
+      
+      <!-- Global expense selection -->
+      <div class="global-selection-box">
+        <div class="box-header">
+          <mat-icon class="box-icon">assignment_ind</mat-icon>
+          <div>
+            <h3>Affectation Globale du Lot</h3>
+            <p class="box-desc">Sélectionnez le véhicule et le chauffeur qui s'appliqueront à l'ensemble des tickets de ce lot (modifiable par ticket si nécessaire).</p>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required-label">Véhicule (lot)</label>
+            <select [(ngModel)]="globalVehiculeId" class="fl-select">
+              <option [ngValue]="null">-- Sélectionner le véhicule --</option>
+              <option *ngFor="let v of vehicules" [value]="v.id">
+                {{ v.immatriculation }} {{ v.marque ? '(' + v.marque + ' ' + (v.modele || '') + ')' : '' }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Chauffeur (lot)</label>
+            <select [(ngModel)]="globalChauffeurId" class="fl-select">
+              <option [ngValue]="null">-- Sélectionner le chauffeur --</option>
+              <option *ngFor="let c of chauffeurs" [value]="c.id">
+                {{ c.prenom }} {{ c.nom }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Mission associée (Optionnelle)</label>
+            <select [(ngModel)]="globalMissionId" class="fl-select">
+              <option [ngValue]="null">-- Aucune mission --</option>
+              <option *ngFor="let m of missions" [value]="m.id">
+                {{ m.reference }} - {{ m.title || m.departureLocation + ' → ' + m.arrivalLocation }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone"
+           [class.dragging]="isDragging"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
+        
+        <div class="drop-content">
+          <div class="cloud-icon">
+            <mat-icon>cloud_upload</mat-icon>
+          </div>
+          <h4>Glissez-déposez vos tickets ici</h4>
+          <p>Prend en charge jusqu'à 20 tickets simultanément (Images JPG, PNG, WEBP ou documents PDF)</p>
+          
+          <input type="file" #fileInput multiple accept="image/*,application/pdf" (change)="onFileSelected($event)" style="display: none;">
+          <button type="button" class="fl-btn fl-btn-primary" (click)="fileInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon> Choisir des fichiers
+          </button>
+        </div>
+      </div>
+
+      <!-- Selected Files Preview Grid -->
+      <div *ngIf="selectedFiles.length > 0" class="previews-container">
+        <div class="previews-header">
+          <span>Fichiers sélectionnés ({{ selectedFiles.length }}/20)</span>
+          <button type="button" class="btn-link text-danger" (click)="clearAllFiles()">
+            <mat-icon>delete_sweep</mat-icon> Tout effacer
+          </button>
+        </div>
+
+        <div class="previews-grid">
+          <div *ngFor="let item of filePreviews; let i = index" class="preview-card">
+            <button type="button" class="btn-remove" (click)="removeFile(i)" title="Retirer ce ticket">
+              <mat-icon>close</mat-icon>
+            </button>
+            
+            <div class="thumb-container">
+              <img *ngIf="item.file.type.startsWith('image/')" [src]="item.url" [alt]="item.file.name" class="thumb-img">
+              <div *ngIf="item.file.type === 'application/pdf'" class="pdf-placeholder">
+                <mat-icon class="pdf-icon">picture_as_pdf</mat-icon>
+                <span>PDF</span>
+              </div>
+            </div>
+            
+            <div class="file-name" [title]="item.file.name">{{ item.file.name }}</div>
+            <div class="file-size">{{ (item.file.size / 1024) | number:'1.0-1' }} KB</div>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <button type="button" class="fl-btn fl-btn-success fl-btn-lg" (click)="startAnalysis()" [disabled]="isAnalyzing">
+            <mat-icon *ngIf="!isAnalyzing">psychology</mat-icon>
+            <span *ngIf="isAnalyzing" class="spinner"></span>
+            {{ isAnalyzing ? 'Analyse IA en cours...' : 'Lancer l\'analyse IA (' + selectedFiles.length + ' tickets)' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: REVIEW & VALIDATE TABLE -->
+    <div *ngIf="step === 'REVIEW'" class="batch-card">
+      
+      <!-- Top Bar Summary -->
+      <div class="review-header">
+        <div class="summary-pills">
+          <div class="pill total">
+            <span class="count">{{ tickets.length }}</span>
+            <span class="lbl">Tickets scannés</span>
+          </div>
+          <div class="pill valid">
+            <span class="count">{{ getValidCount() }}</span>
+            <span class="lbl">Prêts à enregistrer</span>
+          </div>
+          <div class="pill warning" *ngIf="getWarningCount() > 0">
+            <span class="count">{{ getWarningCount() }}</span>
+            <span class="lbl">À vérifier / corriger</span>
+          </div>
+        </div>
+
+        <!-- Global selection controls directly visible during review -->
+        <div class="global-summary-box">
+          <div class="global-field">
+            <span class="lbl">Véhicule lot:</span>
+            <select [(ngModel)]="globalVehiculeId" (change)="onGlobalVehiculeChange()" class="fl-select fl-select-sm">
+              <option [ngValue]="null">-- Choisir Véhicule --</option>
+              <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }}</option>
+            </select>
+          </div>
+          <div class="global-field">
+            <span class="lbl">Chauffeur lot:</span>
+            <select [(ngModel)]="globalChauffeurId" (change)="onGlobalChauffeurChange()" class="fl-select fl-select-sm">
+              <option [ngValue]="null">-- Choisir Chauffeur --</option>
+              <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.prenom }} {{ c.nom }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Table -->
+      <div class="table-responsive">
+        <table class="fl-table batch-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">#</th>
+              <th style="width: 60px;">Aperçu</th>
+              <th>Type Détecté</th>
+              <th>Date Opération</th>
+              <th>Montant TTC</th>
+              <th>Détails Extraits</th>
+              <th>Véhicule / Chauffeur</th>
+              <th>Statut</th>
+              <th style="width: 100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let t of tickets; let i = index">
+              <tr [class.row-warning]="t.dateConfidence !== 'HIGH' || t.ticketType === 'UNKNOWN'" [class.row-error]="t.ticketType === 'UNKNOWN'">
+                <td class="text-muted fw-bold">{{ i + 1 }}</td>
+                
+                <!-- Preview -->
+                <td>
+                  <img *ngIf="t.previewUrl" [src]="t.previewUrl" class="table-thumb" (click)="t.isEditing = !t.isEditing">
+                </td>
+
+                <!-- Type -->
+                <td>
+                  <span class="badge-type" [class.bg-peage]="t.ticketType === 'PEAGE'" [class.bg-fuel]="t.ticketType === 'CARBURANT'" [class.bg-unknown]="t.ticketType === 'UNKNOWN'">
+                    <mat-icon>{{ t.ticketType === 'PEAGE' ? 'toll' : (t.ticketType === 'CARBURANT' ? 'local_gas_station' : 'help_outline') }}</mat-icon>
+                    {{ t.ticketType === 'PEAGE' ? 'Péage' : (t.ticketType === 'CARBURANT' ? 'Carburant' : 'Inconnu') }}
+                  </span>
+                </td>
+
+                <!-- Date -->
+                <td>
+                  <div class="date-cell">
+                    <span class="date-val" *ngIf="t.operationDate">{{ t.operationDate | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <span class="text-danger" *ngIf="!t.operationDate">Date non détectée</span>
+                    
+                    <div *ngIf="t.dateConfidence !== 'HIGH'" class="date-warning-tag" [title]="t.dateWarning || 'Vérification requise'">
+                      <mat-icon>warning</mat-icon>
+                      <span>{{ t.dateConfidence === 'NONE' ? 'Non détectée' : 'À vérifier' }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Montant -->
+                <td class="fw-bold">
+                  <span *ngIf="t.amountTTC || t.totalCost">{{ (t.amountTTC || t.totalCost) | number:'1.2-2' }} €</span>
+                  <span class="text-danger" *ngIf="!t.amountTTC && !t.totalCost">Non détecté</span>
+                </td>
+
+                <!-- Details -->
+                <td>
+                  <div class="details-summary" *ngIf="t.ticketType === 'PEAGE'">
+                    <span *ngIf="t.gareEntree || t.gareSortie">{{ t.gareEntree || '?' }} ➔ {{ t.gareSortie || '?' }}</span>
+                    <span *ngIf="t.societeAutoroute" class="sub-detail">({{ t.societeAutoroute }})</span>
+                  </div>
+                  <div class="details-summary" *ngIf="t.ticketType === 'CARBURANT'">
+                    <span *ngIf="t.quantityLiters">{{ t.quantityLiters }} L - {{ t.fuelType || 'DIESEL' }}</span>
+                    <span *ngIf="t.pricePerLiter" class="sub-detail">({{ t.pricePerLiter }} €/L)</span>
+                  </div>
+                </td>
+
+                <!-- Vehicule & Chauffeur -->
+                <td>
+                  <select [(ngModel)]="t.vehiculeId" class="fl-select fl-select-xs">
+                    <option [ngValue]="undefined">-- Suivre lot --</option>
+                    <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }}</option>
+                  </select>
+                </td>
+
+                <!-- Status Badge -->
+                <td>
+                  <span class="status-badge" [class.badge-ok]="t.processingStatus === 'OK' && t.dateConfidence === 'HIGH'" [class.badge-warn]="t.dateConfidence !== 'HIGH' || t.processingStatus === 'PARTIAL'" [class.badge-err]="t.ticketType === 'UNKNOWN'">
+                    <mat-icon>{{ t.dateConfidence === 'HIGH' && t.ticketType !== 'UNKNOWN' ? 'check_circle' : 'warning' }}</mat-icon>
+                    {{ t.dateConfidence === 'HIGH' && t.ticketType !== 'UNKNOWN' ? 'Valide' : (t.ticketType === 'UNKNOWN' ? 'Inconnu' : 'Date à vérifier') }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td>
+                  <button type="button" class="fl-btn fl-btn-ghost" (click)="toggleEdit(t)">
+                    <mat-icon>{{ t.isEditing ? 'expand_less' : 'edit' }}</mat-icon>
+                    {{ t.isEditing ? 'Fermer' : 'Éditer' }}
+                  </button>
+                </td>
+              </tr>
+
+              <!-- Expanded Inline Editor Row -->
+              <tr *ngIf="t.isEditing" class="edit-row">
+                <td colspan="9">
+                  <div class="inline-editor">
+                    <div class="editor-header">
+                      <strong>Correction manuelle — Ticket #{{ i + 1 }} ({{ t.fileName }})</strong>
+                      <div class="type-buttons">
+                        <button type="button" class="btn-type" [class.active]="t.ticketType === 'PEAGE'" (click)="updateType(t, 'PEAGE')">
+                          <mat-icon>toll</mat-icon> Péage
+                        </button>
+                        <button type="button" class="btn-type" [class.active]="t.ticketType === 'CARBURANT'" (click)="updateType(t, 'CARBURANT')">
+                          <mat-icon>local_gas_station</mat-icon> Carburant
+                        </button>
+                      </div>
+                    </div>
+
+                    <div *ngIf="t.dateWarning" class="alert-warning-inline">
+                      <mat-icon>info</mat-icon>
+                      <span><strong>Avertissement IA Date:</strong> {{ t.dateWarning }}</span>
+                    </div>
+
+                    <div class="editor-fields">
+                      <div class="field">
+                        <label>Date & Heure Opération</label>
+                        <input type="datetime-local" [(ngModel)]="t.operationDate" class="fl-input">
+                      </div>
+
+                      <div class="field">
+                        <label>Montant TTC (€)</label>
+                        <input type="number" [(ngModel)]="t.amountTTC" class="fl-input" placeholder="0.00">
+                      </div>
+
+                      <div class="field">
+                        <label>N° Reçu / Justificatif</label>
+                        <input type="text" [(ngModel)]="t.receiptNumber" class="fl-input">
+                      </div>
+
+                      <div class="field">
+                        <label>Véhicule spécifique</label>
+                        <select [(ngModel)]="t.vehiculeId" class="fl-select">
+                          <option [ngValue]="undefined">-- Suivre le lot --</option>
+                          <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }}</option>
+                        </select>
+                      </div>
+
+                      <div class="field">
+                        <label>Chauffeur spécifique</label>
+                        <select [(ngModel)]="t.chauffeurId" class="fl-select">
+                          <option [ngValue]="undefined">-- Suivre le lot --</option>
+                          <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.prenom }} {{ c.nom }}</option>
+                        </select>
+                      </div>
+
+                      <!-- Toll Fields -->
+                      <ng-container *ngIf="t.ticketType === 'PEAGE'">
+                        <div class="field">
+                          <label>Gare d'entrée</label>
+                          <input type="text" [(ngModel)]="t.gareEntree" class="fl-input">
+                        </div>
+                        <div class="field">
+                          <label>Gare de sortie</label>
+                          <input type="text" [(ngModel)]="t.gareSortie" class="fl-input">
+                        </div>
+                        <div class="field">
+                          <label>Société autoroute</label>
+                          <input type="text" [(ngModel)]="t.societeAutoroute" class="fl-input" placeholder="ex: ASF, VINCI">
+                        </div>
+                      </ng-container>
+
+                      <!-- Fuel Fields -->
+                      <ng-container *ngIf="t.ticketType === 'CARBURANT'">
+                        <div class="field">
+                          <label>Type de carburant</label>
+                          <select [(ngModel)]="t.fuelType" class="fl-select">
+                            <option *ngFor="let ft of fuelTypes" [value]="ft">{{ ft }}</option>
+                          </select>
+                        </div>
+                        <div class="field">
+                          <label>Quantité (Litres)</label>
+                          <input type="number" [(ngModel)]="t.quantityLiters" class="fl-input">
+                        </div>
+                        <div class="field">
+                          <label>Prix par Litre (€)</label>
+                          <input type="number" [(ngModel)]="t.pricePerLiter" class="fl-input">
+                        </div>
+                      </ng-container>
+
+                      <div class="field full-width">
+                        <label>Notes / Remarques</label>
+                        <input type="text" [(ngModel)]="t.notes" class="fl-input" placeholder="Remarques éventuelles...">
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Review Footer Action Bar -->
+      <div class="review-footer">
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="resetBatch()">
+          <mat-icon>arrow_back</mat-icon> Réinitialiser / Recommencer
+        </button>
+
+        <button type="button" class="fl-btn fl-btn-success fl-btn-lg" (click)="saveAll()" [disabled]="isSaving || getValidCount() === 0">
+          <mat-icon *ngIf="!isSaving">save_alt</mat-icon>
+          <span *ngIf="isSaving" class="spinner"></span>
+          {{ isSaving ? 'Enregistrement en masse...' : 'Enregistrer en masse (' + tickets.length + ' tickets)' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3: SUCCESS RESULT -->
+    <div *ngIf="step === 'SUCCESS'" class="batch-card success-card">
+      <div class="success-icon">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      
+      <h2>Traitement en masse terminé !</h2>
+      <p class="success-desc">
+        <strong>{{ saveResult?.savedCount }}</strong> ticket(s) enregistré(s) avec succès dans les tables 
+        <code>PEAGE</code> et <code>CARBURANT</code>.
+      </p>
+
+      <div *ngIf="saveResult?.failedCount && saveResult!.failedCount > 0" class="alert-danger-box">
+        <div class="alert-header text-danger">
+          <mat-icon>error_outline</mat-icon>
+          <strong>{{ saveResult?.failedCount }} ticket(s) n'ont pas pu être enregistrés :</strong>
+        </div>
+        <ul class="error-list">
+          <ng-container *ngFor="let res of saveResult?.results">
+            <li *ngIf="!res.success" class="text-danger">
+              <strong>Ticket #{{ res.ticketIndex }} ({{ res.ticketType }}):</strong> {{ res.errorMessage || 'Erreur d\'enregistrement' }}
+            </li>
+          </ng-container>
+        </ul>
+      </div>
+
+      <div class="result-actions">
+        <button type="button" class="fl-btn fl-btn-primary" (click)="goToTolls()">
+          <mat-icon>toll</mat-icon> Voir les Péages
+        </button>
+        <button type="button" class="fl-btn fl-btn-primary" (click)="goToFuel()">
+          <mat-icon>local_gas_station</mat-icon> Voir les Pleins Carburant
+        </button>
+        <button type="button" class="fl-btn fl-btn-ghost" (click)="resetBatch()">
+          <mat-icon>add</mat-icon> Traiter un nouveau lot
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

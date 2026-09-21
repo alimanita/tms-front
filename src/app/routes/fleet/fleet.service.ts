@@ -414,8 +414,13 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
   return this.http.get<ChauffeurResponse>(`${this.base}/chauffeurs/me`);
 }
   // Pleins carburant
-  getPleins(pageable?: { page?: number; size?: number }): Observable<any> {
-    const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
+  getPleins(paramsObj?: any): Observable<any> {
+    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
+    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    if (paramsObj?.sort) params.sort = paramsObj.sort;
     return this.http.get(`${this.base}/pleins-carburant`, { params });
   }
 
@@ -444,8 +449,13 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
   }
 
   // Péages (Tolls) - Nouvelle table peage
-  getPeages(pageable?: { page?: number; size?: number }): Observable<any> {
-    const params: any = { page: pageable?.page ?? 0, size: pageable?.size ?? 50 };
+  getPeages(paramsObj?: any): Observable<any> {
+    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
+    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    if (paramsObj?.sort) params.sort = paramsObj.sort;
     return this.http.get(`${this.base}/peages`, { params });
   }
 

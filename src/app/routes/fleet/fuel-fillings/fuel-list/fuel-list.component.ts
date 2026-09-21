@@ -74,12 +74,28 @@ export class FuelListComponent implements OnInit {
     });
   }
 
+  totalElements = 0;
+
   load(): void {
     this.loading = true;
-    this.fleetService.getPleins({ page: 0, size: 2000 }).subscribe({
+    
+    const params: any = {
+      page: this.pageIndex,
+      size: this.pageSize,
+      vehiculeId: this.selectedVehiculeId || '',
+      chauffeurId: this.selectedChauffeurId || '',
+      startDate: this.startDate || '',
+      endDate: this.endDate || ''
+    };
+    
+    if (this.sortCriteria.length > 0) {
+      params.sort = this.sortCriteria.map(c => `${c.column},${c.direction}`);
+    }
+
+    this.fleetService.getPleins(params).subscribe({
       next: (data: any) => {
-        this.allPleins = Array.isArray(data) ? data : (data.content ?? []);
-        this.applyFilters();
+        this.pleins = Array.isArray(data) ? data : (data.content ?? []);
+        this.totalElements = data.totalElements ?? this.pleins.length;
         this.loading = false;
       },
       error: () => {
@@ -90,53 +106,8 @@ export class FuelListComponent implements OnInit {
   }
 
   applyFilters(): void {
-    let filtered = [...this.allPleins];
-
-    if (this.selectedVehiculeId) {
-      filtered = filtered.filter(p => p.vehiculeId == this.selectedVehiculeId);
-    }
-    
-    if (this.selectedChauffeurId) {
-      filtered = filtered.filter(p => p.chauffeurId == this.selectedChauffeurId);
-    }
-
-    if (this.startDate) {
-      const start = new Date(this.startDate + 'T00:00:00').getTime();
-      filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() >= start);
-    }
-
-    if (this.endDate) {
-      const end = new Date(this.endDate + 'T23:59:59').getTime();
-      filtered = filtered.filter(p => p.fillingDate && new Date(p.fillingDate).getTime() <= end);
-    }
-
-    // Multi-sort
-    const dateColumns = ['fillingDate'];
-    filtered.sort((a: any, b: any) => {
-      for (const criterion of this.sortCriteria) {
-        let valA = a[criterion.column];
-        let valB = b[criterion.column];
-
-        if (dateColumns.includes(criterion.column)) {
-          valA = valA ? new Date(valA).getTime() : 0;
-          valB = valB ? new Date(valB).getTime() : 0;
-        }
-
-        if (valA == null) valA = '';
-        if (valB == null) valB = '';
-
-        let comparison = 0;
-        if (valA > valB) comparison = 1;
-        else if (valA < valB) comparison = -1;
-
-        if (comparison !== 0) {
-          return criterion.direction === 'asc' ? comparison : -comparison;
-        }
-      }
-      return 0;
-    });
-
-    this.pleins = filtered;
+    this.pageIndex = 0;
+    this.load();
   }
 
   getSortDirection(column: string): 'asc' | 'desc' | null {
@@ -423,6 +394,7 @@ closeProofModal(): void {
   onPageChange(e: PageChangeEvent): void {
     this.pageIndex = e.pageIndex;
     this.pageSize = e.pageSize;
+    this.load();
   }
 
 }
