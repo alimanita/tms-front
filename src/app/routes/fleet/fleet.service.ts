@@ -530,6 +530,83 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
     return this.http.delete<void>(`${this.base}/peages/${id}`);
   }
 
+  // ── Dépenses Diverses ──────────────────────────────────────────
+  getDepensesDiverses(paramsObj?: any): Observable<any> {
+    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.categorie) params.categorie = paramsObj.categorie;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    if (paramsObj?.sort) params.sort = paramsObj.sort;
+    return this.http.get(`${this.base}/depenses-diverses`, { params });
+  }
+
+  getDepenseDiverseSummary(paramsObj?: any): Observable<any> {
+    let params: any = {};
+    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
+    if (paramsObj?.categorie) params.categorie = paramsObj.categorie;
+    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
+    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
+    return this.http.get(`${this.base}/depenses-diverses/summary`, { params });
+  }
+
+  getDepenseDiverseById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/depenses-diverses/${id}`);
+  }
+
+  saveDepenseDiverse(request: any, proof?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    if (proof) {
+      const ext = proof.type?.split('/')[1] || 'jpg';
+      const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+        ? proof.name
+        : `photo_depense_${Date.now()}.${ext}`;
+      formData.append('proof', proof, safeName);
+    }
+    return this.http.post<any>(`${this.base}/depenses-diverses`, formData);
+  }
+
+  updateDepenseDiverse(id: number, request: any, proof?: File): Observable<any> {
+    const formData = new FormData();
+    formData.append(
+      'data',
+      new Blob([JSON.stringify(request)], { type: 'application/json' })
+    );
+    if (proof) {
+      const ext = proof.type?.split('/')[1] || 'jpg';
+      const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+        ? proof.name
+        : `photo_depense_${Date.now()}.${ext}`;
+      formData.append('proof', proof, safeName);
+    }
+    return this.http.put<any>(`${this.base}/depenses-diverses/${id}`, formData);
+  }
+
+  getDepenseDiverseProofFile(depenseId: number) {
+    return this.http.get(
+      `${this.base}/depenses-diverses/${depenseId}/proof`,
+      { responseType: 'blob', observe: 'response' }
+    );
+  }
+
+  extractDepenseDiverseData(proof: File): Observable<any> {
+    const formData = new FormData();
+    const ext = proof.type?.split('/')[1] || 'jpg';
+    const safeName = (proof.name && proof.name.length > 0 && proof.name !== 'image' && proof.name !== 'blob')
+      ? proof.name
+      : `photo_depense_${Date.now()}.${ext}`;
+    formData.append('proof', proof, safeName);
+    return this.http.post<any>(`${this.base}/depenses-diverses/extract`, formData);
+  }
+
+  deleteDepenseDiverse(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/depenses-diverses/${id}`);
+  }
+
   // Dashboard
   getDashboardOverview(): Observable<DashboardOverviewResponse> {
     return this.http.get<DashboardOverviewResponse>(`${this.base}/dashboard/overview`);

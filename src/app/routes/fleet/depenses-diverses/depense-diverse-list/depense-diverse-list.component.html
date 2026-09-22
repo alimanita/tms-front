@@ -1,0 +1,146 @@
+<div class="fleet-page">
+  <div class="fleet-topbar">
+    <h2 class="fleet-title">Dépenses Diverses</h2>
+    <div class="fl-topbar-actions">
+      <div class="fl-filters">
+        <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
+          <option value="">Tous les chauffeurs</option>
+          <option *ngFor="let c of chauffeurs" [value]="c.id">
+            {{ c.nom }} {{ c.prenom }}
+          </option>
+        </select>
+
+        <select class="fl-select" [(ngModel)]="selectedCategorie" (change)="onFilterChange()">
+          <option value="">Toutes les catégories</option>
+          <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+        </select>
+
+        <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
+        <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
+
+        <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
+        </button>
+      </div>
+
+      <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
+      <button class="fl-btn fl-btn-primary" (click)="addDepense()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <!-- Summary bar -->
+  <div class="fl-summary-bar" *ngIf="!loading">
+    <span class="fl-summary-item">
+      <mat-icon>receipt_long</mat-icon>
+      <strong>{{ summaryCount }}</strong> dépenses
+    </span>
+    <span class="fl-summary-item">
+      <mat-icon>payments</mat-icon>
+      Total : <strong>{{ summaryTotalTTC | number:'1.2-2' }} €</strong>
+    </span>
+  </div>
+
+  <div class="fleet-body">
+    <div *ngIf="loading" class="fleet-loading">Chargement…</div>
+
+    <div class="table-responsive">
+      <table *ngIf="!loading" class="fl-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
+            <th (click)="sortBy('dateDepense')" style="cursor:pointer; user-select:none; white-space:nowrap;">
+              Date
+              <span [style.color]="getSortDirection('dateDepense') ? 'var(--primary)' : 'var(--muted)'" style="font-size:12px; margin-left:2px;">
+                {{ getSortDirection('dateDepense') === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th>Chauffeur</th>
+            <th>Catégorie</th>
+            <th>Description</th>
+            <th>Véhicule</th>
+            <th (click)="sortBy('amountTTC')" style="cursor:pointer; user-select:none; white-space:nowrap;">
+              Montant TTC
+              <span [style.color]="getSortDirection('amountTTC') ? 'var(--primary)' : 'var(--muted)'" style="font-size:12px; margin-left:2px;">
+                {{ getSortDirection('amountTTC') === 'asc' ? '↑' : '↓' }}
+              </span>
+            </th>
+            <th>Justificatif</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of depenses">
+            <td><input type="checkbox" [checked]="selectedIds.has(d.id)" (change)="toggleSelection(d.id)"></td>
+            <td>{{ d.dateDepense | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ d.chauffeurNom || '—' }}</td>
+            <td>
+              <span class="cat-badge cat-badge--{{ d.categorie | lowercase }}">
+                {{ categorieLabel(d.categorie) }}
+              </span>
+            </td>
+            <td class="text-muted">{{ d.description || '—' }}</td>
+            <td>{{ d.vehiculeImmatriculation || '—' }}</td>
+            <td><strong>{{ d.amountTTC | number:'1.2-2' }} €</strong></td>
+
+            <td>
+              <div class="fl-actions">
+                <ng-container *ngIf="d.proofUrl; else noProof">
+                  <button class="fl-btn fl-btn-ghost" (click)="viewProof(d.id, d.reference)" title="Voir">👁</button>
+                  <button class="fl-btn fl-btn-ghost" (click)="downloadProof(d.id, d.reference)" title="Télécharger">⬇</button>
+                </ng-container>
+                <ng-template #noProof><span class="text-muted">—</span></ng-template>
+              </div>
+            </td>
+
+            <td>
+              <div class="fl-actions">
+                <button class="fl-btn fl-btn-ghost" (click)="goEdit(d)" title="Modifier">✎</button>
+                <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(d)" title="Supprimer" style="color:#ef4444;">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="depenses.length === 0">
+            <td colspan="9" class="fl-empty">Aucune dépense diverse enregistrée</td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="depenses.length > 0">
+          <tr style="background:var(--primary-light); color:var(--text); font-weight:bold; border-top:2px solid var(--primary);">
+            <td colspan="6" style="text-align:right; padding-right:15px; color:var(--text);">Total des éléments filtrés :</td>
+            <td style="color:var(--text);">{{ summaryTotalTTC | number:'1.2-2' }} €</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <app-pagination-bar
+      *ngIf="totalElements > 0"
+      [total]="totalElements"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [loading]="loading"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
+  </div>
+</div>
+
+<!-- Modal justificatif -->
+<div class="fl-modal-overlay" *ngIf="proofModalOpen" (click)="closeProofModal()">
+  <div class="fl-modal" (click)="$event.stopPropagation()">
+    <div class="fl-modal-header">
+      <h3>Justificatif — {{ currentProofRef }}</h3>
+      <button class="fl-modal-close" (click)="closeProofModal()">✕</button>
+    </div>
+    <div class="fl-modal-body">
+      <div *ngIf="proofLoading" class="fl-modal-loading">Chargement…</div>
+      <ng-container *ngIf="!proofLoading">
+        <img *ngIf="proofIsImage" [src]="proofSafeUrl" class="fl-modal-img" alt="Justificatif"/>
+        <iframe *ngIf="!proofIsImage" [src]="proofSafeUrl" class="fl-modal-pdf"></iframe>
+      </ng-container>
+    </div>
+    <div class="fl-modal-footer">
+      <button class="fl-btn fl-btn-ghost" (click)="downloadProof(currentProofId!, currentProofRef)">⬇ Télécharger</button>
+      <button class="fl-btn fl-btn-primary" (click)="closeProofModal()">Fermer</button>
+    </div>
+  </div>
+</div>

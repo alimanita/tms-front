@@ -59,6 +59,24 @@ export const routes : Routes = [
         .then(m => m.TollFormComponent),
   },
   {
+    path: 'depenses-diverses',
+    loadComponent: () =>
+      import('./depenses-diverses/depense-diverse-list/depense-diverse-list.component')
+        .then(m => m.DepenseDiverseListComponent),
+  },
+  {
+    path: 'depenses-diverses/new',
+    loadComponent: () =>
+      import('./depenses-diverses/depense-diverse-form/depense-diverse-form.component')
+        .then(m => m.DepenseDiverseFormComponent),
+  },
+  {
+    path: 'depenses-diverses/:id/edit',
+    loadComponent: () =>
+      import('./depenses-diverses/depense-diverse-form/depense-diverse-form.component')
+        .then(m => m.DepenseDiverseFormComponent),
+  },
+  {
     path: 'batch-tickets',
     loadComponent: () =>
       import('./batch-tickets/batch-tickets.component')
