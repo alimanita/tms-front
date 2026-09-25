@@ -1,0 +1,532 @@
+<div class="planner-container">
+  <header>
+    <h1>Planificateur de Flotte (TMS)</h1>
+    <p>Importez vos offres de fret (JSON) et générez le meilleur planning pour vos camions.</p>
+    <button class="relay-paste-open-btn" (click)="openRelayModal()">
+      📋 Coller JSON Amazon Relay
+    </button>
+  </header>
+
+  <div class="form-section">
+    <div class="form-group full-width">
+      <label>Source des offres :</label>
+      <div class="source-toggle">
+        <button [class.active]="dataSource === 'file'" (click)="switchSource('file')">📁 Fichier JSON</button>
+        <button [class.active]="dataSource === 'db'" (click)="switchSource('db')">🗄️ Base de données</button>
+      </div>
+    </div>
+
+    <!-- MODE FICHIER -->
+    <ng-container *ngIf="dataSource === 'file'">
+      <div class="form-group full-width">
+        <label>Fichier(s) d'opportunités (JSON) <span class="required">*</span> :</label>
+        <input type="file" accept=".json" multiple (change)="onFileChange($event)">
+      </div>
+      <div class="form-group full-width action-row" *ngIf="opportunities.length > 0">
+        <button class="generate-btn" (click)="importToDb()" [disabled]="importLoading" style="background: #2ecc71;">
+          {{ importLoading ? 'Importation en cours...' : '📥 Importer vers BD' }}
+        </button>
+      </div>
+
+      <!-- Résumé clair du nombre de courses enregistrées -->
+      <div class="import-result-card" *ngIf="importResult">
+        <div class="result-header">
+          <span class="icon">✅</span>
+          <strong>Résultat de l'enregistrement en Base de Données :</strong>
+          <button class="close-badge-btn" (click)="importResult = null">✕</button>
+        </div>
+        <div class="result-body">
+          <span class="badge-saved">💾 <strong>{{ importResult.imported }}</strong> course(s) enregistrée(s) avec succès</span>
+          <span class="badge-skipped" *ngIf="importResult.skipped > 0">🛡️ <strong>{{ importResult.skipped }}</strong> doublon(s) ignoré(s)</span>
+          <span class="badge-total">📦 Total traité : {{ importResult.total }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- MODE BASE DE DONNÉES -->
+    <ng-container *ngIf="dataSource === 'db'">
+      <div class="form-group">
+        <label>Statut en base :</label>
+        <select [(ngModel)]="dbFilter.statut" style="padding: 10px; border: 1px solid #ced4da; border-radius: 4px;">
+          <option value="">Tous</option>
+          <option value="DISPONIBLE">DISPONIBLE</option>
+          <option value="PRISE">PRISE</option>
+          <option value="EXPIREE">EXPIREE</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Revenu minimum (€) (Filtre BD) :</label>
+        <input type="number" [(ngModel)]="dbFilter.minRevenue" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Ville de départ (Filtre BD) :</label>
+        <input type="text" [(ngModel)]="dbFilter.departureCity">
+      </div>
+      <div class="form-group">
+        <label>Ville d'arrivée (Filtre BD) :</label>
+        <input type="text" [(ngModel)]="dbFilter.arrivalCity">
+      </div>
+      <div class="form-group">
+        <label>Date de début (Filtre BD) <i>(Dès aujourd'hui par défaut)</i> :</label>
+        <input type="datetime-local" [(ngModel)]="dbFilter.startDate">
+      </div>
+      <div class="form-group">
+        <label>Date de fin (Filtre BD) :</label>
+        <input type="datetime-local" [(ngModel)]="dbFilter.endDate">
+      </div>
+      <div class="form-group full-width action-row">
+        <button class="generate-btn" (click)="loadFromDb()" [disabled]="dbLoading">
+          {{ dbLoading ? 'Chargement...' : 'Charger et générer le planning' }}
+        </button>
+        <span *ngIf="dbTotalElements > 0" style="margin-left:10px; align-self: center;">
+          {{ dbTotalElements }} offres chargées depuis la base
+        </span>
+      </div>
+    </ng-container>
+
+    <div class="form-group full-width">
+      <hr style="border: none; border-top: 1px solid #ddd; margin: 10px 0;">
+      <h3 style="margin-top: 0;">Paramètres de planification locale</h3>
+    </div>
+
+    <div class="form-group">
+      <label>Nombre de camions <span class="required">*</span> :</label>
+      <input type="number" [(ngModel)]="numTrucks" min="1">
+    </div>
+
+    <div class="form-group">
+      <label>Km à vide max <strong>PAR TRAJET</strong> (km) <i>(Optionnel)</i> :</label>
+      <input type="number" [(ngModel)]="maxEmptyPerTrip" min="0" placeholder="Pas de limite">
+    </div>
+
+    <div class="form-group">
+      <label>Km à vide max <strong>CUMULÉ</strong> (total par camion) <i>(Optionnel)</i> :</label>
+      <input type="number" [(ngModel)]="maxEmptyTotal" min="0" placeholder="Ex: 500">
+    </div>
+
+    <div class="form-group">
+      <label>Kilométrage total max (par camion) (km) <i>(Optionnel)</i> :</label>
+      <input type="number" [(ngModel)]="maxTotalKm" min="0" placeholder="Ex: 3000">
+    </div>
+
+    <div class="form-group">
+      <label>Attente max entre étapes (heures) <i>(Optionnel)</i> :</label>
+      <input type="number" [(ngModel)]="maxWaitHours" min="0" placeholder="Ex: 24 (évite d'attendre plusieurs jours)">
+    </div>
+
+    <div class="form-group">
+      <label>Type de course :</label>
+      <select [(ngModel)]="tripTypeFilter" style="padding: 10px; border: 1px solid #ced4da; border-radius: 4px; width: 100%;">
+        <option value="ALL">Toutes les courses</option>
+        <option value="ROUND_TRIP">🔄 Aller-Retour uniquement</option>
+        <option value="ONE_WAY">➡️ Aller Simple uniquement</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Revenu minimum par job (€) <i>(Optionnel)</i> :</label>
+      <input type="number" [(ngModel)]="minRevenue" min="0" placeholder="0">
+    </div>
+
+    <div class="form-group">
+      <label>Lieu de départ (Ville) <i>(Optionnel)</i> :</label>
+      <input type="text" [(ngModel)]="startLocation" placeholder="Où que soit le premier job">
+    </div>
+
+    <div class="form-group">
+      <label>Lieu de retour (Ville) <i>(Optionnel)</i> :</label>
+      <input type="text" [(ngModel)]="endLocation" placeholder="Peu importe">
+    </div>
+
+    <div class="form-group">
+      <label>Date de début <i>(Dès aujourd'hui par défaut)</i> :</label>
+      <input type="datetime-local" [(ngModel)]="startDate">
+    </div>
+
+    <div class="form-group">
+      <label>Date de fin <i>(Optionnel)</i> :</label>
+      <input type="datetime-local" [(ngModel)]="endDate">
+    </div>
+
+    <div class="form-group full-width action-row">
+      <button class="generate-btn" (click)="generatePlan()" [disabled]="opportunities.length === 0">
+        Actualiser le planning
+      </button>
+    </div>
+  </div>
+
+  <div class="results-section" *ngIf="planGenerated">
+    <h2>Résultats du Planning</h2>
+
+    <div class="filter-info" *ngIf="totalOpportunities > 0">
+      <span>{{ filteredCount }} offre(s) retenue(s) sur {{ totalOpportunities }} importée(s)</span>
+      <span *ngIf="filteredCount === 0" class="warn"> — Aucune offre ne correspond aux critères actuels. Vérifiez vos filtres de date/revenu.</span>
+    </div>
+
+    <!-- ── Onglets des 3 Plans (Plan A, Plan B, Plan C) ──────────────────────── -->
+    <div class="plans-selector-container" *ngIf="plans.length > 0">
+      <h3 class="plans-title">Comparatif des 3 Variantes de Planning :</h3>
+      <div class="plans-tabs-grid">
+        <div
+          *ngFor="let plan of plans; let idx = index"
+          class="plan-card-tab"
+          [class.active]="selectedPlanIndex === idx"
+          (click)="selectPlan(idx)">
+          <div class="plan-card-header">
+            <span class="plan-badge">{{ plan.name }}</span>
+            <span class="plan-tag-pill">{{ plan.tag }}</span>
+          </div>
+          <p class="plan-desc">{{ plan.description }}</p>
+          <div class="plan-metrics-row">
+            <div class="metric-item">
+              <span class="m-label">Revenu :</span>
+              <span class="m-val rev">💶 {{ plan.totalFleetRevenue | number:'1.2-2' }} €</span>
+            </div>
+            <div class="metric-item">
+              <span class="m-label">Km à vide :</span>
+              <span class="m-val empty">🚛 {{ plan.totalFleetEmpty | number:'1.0-0' }} km</span>
+            </div>
+            <div class="metric-item">
+              <span class="m-label">Distance :</span>
+              <span class="m-val dist">📏 {{ plan.totalFleetKm | number:'1.0-0' }} km</span>
+            </div>
+            <div class="metric-item">
+              <span class="m-label">Missions :</span>
+              <span class="m-val jobs">📦 {{ plan.totalJobs }}</span>
+            </div>
+          </div>
+          <button class="select-plan-btn">
+            {{ selectedPlanIndex === idx ? '✓ Plan sélectionné' : 'Choisir ' + plan.name }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-container">
+      <h3>Résumé Global</h3>
+      <p><strong>Total des revenus de la flotte :</strong> {{ totalFleetRevenue | number:'1.2-2' }} €</p>
+      <p><strong>Distance totale en charge :</strong> {{ totalFleetLoadedKm | number:'1.1-1' }} km</p>
+      <p><strong>Distance totale à vide :</strong> {{ totalFleetEmpty | number:'1.1-1' }} km</p>
+      <p><strong>Kilométrage total flotte (Charge + Vide) :</strong> {{ totalFleetKm | number:'1.1-1' }} km</p>
+      <p><strong>Total de missions effectuées :</strong> {{ totalJobs }}</p>
+    </div>
+
+    <!-- ── Barre de recherche De / À & Tri Tarif ─────────────────────────────── -->
+    <div class="jobs-search-bar">
+      <div class="search-field">
+        <span class="search-label">🚀 Du</span>
+        <input
+          type="text"
+          [(ngModel)]="searchFrom"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Ville de départ…"
+          class="search-input">
+        <button *ngIf="searchFrom" class="clear-search" (click)="searchFrom=''; onSearchChange()">✕</button>
+      </div>
+      <div class="search-arrow">→</div>
+      <div class="search-field">
+        <span class="search-label">🏁 Au</span>
+        <input
+          type="text"
+          [(ngModel)]="searchTo"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Ville d'arrivée…"
+          class="search-input">
+        <button *ngIf="searchTo" class="clear-search" (click)="searchTo=''; onSearchChange()">✕</button>
+      </div>
+
+      <!-- Bouton de tri par tarif -->
+      <div class="sort-field">
+        <button
+          class="tariff-sort-btn"
+          (click)="toggleTariffSort()"
+          [class.active-desc]="tariffSort === 'desc'"
+          [class.active-asc]="tariffSort === 'asc'"
+          title="Trier les courses par tarif">
+          <span>💶 Tarif</span>
+          <span class="sort-arrow" *ngIf="tariffSort === 'desc'">⬇️ Décroissant (Max → Min)</span>
+          <span class="sort-arrow" *ngIf="tariffSort === 'asc'">⬆️ Croissant (Min → Max)</span>
+          <span class="sort-arrow" *ngIf="tariffSort === 'none'">↕️ Par défaut (Chrono)</span>
+        </button>
+      </div>
+
+      <div class="search-count" *ngIf="searchFrom || searchTo || tariffSort !== 'none'">
+        <span *ngIf="searchFrom || searchTo">{{ searchMatchCount }} résultat(s)</span>
+        <button class="reset-search-btn" (click)="resetSearch(); tariffSort='none'">Réinitialiser</button>
+      </div>
+    </div>
+
+    <div class="trucks-container">
+      <div class="truck-card" *ngFor="let truck of trucks">
+        <div class="truck-header">
+          <h3>Camion #{{ truck.id }}</h3>
+          <div class="truck-stats">
+            <span><strong>Revenu : </strong> {{ truck.totalRevenue | number:'1.2-2' }} €</span>
+            <span> | <strong>En charge : </strong> {{ (truck.totalLoadedMileage || 0) | number:'1.1-1' }} km</span>
+            <span> | <strong>À vide : </strong> {{ truck.totalEmptyMileage | number:'1.1-1' }} km</span>
+            <span> | <strong>Total : </strong> {{ (truck.totalMileage || 0) | number:'1.1-1' }} km</span>
+          </div>
+        </div>
+
+        <div class="truck-jobs">
+          <ng-container *ngFor="let job of getFilteredAndSortedJobs(truck); let i = index">
+            <div class="job-empty-mileage" *ngIf="job.emptyMileageBefore > 0">
+              ⬇️ Déplacement à vide : ~{{ job.emptyMileageBefore | number:'1.1-1' }} km ⬇️
+            </div>
+
+            <div class="job-step" [class.job-highlight]="searchFrom || searchTo" [class.is-round-trip]="isRoundTrip(job)">
+              <!-- Colonne 1 : infos de base -->
+              <div>
+                <div class="step-badge-row">
+                  <strong>Étape {{ i + 1 }}</strong>
+                  <span class="badge-round-trip" *ngIf="isRoundTrip(job)" title="Course Aller-Retour">🔄 Aller-Retour</span>
+                </div>
+                <span class="step-payout">{{ job.payout ? (job.payout.value | number:'1.2-2') + ' ' + job.payout.unit : 'N/A' }}</span>
+              </div>
+
+              <!-- Colonne 2 : De / À -->
+              <div>
+                <strong>De:</strong>
+                <span [class.search-match]="matchesCity(job.startLocation?.city, searchFrom)">
+                  {{ job.startLocation ? job.startLocation.city : 'Inconnu' }}
+                </span>
+                ({{ job.firstPickupTime | date:'dd/MM/yyyy HH:mm' }})<br>
+                <strong>À:</strong>
+                <span [class.search-match]="matchesCity(job.endLocation?.city, searchTo)">
+                  {{ job.endLocation ? job.endLocation.city : 'Inconnu' }}
+                </span>
+                ({{ job.lastDeliveryTime | date:'dd/MM/yyyy HH:mm' }})
+
+                <div class="stops-trail" *ngIf="getRouteSummary(job)">
+                  <small>📍 <strong>Itinéraire :</strong> {{ getRouteSummary(job) }}</small>
+                </div>
+              </div>
+
+              <!-- Colonne 3 : distance + bouton courses proches -->
+              <div class="job-actions-col">
+                <span><strong>Dist:</strong> {{ job.totalDistance ? (job.totalDistance.value | number:'1.1-1') + ' km' : 'N/A' }}</span>
+                <button
+                  class="nearby-btn"
+                  *ngIf="job.endLocation"
+                  (click)="showNearbyJobs(job)"
+                  title="Voir les courses qui partent près de {{ job.endLocation?.city }}">
+                  📍 Courses proches de {{ job.endLocation?.city }}
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <p *ngIf="truck.jobs.length === 0">Aucun trajet assigné.</p>
+          <p *ngIf="truck.jobs.length > 0 && getVisibleJobsCount(truck) === 0" class="no-match-msg">
+            Aucune étape ne correspond à la recherche "{{ searchFrom }}" → "{{ searchTo }}" pour ce camion.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Panneau courses proches ───────────────────────────────────── -->
+  <div class="nearby-overlay" *ngIf="nearbyPanel.open" (click)="closeNearby()"></div>
+
+  <div class="nearby-panel" *ngIf="nearbyPanel.open">
+
+    <!-- En-tête avec fil d'Ariane -->
+    <div class="nearby-panel-header">
+      <div class="nearby-breadcrumb" *ngIf="nearbyHistory.length > 0">
+        <button class="back-btn" (click)="goBackNearby()" title="Retour">← Retour</button>
+        <span class="breadcrumb-trail">
+          <ng-container *ngFor="let step of nearbyHistory; let i = index">
+            <span class="crumb" (click)="goToHistoryStep(i)" title="Revenir à {{ step.city }}">
+              {{ step.city }}
+            </span>
+            <span class="crumb-sep">›</span>
+          </ng-container>
+          <span class="crumb crumb-current">{{ nearbyPanel.destinationCity }}</span>
+        </span>
+      </div>
+
+      <div class="nearby-title-row">
+        <div>
+          <h3>📍 Courses au départ proche de <strong>{{ nearbyPanel.destinationCity }}</strong></h3>
+          <span class="nearby-subtitle">
+            {{ getSortedPanelJobs().length }} offre(s) affichée(s) (sur {{ nearbyPanel.jobs.length }}) · {{ panelTariffSort === 'none' ? 'triées par distance' : 'triées par tarif' }}
+          </span>
+        </div>
+        <button class="close-btn" (click)="closeNearby()">✕</button>
+      </div>
+
+      <!-- Barre d'outils du panneau : Tri tarif + Filtre par date -->
+      <div class="panel-sort-toolbar">
+        <button
+          class="panel-sort-btn"
+          (click)="togglePanelTariffSort()"
+          [class.active]="panelTariffSort !== 'none'"
+          title="Trier les résultats du panneau par tarif">
+          <span>💶 Tri tarif : </span>
+          <span *ngIf="panelTariffSort === 'desc'">⬇️ Plus cher</span>
+          <span *ngIf="panelTariffSort === 'asc'">⬆️ Moins cher</span>
+          <span *ngIf="panelTariffSort === 'none'">📍 Par distance</span>
+        </button>
+
+        <!-- Filtre Date de départ exacte -->
+        <div class="panel-date-filter-group">
+          <span class="date-icon">📅 Date :</span>
+          <input
+            type="date"
+            [(ngModel)]="panelDateFilter"
+            class="panel-date-input"
+            title="Filtrer les courses partant ce jour précis">
+          <button
+            *ngIf="panelDateFilter"
+            class="panel-date-clear"
+            (click)="panelDateFilter=''"
+            title="Afficher toutes les dates">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="nearby-panel-body">
+      <div *ngIf="getSortedPanelJobs().length === 0" class="no-nearby">
+        <p *ngIf="panelDateFilter">
+          Aucune offre au départ proche de <strong>{{ nearbyPanel.destinationCity }}</strong> le <strong>{{ panelDateFilter | date:'dd/MM/yyyy' }}</strong>.
+        </p>
+        <p *ngIf="!panelDateFilter">
+          Aucune offre disponible avec un départ proche de <strong>{{ nearbyPanel.destinationCity }}</strong>.
+        </p>
+        <button *ngIf="panelDateFilter && nearbyPanel.jobs.length > 0" class="reset-search-btn" (click)="panelDateFilter=''" style="margin-top: 10px;">
+          Voir les offres à d'autres dates ({{ nearbyPanel.jobs.length }})
+        </button>
+      </div>
+
+      <div class="nearby-job" *ngFor="let nj of getSortedPanelJobs(); let idx = index">
+        <div class="nearby-rank" [class.rank-1]="idx === 0" [class.rank-2]="idx === 1" [class.rank-3]="idx === 2">
+          #{{ idx + 1 }}
+        </div>
+
+        <div class="nearby-info">
+          <!-- Route -->
+          <div class="nearby-route">
+            <span class="city dep-city">{{ nj.job.startLocation?.city || nj.job.departureCity || 'Inconnu' }}</span>
+            <span class="arrow">→</span>
+            <span class="city arr-city">{{ nj.job.endLocation?.city || nj.job.arrivalCity || 'Inconnu' }}</span>
+            <span class="badge-round-trip-sm" *ngIf="isRoundTrip(nj.job)" title="Course Aller-Retour">🔄 A/R</span>
+          </div>
+          <!-- Méta -->
+          <div class="nearby-meta">
+            <span class="departure">🕐 {{ nj.job.firstPickupTime | date:'dd/MM/yyyy HH:mm' }} - {{ nj.job.lastDeliveryTime | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="revenue">💶 {{ nj.job.payout ? (nj.job.payout.value | number:'1.2-2') + ' ' + nj.job.payout.unit : 'N/A' }}</span>
+            <span class="dist-job">📏 {{ nj.job.totalDistance ? (nj.job.totalDistance.value | number:'1.0-0') + ' km' : 'N/A' }}</span>
+          </div>
+          <!-- Bouton "continuer depuis l'arrivée" -->
+          <button
+            class="chain-btn"
+            *ngIf="nj.job.endLocation?.city"
+            (click)="chainNearbySearch(nj)"
+            title="Chercher des courses au départ de {{ nj.job.endLocation?.city }} ou proche">
+            🔗 Continuer depuis <strong>{{ nj.job.endLocation?.city }}</strong>
+          </button>
+        </div>
+
+        <div class="nearby-empty-dist">
+          <span class="empty-label">Km à vide</span>
+          <span class="empty-value"
+            [class.zero]="nj.emptyKm === 0"
+            [class.low]="nj.emptyKm > 0 && nj.emptyKm <= 50"
+            [class.high]="nj.emptyKm > 50">
+            {{ nj.emptyKm === 0 ? 'Même ville' : '~' + (nj.emptyKm | number:'1.0-0') + ' km' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Modal : Coller JSON Amazon Relay                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="relay-modal-overlay" *ngIf="relayModalOpen" (click)="closeRelayModal()"></div>
+
+<div class="relay-modal" *ngIf="relayModalOpen">
+  <!-- En-tête -->
+  <div class="relay-modal-header">
+    <div class="relay-modal-title">
+      <span class="relay-icon">📋</span>
+      <div>
+        <h2>Importer depuis Amazon Relay</h2>
+        <p>Collez ici la réponse JSON copiée depuis les DevTools</p>
+      </div>
+    </div>
+    <button class="relay-modal-close" (click)="closeRelayModal()">✕</button>
+  </div>
+
+  <!-- Guide rapide -->
+  <div class="relay-how-to">
+    <div class="how-to-step">
+      <span class="step-num">1</span>
+      <span>Sur <strong>relay.amazon.fr</strong>, ouvrez <strong>F12</strong> → Réseau</span>
+    </div>
+    <div class="how-to-step">
+      <span class="step-num">2</span>
+      <span>Faites votre recherche → cliquez sur la requête <code>search</code></span>
+    </div>
+    <div class="how-to-step">
+      <span class="step-num">3</span>
+      <span>Onglet <strong>Réponse</strong> → Sélectionnez tout (<kbd>Ctrl+A</kbd>) → Copiez (<kbd>Ctrl+C</kbd>)</span>
+    </div>
+    <div class="how-to-step">
+      <span class="step-num">4</span>
+      <span>Collez ci-dessous (<kbd>Ctrl+V</kbd>) puis cliquez <strong>Importer</strong></span>
+    </div>
+  </div>
+
+  <!-- Zone de collage -->
+  <div class="relay-paste-area">
+    <label class="relay-paste-label">
+      JSON Amazon Relay :
+      <span class="relay-char-count" *ngIf="relayJsonText.length > 0">
+        {{ relayJsonText.length | number }} caractères
+      </span>
+    </label>
+    <textarea
+      class="relay-textarea"
+      [(ngModel)]="relayJsonText"
+      placeholder='Collez ici le JSON Amazon Relay... (format : { "workOpportunities": [...] })'
+      rows="10"
+      (paste)="onRelayPaste($event)"
+      autofocus>
+    </textarea>
+
+    <!-- Erreur de parsing -->
+    <div class="relay-parse-error" *ngIf="relayParseError">
+      ⚠️ {{ relayParseError }}
+    </div>
+
+    <!-- Aperçu du nombre d'offres détectées -->
+    <div class="relay-preview" *ngIf="relayPreviewCount > 0">
+      ✅ <strong>{{ relayPreviewCount }}</strong> offre(s) détectée(s) — prêtes à importer
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="relay-modal-actions">
+    <button class="relay-clear-btn" (click)="clearRelayModal()" *ngIf="relayJsonText.length > 0">
+      🗑️ Effacer
+    </button>
+    <div style="flex: 1;"></div>
+    <button class="relay-cancel-btn" (click)="closeRelayModal()">Annuler</button>
+    <button
+      class="relay-import-btn"
+      (click)="importRelayJson()"
+      [disabled]="relayImportLoading || relayPreviewCount === 0">
+      {{ relayImportLoading ? '⏳ Import en cours...' : '📥 Importer ' + (relayPreviewCount > 0 ? '(' + relayPreviewCount + ' offres)' : '') }}
+    </button>
+  </div>
+
+  <!-- Résultat import -->
+  <div class="relay-import-result" *ngIf="relayImportResult">
+    <span class="res-imported">💾 <strong>{{ relayImportResult.imported }}</strong> importée(s)</span>
+    <span class="res-skipped" *ngIf="relayImportResult.skipped > 0">🛡️ <strong>{{ relayImportResult.skipped }}</strong> doublon(s)</span>
+    <span class="res-total">📦 Total : {{ relayImportResult.total }}</span>
+  </div>
+</div>
+

@@ -10,13 +10,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { PeageResponse } from '../peage.model';
 import { jsPDF } from 'jspdf';
 import { PaginationBarComponent, PageChangeEvent } from '../../../../shared/components/pagination-bar/pagination-bar.component';
-import { PaginatePipe } from '../../../../shared/pipes/paginate.pipe';
 import { isAdminRole } from 'app/core/authentication/helpers';
 
 @Component({
   selector: 'app-toll-list',
   standalone: true,
-  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule, PaginationBarComponent, PaginatePipe],
+  imports: [CommonModule, MatSnackBarModule, FormsModule, MatIconModule, PaginationBarComponent],
   templateUrl: './toll-list.component.html',
   styleUrls: ['./toll-list.component.scss'],
 })

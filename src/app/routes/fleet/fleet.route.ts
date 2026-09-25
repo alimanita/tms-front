@@ -234,6 +234,12 @@ export const routes : Routes = [
     import('./chauffeur-dashboard/chauffeur-dashboard.component')
       .then(m => m.ChauffeurDashboardComponent),
 },
+{
+  path: 'planner',
+  loadComponent: () =>
+    import('./planner/planner.component')
+      .then(m => m.PlannerComponent),
+}
 ];
 
 

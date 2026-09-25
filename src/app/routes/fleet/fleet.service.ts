@@ -963,4 +963,53 @@ getDocumentFile(id: number) {
   updateChauffeurSettings(request: import('./chauffeurs/chauffeur.model').ChauffeurConfigRequest): Observable<ChauffeurResponse[]> {
     return this.http.put<ChauffeurResponse[]>(`${this.base}/chauffeurs/settings`, request);
   }
+
+  // ── Planificateur de Flotte (Work Opportunities) ──────────────────────────────────
+  
+  // Import batch of work opportunities
+  importWorkOpportunities(source: string, workOpportunities: any[]): Observable<any> {
+    return this.http.post(`${this.base}/work-opportunities/import`, { source, workOpportunities });
+  }
+
+  // Load from DB with filters
+  getWorkOpportunities(params: {
+    statut?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
+    minRevenue?: number | null;
+    departureCity?: string | null;
+    arrivalCity?: string | null;
+    page?: number | null;
+    size?: number | null;
+  }): Observable<any> {
+    return this.http.get(`${this.base}/work-opportunities`, { params: this.cleanParams(params) });
+  }
+
+  // Nearby search
+  getNearbyWorkOpportunities(params: {
+    lat: number;
+    lng: number;
+    radiusKm: number;
+    afterDate?: string | null;
+    minRevenue?: number | null;
+    limit?: number | null;
+  }): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/work-opportunities/nearby`, { params: this.cleanParams(params) });
+  }
+
+  // Update statut
+  updateWorkOpportunityStatut(id: number, statut: string): Observable<any> {
+    return this.http.patch(`${this.base}/work-opportunities/${id}/statut`, { statut });
+  }
+
+  // Purge expired
+  purgeExpiredWorkOpportunities(): Observable<any> {
+    return this.http.delete(`${this.base}/work-opportunities/expired`);
+  }
+
+  private cleanParams(obj: any): any {
+    const p: any = {};
+    Object.keys(obj).forEach(k => { if (obj[k] !== null && obj[k] !== undefined && obj[k] !== '') p[k] = obj[k]; });
+    return p;
+  }
 }
