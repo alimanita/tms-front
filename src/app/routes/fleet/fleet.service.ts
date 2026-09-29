@@ -415,12 +415,23 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
 }
   // Pleins carburant
   getPleins(paramsObj?: any): Observable<any> {
-    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
-    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
-    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
-    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
-    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
-    if (paramsObj?.sort) params.sort = paramsObj.sort;
+    let params = new HttpParams()
+      .set('page', paramsObj?.page ?? 0)
+      .set('size', paramsObj?.size ?? 10);
+    
+    if (paramsObj?.vehiculeId) params = params.set('vehiculeId', paramsObj.vehiculeId);
+    if (paramsObj?.chauffeurId) params = params.set('chauffeurId', paramsObj.chauffeurId);
+    if (paramsObj?.startDate) params = params.set('startDate', paramsObj.startDate);
+    if (paramsObj?.endDate) params = params.set('endDate', paramsObj.endDate);
+    
+    if (paramsObj?.sort) {
+      if (Array.isArray(paramsObj.sort)) {
+        paramsObj.sort.forEach((s: string) => params = params.append('sort', s));
+      } else {
+        params = params.set('sort', paramsObj.sort);
+      }
+    }
+    
     return this.http.get(`${this.base}/pleins-carburant`, { params });
   }
 
@@ -459,12 +470,23 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
 
   // Péages (Tolls) - Nouvelle table peage
   getPeages(paramsObj?: any): Observable<any> {
-    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
-    if (paramsObj?.vehiculeId) params.vehiculeId = paramsObj.vehiculeId;
-    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
-    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
-    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
-    if (paramsObj?.sort) params.sort = paramsObj.sort;
+    let params = new HttpParams()
+      .set('page', paramsObj?.page ?? 0)
+      .set('size', paramsObj?.size ?? 10);
+    
+    if (paramsObj?.vehiculeId) params = params.set('vehiculeId', paramsObj.vehiculeId);
+    if (paramsObj?.chauffeurId) params = params.set('chauffeurId', paramsObj.chauffeurId);
+    if (paramsObj?.startDate) params = params.set('startDate', paramsObj.startDate);
+    if (paramsObj?.endDate) params = params.set('endDate', paramsObj.endDate);
+    
+    if (paramsObj?.sort) {
+      if (Array.isArray(paramsObj.sort)) {
+        paramsObj.sort.forEach((s: string) => params = params.append('sort', s));
+      } else {
+        params = params.set('sort', paramsObj.sort);
+      }
+    }
+    
     return this.http.get(`${this.base}/peages`, { params });
   }
 
@@ -532,12 +554,23 @@ getMonChauffeur(): Observable<ChauffeurResponse> {
 
   // ── Dépenses Diverses ──────────────────────────────────────────
   getDepensesDiverses(paramsObj?: any): Observable<any> {
-    let params: any = { page: paramsObj?.page ?? 0, size: paramsObj?.size ?? 10 };
-    if (paramsObj?.chauffeurId) params.chauffeurId = paramsObj.chauffeurId;
-    if (paramsObj?.categorie) params.categorie = paramsObj.categorie;
-    if (paramsObj?.startDate) params.startDate = paramsObj.startDate;
-    if (paramsObj?.endDate) params.endDate = paramsObj.endDate;
-    if (paramsObj?.sort) params.sort = paramsObj.sort;
+    let params = new HttpParams()
+      .set('page', paramsObj?.page ?? 0)
+      .set('size', paramsObj?.size ?? 10);
+    
+    if (paramsObj?.chauffeurId) params = params.set('chauffeurId', paramsObj.chauffeurId);
+    if (paramsObj?.categorie) params = params.set('categorie', paramsObj.categorie);
+    if (paramsObj?.startDate) params = params.set('startDate', paramsObj.startDate);
+    if (paramsObj?.endDate) params = params.set('endDate', paramsObj.endDate);
+    
+    if (paramsObj?.sort) {
+      if (Array.isArray(paramsObj.sort)) {
+        paramsObj.sort.forEach((s: string) => params = params.append('sort', s));
+      } else {
+        params = params.set('sort', paramsObj.sort);
+      }
+    }
+    
     return this.http.get(`${this.base}/depenses-diverses`, { params });
   }
 
