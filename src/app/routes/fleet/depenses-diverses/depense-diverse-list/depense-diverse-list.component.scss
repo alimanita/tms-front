@@ -4,7 +4,20 @@ $text-main  : #1e293b;
 $text-muted : #64748b;
 $radius     : 8px;
 
-.fleet-page   { min-height: 100vh; background: #f8fafc; padding-bottom: 40px; }
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.fleet-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding-bottom: 40px;
+  max-width: 100%;
+  min-width: 0;
+}
 
 .fleet-topbar {
   display: flex; align-items: center; justify-content: space-between;
@@ -15,20 +28,31 @@ $radius     : 8px;
 }
 
 .fleet-title  { font-size: 15px; font-weight: 600; color: $text-main; margin: 0; }
-.fleet-body   { padding: 24px; }
+.fleet-body   { padding: 24px; min-width: 0; }
 .fleet-loading { padding: 40px; text-align: center; color: $text-muted; }
 
+// Conteneur filtres + boutons (remplace .fl-topbar-actions)
+.fl-topbar-body {
+  display: flex; gap: 12px; align-items: center; justify-content: flex-end;
+  flex-wrap: wrap; min-width: 0;
+}
+
+.fl-action-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; max-width: 100%; }
+
+// Conservé au cas où d'autres templates utilisent encore cette classe
 .fl-topbar-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
 .fl-filters        { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 .fl-select, .fl-input {
   padding: 7px 10px; border: 1px solid $border; border-radius: $radius;
   font-size: 13px; background: #fff; color: $text-main;
+  max-width: 100%; min-width: 0;
   &:focus { outline: none; border-color: $primary; }
 }
 
 .fl-summary-bar {
-  display: flex; gap: 24px; align-items: center;
+  display: flex; gap: 8px 24px; align-items: center; flex-wrap: wrap;
   padding: 10px 24px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;
   font-size: 13px; color: $text-main;
 }
@@ -38,7 +62,7 @@ $radius     : 8px;
 }
 
 .fl-btn {
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   padding: 7px 14px; border-radius: $radius; font-size: 13px;
   font-weight: 500; cursor: pointer; border: 1px solid transparent;
   transition: background .15s; white-space: nowrap;
@@ -51,7 +75,14 @@ $radius     : 8px;
                 &:hover:not(:disabled) { background: #e2e8f0; } }
 }
 
-.table-responsive { overflow-x: auto; }
+// ── Tableau : scroll horizontal si nécessaire ─────────────────
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: $radius;
+}
 
 .fl-table {
   width: 100%; border-collapse: collapse; font-size: 13px; background: #fff;
@@ -80,6 +111,7 @@ $radius     : 8px;
 .cat-badge {
   display: inline-block; padding: 3px 10px; border-radius: 20px;
   font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .4px;
+  white-space: nowrap;
   &--hebergement      { background: #dbeafe; color: #1d4ed8; }
   &--repas            { background: #dcfce7; color: #15803d; }
   &--telephone        { background: #fef9c3; color: #854d0e; }
@@ -89,7 +121,7 @@ $radius     : 8px;
   &--autre            { background: #f1f5f9; color: $text-muted; }
 }
 
-// Modal justificatif
+// ── Modal justificatif ────────────────────────────────────────
 .fl-modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5);
   display: flex; align-items: center; justify-content: center; z-index: 999;
@@ -118,7 +150,248 @@ $radius     : 8px;
   display: flex; justify-content: flex-end; gap: 10px;
 }
 
+// ── Vue cartes mobile (cachée par défaut) ─────────────────────
+.mobile-cards-view {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.depense-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &.card-selected {
+    border-color: $primary;
+    box-shadow: 0 0 0 1.5px $primary;
+  }
+}
+
+.dc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  min-width: 0;
+}
+
+.dc-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.dc-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: $primary;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.dc-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-main;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dc-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: $primary;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dc-vehicle {
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+}
+
+.dc-driver {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: $text-main;
+  overflow-wrap: anywhere;
+}
+
+.dc-desc {
+  font-size: 12px;
+  color: $text-muted;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+  overflow-wrap: anywhere;
+}
+
+.dc-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dc-totals-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dc-totals-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e40af;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.dc-totals-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-main;
+  white-space: nowrap;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════════════════════
+
+@media (max-width: 1024px) {
+  .fleet-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+  }
+
+  .fl-topbar-body { justify-content: flex-start; }
+  .fl-summary-bar { padding: 10px 16px; }
+  .fleet-body     { padding: 16px; }
+}
+
 @media (max-width: 768px) {
-  .fleet-topbar { flex-direction: column; align-items: flex-start; }
-  .fl-topbar-actions { width: 100%; justify-content: flex-end; }
+  // La barre du haut ne reste plus collée : titre + filtres prendraient trop de place
+  .fleet-topbar {
+    position: static;
+    padding: 12px;
+  }
+
+  .fl-summary-bar {
+    padding: 10px 12px;
+    gap: 6px 16px;
+  }
+
+  .fleet-body {
+    padding: 12px 8px;
+  }
+
+  .fl-topbar-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .fl-filters {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    .fl-select, .fl-input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    // Les 2 selects (chauffeur, catégorie) prennent toute la largeur
+    .fl-select { grid-column: 1 / -1; }
+
+    .fl-btn-ghost {
+      grid-column: 1 / -1;
+      width: 100%;
+      background: #f1f5f9;
+    }
+  }
+
+  .fl-action-buttons {
+    width: 100%;
+    gap: 6px;
+
+    .fl-btn {
+      flex: 1 1 0;
+      padding: 8px 6px;
+      font-size: 12px;
+    }
+  }
+
+  // Bascule tableau → cartes
+  .table-responsive { display: none; }
+
+  .mobile-cards-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .fl-modal {
+    width: calc(100vw - 24px);
+    max-height: 90vh;
+  }
+}
+
+@media (max-width: 576px) {
+  .fl-filters {
+    grid-template-columns: minmax(0, 1fr);
+
+    .fl-select, .fl-input, .fl-btn-ghost { grid-column: 1 / -1; }
+  }
+
+  .fl-modal { width: 95%; }
 }

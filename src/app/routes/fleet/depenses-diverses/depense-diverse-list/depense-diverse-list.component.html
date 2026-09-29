@@ -1,7 +1,8 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">Dépenses Diverses</h2>
-    <div class="fl-topbar-actions">
+
+    <div class="fl-topbar-body">
       <div class="fl-filters">
         <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
           <option value="">Tous les chauffeurs</option>
@@ -23,8 +24,10 @@
         </button>
       </div>
 
-      <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
-      <button class="fl-btn fl-btn-primary" (click)="addDepense()">+ Ajouter</button>
+      <div class="fl-action-buttons">
+        <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
+        <button class="fl-btn fl-btn-primary" (click)="addDepense()">+ Ajouter</button>
+      </div>
     </div>
   </div>
 
@@ -43,8 +46,9 @@
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-    <div class="table-responsive">
-      <table *ngIf="!loading" class="fl-table">
+    <!-- ═══ Vue tableau (desktop / tablette) ═══ -->
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
         <thead>
           <tr>
             <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
@@ -111,6 +115,51 @@
           </tr>
         </tfoot>
       </table>
+    </div>
+
+    <!-- ═══ Vue cartes (mobile ≤ 768px) ═══ -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="depenses.length === 0" class="fl-empty">Aucune dépense diverse enregistrée</div>
+
+      <div *ngFor="let d of depenses" class="depense-card" [class.card-selected]="selectedIds.has(d.id)">
+        <div class="dc-header">
+          <div class="dc-title-group">
+            <input type="checkbox" class="dc-checkbox"
+                   [checked]="selectedIds.has(d.id)" (change)="toggleSelection(d.id)">
+            <span class="dc-date">{{ d.dateDepense | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <span class="dc-amount">{{ d.amountTTC | number:'1.2-2' }} €</span>
+        </div>
+
+        <div class="dc-body">
+          <div class="dc-row">
+            <span class="cat-badge cat-badge--{{ d.categorie | lowercase }}">
+              {{ categorieLabel(d.categorie) }}
+            </span>
+            <span class="dc-vehicle" *ngIf="d.vehiculeImmatriculation">{{ d.vehiculeImmatriculation }}</span>
+          </div>
+
+          <div class="dc-driver">{{ d.chauffeurNom || '—' }}</div>
+
+          <div class="dc-desc" *ngIf="d.description">{{ d.description }}</div>
+        </div>
+
+        <div class="dc-footer">
+          <div class="fl-actions">
+            <ng-container *ngIf="d.proofUrl">
+              <button class="fl-btn fl-btn-ghost" (click)="viewProof(d.id, d.reference)" title="Voir">👁</button>
+              <button class="fl-btn fl-btn-ghost" (click)="downloadProof(d.id, d.reference)" title="Télécharger">⬇</button>
+            </ng-container>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(d)" title="Modifier">✎</button>
+            <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(d)" title="Supprimer" style="color:#ef4444;">🗑</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dc-totals-card" *ngIf="depenses.length > 0">
+        <span class="dc-totals-lbl">Total des éléments filtrés</span>
+        <span class="dc-totals-val">{{ summaryTotalTTC | number:'1.2-2' }} €</span>
+      </div>
     </div>
 
     <app-pagination-bar
