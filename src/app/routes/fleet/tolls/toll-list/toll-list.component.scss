@@ -4,29 +4,53 @@ $text-main  : #1e293b;
 $text-muted : #64748b;
 $radius     : 8px;
 
-.fleet-page   { min-height: 100vh; background: #f8fafc; padding-bottom: 40px; }
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.fleet-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding-bottom: 40px;
+  max-width: 100%;
+  min-width: 0;
+}
 
 .fleet-topbar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 24px; background: #fff;
   border-bottom: 1px solid $border; position: sticky; top: 0; z-index: 100;
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 
 .fleet-title  { font-size: 15px; font-weight: 600; color: $text-main; margin: 0; }
-.fleet-body   { padding: 24px; }
+.fleet-body   { padding: 24px; min-width: 0; }
 .fleet-loading { text-align: center; padding: 40px; color: $text-muted; }
 
+// Conteneur filtres + boutons (remplace .fl-topbar-actions)
+.fl-topbar-body {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 15px; flex-wrap: wrap; min-width: 0;
+}
+
+.fl-action-buttons { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; max-width: 100%; }
+
+// Conservé au cas où d'autres pages/templates utilisent encore cette classe
 .fl-topbar-actions { display: flex; gap: 8px; align-items: center; }
 
 .fl-btn {
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
   padding: 7px 14px; border-radius: $radius; font-size: 13px;
   font-weight: 500; cursor: pointer; border: 1px solid transparent;
   transition: background .15s; white-space: nowrap;
   &:disabled { opacity: .5; cursor: not-allowed; }
   &-ghost    { background: transparent; color: $text-muted;
                &:hover:not(:disabled) { background: #f1f5f9; color: $text-main; } }
+  &-secondary{ background: #f1f5f9; color: $text-main; border-color: $border;
+               &:hover:not(:disabled) { background: #e2e8f0; } }
   &-primary  { background: $primary; color: #fff; border-color: $primary;
                &:hover:not(:disabled) { background: #1d4ed8; } }
 }
@@ -34,10 +58,11 @@ $radius     : 8px;
 .fl-select, .fl-input {
   padding: 7px 10px; border: 1px solid $border; border-radius: $radius;
   font-size: 13px; background: #fff; color: $text-main; cursor: pointer;
+  max-width: 100%; min-width: 0;
 }
 
 .fl-filters {
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-right: 15px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
 }
 
 .fl-table {
@@ -51,8 +76,19 @@ $radius     : 8px;
 }
 
 .fl-empty  { text-align: center; padding: 32px !important; color: $text-muted; }
-.fl-actions { display: flex; gap: 4px; justify-content: flex-end; }
-.text-muted { color: $text-muted; }
+
+.fl-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.text-muted {
+  color: #94a3b8;
+  font-style: italic;
+}
 
 .badge {
   display: inline-flex; padding: 2px 10px; border-radius: 20px;
@@ -90,17 +126,8 @@ $radius     : 8px;
 .fl-total {
   font-size: 18px; font-weight: 700; color: $primary; padding: 6px 0;
 }
-.text-muted {
-  color: #94a3b8;
-  font-style: italic;
-}
-.fl-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  white-space: nowrap;
-}
+
+// ── Modal justificatif ────────────────────────────────────────
 .fl-modal-overlay {
   position: fixed;
   inset: 0;
@@ -179,32 +206,266 @@ $radius     : 8px;
   border-top: 1px solid $border;
 }
 
+// ── Tableau : scroll horizontal si nécessaire ─────────────────
 .table-responsive {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  border-radius: $radius;
+}
+
+// ── Vue cartes mobile (cachée par défaut) ─────────────────────
+.mobile-cards-view {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.toll-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid $border;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &.card-selected {
+    border-color: $primary;
+    box-shadow: 0 0 0 1.5px $primary;
+  }
+}
+
+.tc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  min-width: 0;
+}
+
+.tc-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tc-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: $primary;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.tc-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-main;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: $primary;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: $text-main;
+}
+
+.tc-vehicle {
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+}
+
+.tc-driver {
+  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tc-gares {
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 0;
+}
+
+.tc-route {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: $text-main;
+  overflow-wrap: anywhere;
+}
+
+.tc-notes {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
+.tc-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.tc-totals-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tc-totals-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e40af;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.tc-totals-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-main;
+  white-space: nowrap;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════════════════════
+
+@media (max-width: 1024px) {
+  .fleet-topbar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+  }
+
+  .fl-topbar-body { justify-content: flex-start; }
+  .fleet-body     { padding: 16px; }
 }
 
 @media (max-width: 768px) {
+  // La barre du haut ne reste plus collée : titre + filtres prendraient trop de place
   .fleet-topbar {
+    position: static;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .fleet-body {
+    padding: 12px 8px;
+  }
+
+  .fl-topbar-body {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .fl-topbar-actions {
+    align-items: stretch;
+    gap: 10px;
     width: 100%;
-    flex-wrap: wrap;
-    gap: 8px;
   }
+
   .fl-filters {
     width: 100%;
-    margin-right: 0;
-    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+
+    .fl-select, .fl-input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    // Les 2 selects (véhicule, chauffeur) prennent toute la largeur
+    .fl-select { grid-column: 1 / -1; }
+
+    .fl-btn-ghost {
+      grid-column: 1 / -1;
+      width: 100%;
+      background: #f1f5f9;
+    }
   }
-  .fl-filters .fl-input {
-    flex: 1 1 calc(50% - 5px);
+
+  .fl-action-buttons {
+    width: 100%;
+    gap: 6px;
+
+    .fl-btn {
+      flex: 1 1 0;
+      padding: 8px 6px;
+      font-size: 12px;
+    }
   }
-  .fl-filters .fl-btn-ghost {
-    flex: 0 0 auto;
+
+  // Bascule tableau → cartes
+  .table-responsive { display: none; }
+
+  .mobile-cards-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
+
+  .fl-modal {
+    width: calc(100vw - 24px);
+    max-height: 90vh;
+  }
+}
+
+@media (max-width: 576px) {
+  .fl-filters {
+    grid-template-columns: minmax(0, 1fr);
+
+    .fl-select, .fl-input, .fl-btn-ghost { grid-column: 1 / -1; }
+  }
+
+  .fl-modal { width: 95%; }
 }

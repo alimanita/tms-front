@@ -226,7 +226,8 @@
     <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
   </div>
 
-  <table class="bl-table" *ngIf="!loading">
+  <div class="table-responsive" *ngIf="!loading">
+    <table class="bl-table">
     <thead>
       <tr>
         <th class="col-check">
@@ -236,7 +237,7 @@
         <th class="col-ref">Titre</th>
         <th class="col-client">Exécution</th>
         <th class="col-date sort-th" (click)="sortBy('plannedDeparture')">
-          Départ prévu
+          Départ
           <span class="sort-arrow" [style.color]="getSortDirection('plannedDeparture') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('plannedDeparture') === 'asc' ? '↑' : '↓' }}
           </span>
@@ -250,17 +251,17 @@
           </span>
           <span class="sort-rank" *ngIf="getSortRank('revenue') && sortCriteria.length > 1">{{ getSortRank('revenue') }}</span>
         </th>
-        <th class="col-net" *ngIf="showTarif">Tarif net</th>
+        <th class="col-net" *ngIf="showTarif">Net</th>
         <th class="col-other" *ngIf="showCout">Autres</th>
         <th class="col-amount sort-th" (click)="sortBy('totalCost')" *ngIf="showCout">
-          Coût total
+          Coût
           <span class="sort-arrow" [style.color]="getSortDirection('totalCost') ? 'var(--primary)' : 'var(--muted)'">
             {{ getSortDirection('totalCost') === 'asc' ? '↑' : '↓' }}
           </span>
           <span class="sort-rank" *ngIf="getSortRank('totalCost') && sortCriteria.length > 1">{{ getSortRank('totalCost') }}</span>
         </th>
         <th class="col-letter" title="Lettre de mission">
-          <mat-icon style="font-size:16px;width:16px;height:16px;color:#94a3b8">description</mat-icon>
+          <mat-icon style="font-size:15px;width:15px;height:15px;color:#94a3b8">description</mat-icon>
         </th>
         <th class="col-actions">Actions</th>
       </tr>
@@ -459,6 +460,142 @@
 
     </tbody>
   </table>
+  </div>
+
+  <!-- ── Mobile Cards View (Visible uniquement sur mobile ≤ 768px) ── -->
+  <div class="mobile-cards-view" *ngIf="!loading">
+    <div *ngIf="missions.length === 0" class="empty-state">
+      <mat-icon>route</mat-icon>
+      <p>Aucune mission trouvée</p>
+    </div>
+
+    <div *ngFor="let m of missions" class="mission-card" [class.card-selected]="selectedRows.has(m.id)">
+      <div class="m-card-header">
+        <div class="m-card-title-group">
+          <input type="checkbox" class="table-checkbox"
+                 [checked]="selectedRows.has(m.id)" (change)="toggleRow(m.id)">
+          <span class="ref-link" (click)="openDetail(m)">{{ m.title || m.reference }}</span>
+        </div>
+        <div class="m-card-actions-group">
+          <span class="status-badge" [ngClass]="getStatusClass(m.statut)">
+            {{ getStatusLabel(m.statut) }}
+          </span>
+          <button class="actions-menu-btn" [matMenuTriggerFor]="cardActionsMenu" (click)="$event.stopPropagation()">
+            <span class="dots">···</span>
+          </button>
+          <mat-menu #cardActionsMenu="matMenu" xPosition="before" class="facture-actions-menu">
+            <button mat-menu-item (click)="openDetail(m)">
+              <mat-icon class="menu-icon icon-voir">visibility</mat-icon>
+              <span>Voir</span>
+            </button>
+            <button mat-menu-item [disabled]="m.statut !== statut.PLANNED" (click)="editMission(m)">
+              <mat-icon class="menu-icon icon-edit">edit</mat-icon>
+              <span>Modifier</span>
+            </button>
+            <button mat-menu-item *ngIf="m.letterMissionUrl" (click)="downloadLetter(m)">
+              <mat-icon class="menu-icon icon-letter">download</mat-icon>
+              <span>Lettre de mission</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item [disabled]="m.statut !== statut.PLANNED" (click)="demarrer(m)">
+              <mat-icon class="menu-icon icon-statut">play_circle</mat-icon>
+              <span>Démarrer</span>
+            </button>
+            <button mat-menu-item [disabled]="m.statut !== statut.IN_PROGRESS" (click)="cloturer(m)">
+              <mat-icon class="menu-icon icon-statut">flag_circle</mat-icon>
+              <span>Clôturer</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item class="delete-menu-item"
+                    [disabled]="m.statut === statut.COMPLETED || m.statut === statut.CANCELLED"
+                    (click)="annuler(m)">
+              <mat-icon class="menu-icon icon-delete">cancel</mat-icon>
+              <span>Annuler</span>
+            </button>
+            <button mat-menu-item *ngIf="isAdmin" (click)="supprimer(m)">
+              <mat-icon class="menu-icon icon-delete" style="color: #ef4444;">delete</mat-icon>
+              <span style="color: #ef4444;">Supprimer</span>
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+
+      <div class="m-card-body">
+        <!-- Chauffeur / Véhicule -->
+        <div class="m-card-row">
+          <div class="m-card-driver" *ngIf="m.modeExecution !== 'SUBCONTRACTED'">
+            <mat-icon class="m-icon">person</mat-icon>
+            <span class="m-driver-name">{{ getChauffeursLabel(m) }}</span>
+            <span class="m-veh-tag">{{ m.vehiculeRef || 'Véhicule #' + m.vehiculeId }}</span>
+          </div>
+          <div class="m-card-driver" *ngIf="m.modeExecution === 'SUBCONTRACTED'">
+            <mat-icon class="m-icon" style="color:#d97706">handshake</mat-icon>
+            <span class="m-driver-name" style="color:#92400e">{{ m.partenaireNom || 'Partenaire' }}</span>
+            <span class="m-veh-tag" *ngIf="m.externeCamion || m.externeChauffeur">{{ m.externeCamion }}</span>
+          </div>
+        </div>
+
+        <!-- Date & Lettre -->
+        <div class="m-card-row m-date-row">
+          <div class="m-date-wrap">
+            <mat-icon class="m-icon">event</mat-icon>
+            <span>Départ : {{ formatDate(m.plannedDeparture) }}</span>
+          </div>
+          <div class="m-letter-wrap">
+            <ng-container *ngIf="m.letterMissionUrl; else noLetterMobile">
+              <button class="m-letter-btn" (click)="viewLetter(m)" title="Voir lettre">
+                <mat-icon>description</mat-icon>
+                <span>Lettre</span>
+              </button>
+            </ng-container>
+            <ng-template #noLetterMobile>
+              <button class="m-letter-btn m-letter-btn--add" *ngIf="m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS" (click)="triggerUploadLetter(m.id)">
+                <mat-icon>attach_file</mat-icon>
+                <span>+ Lettre</span>
+              </button>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Finances -->
+        <div class="m-card-finances" *ngIf="showTarif || showCout">
+          <div class="m-fin-item" *ngIf="showTarif">
+            <span class="m-fin-label">Tarif</span>
+            <span class="m-fin-val m-val--primary">{{ (m.revenue ?? 0) | number:'1.2-2' }} €</span>
+          </div>
+          <div class="m-fin-item" *ngIf="showTarif && (m.modeExecution === 'SUBCONTRACTED' || m.modeExecution === 'PARTNER_MISSION')">
+            <span class="m-fin-label">Net</span>
+            <span class="m-fin-val m-val--net">{{ (m.montantCommission ?? 0) | number:'1.2-2' }} €</span>
+          </div>
+          <div class="m-fin-item" *ngIf="showCout">
+            <span class="m-fin-label">Coût</span>
+            <span class="m-fin-val m-val--cost">{{ (m.totalCost ?? 0) | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Totaux Mobile Card -->
+    <div class="m-totals-card" *ngIf="missions.length > 0">
+      <div class="m-totals-header">
+        <span>TOTAUX ({{ missions.length }} missions)</span>
+      </div>
+      <div class="m-totals-grid">
+        <div class="m-total-box" *ngIf="showTarif">
+          <span class="m-tot-lbl">Tarif</span>
+          <span class="m-tot-val">{{ totalRevenue | number:'1.2-2' }} €</span>
+        </div>
+        <div class="m-total-box" *ngIf="showTarif">
+          <span class="m-tot-lbl">Net</span>
+          <span class="m-tot-val" style="color:#10b981;">{{ totalNet | number:'1.2-2' }} €</span>
+        </div>
+        <div class="m-total-box" *ngIf="showCout">
+          <span class="m-tot-lbl">Coût</span>
+          <span class="m-tot-val" style="color:#ef4444;">{{ totalCost | number:'1.2-2' }} €</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Pagination -->
   <div class="pagination-bar" *ngIf="!loading">

@@ -1,7 +1,8 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">Péages</h2>
-    <div class="fl-topbar-actions">
+
+    <div class="fl-topbar-body">
       <div class="fl-filters">
         <select class="fl-select" [(ngModel)]="selectedVehiculeId" (change)="onFilterChange()">
           <option value="">Tous les véhicules</option>
@@ -9,7 +10,7 @@
             {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
           </option>
         </select>
-        
+
         <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
           <option value="">Tous les chauffeurs</option>
           <option *ngFor="let c of chauffeurs" [value]="c.id">
@@ -19,101 +20,151 @@
 
         <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
         <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
-        
+
         <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
           <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
         </button>
       </div>
-      
-      <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
-      <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
-      <button class="fl-btn fl-btn-primary" (click)="addPeage()">+ Ajouter</button>
+
+      <div class="fl-action-buttons">
+        <button class="fl-btn fl-btn-secondary" (click)="exportCSV()" [disabled]="selectedIds.size === 0">Export CSV</button>
+        <button class="fl-btn fl-btn-secondary" (click)="exportPDF()" [disabled]="selectedIds.size === 0">Export PDF</button>
+        <button class="fl-btn fl-btn-primary" (click)="addPeage()">+ Ajouter</button>
+      </div>
     </div>
   </div>
 
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-<div class="table-responsive">
-<table *ngIf="!loading" class="fl-table">
-  <thead>
-    <tr>
-      <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
-      <th (click)="sortBy('datePassage')" style="cursor: pointer; user-select: none; white-space: nowrap;">
-        Date
-        <span [style.color]="getSortDirection('datePassage') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
-          {{ getSortDirection('datePassage') === 'asc' ? '↑' : '↓' }}
-        </span>
-        <span *ngIf="getSortRank('datePassage') && sortCriteria.length > 1"
-              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('datePassage') }}</span>
-      </th>
-      <th>Véhicule</th>
-      <th>Chauffeur</th>
-      <th (click)="sortBy('amountTTC')" style="cursor: pointer; user-select: none; white-space: nowrap;">
-        Montant TTC
-        <span [style.color]="getSortDirection('amountTTC') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
-          {{ getSortDirection('amountTTC') === 'asc' ? '↑' : '↓' }}
-        </span>
-        <span *ngIf="getSortRank('amountTTC') && sortCriteria.length > 1"
-              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('amountTTC') }}</span>
-      </th>
-      <th>Gare / Description</th>
-      <th>Justificatif</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let t of tolls">
-      <td><input type="checkbox" [checked]="selectedIds.has(t.id)" (change)="toggleSelection(t.id)"></td>
-      <td>{{ t.datePassage | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td>{{ t.vehiculeImmatriculation || '—' }}</td>
-      <td>{{ t.chauffeurNom || '—' }}</td>
-      <td><strong>{{ t.amountTTC | number:'1.2-2' }} €</strong></td>
-      <td>
-        <div *ngIf="t.gareEntree || t.gareSortie">
-          {{ t.gareEntree || '?' }} → {{ t.gareSortie || '?' }}
-        </div>
-        <div class="text-muted" style="font-size: 0.85em">{{ t.notes }}</div>
-      </td>
+    <!-- ═══ Vue tableau (desktop / tablette) ═══ -->
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
+            <th (click)="sortBy('datePassage')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+              Date
+              <span [style.color]="getSortDirection('datePassage') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+                {{ getSortDirection('datePassage') === 'asc' ? '↑' : '↓' }}
+              </span>
+              <span *ngIf="getSortRank('datePassage') && sortCriteria.length > 1"
+                    style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('datePassage') }}</span>
+            </th>
+            <th>Véhicule</th>
+            <th>Chauffeur</th>
+            <th (click)="sortBy('amountTTC')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+              Montant TTC
+              <span [style.color]="getSortDirection('amountTTC') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+                {{ getSortDirection('amountTTC') === 'asc' ? '↑' : '↓' }}
+              </span>
+              <span *ngIf="getSortRank('amountTTC') && sortCriteria.length > 1"
+                    style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('amountTTC') }}</span>
+            </th>
+            <th>Gare / Description</th>
+            <th>Justificatif</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tolls">
+            <td><input type="checkbox" [checked]="selectedIds.has(t.id)" (change)="toggleSelection(t.id)"></td>
+            <td>{{ t.datePassage | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ t.vehiculeImmatriculation || '—' }}</td>
+            <td>{{ t.chauffeurNom || '—' }}</td>
+            <td><strong>{{ t.amountTTC | number:'1.2-2' }} €</strong></td>
+            <td>
+              <div *ngIf="t.gareEntree || t.gareSortie">
+                {{ t.gareEntree || '?' }} → {{ t.gareSortie || '?' }}
+              </div>
+              <div class="text-muted" style="font-size: 0.85em">{{ t.notes }}</div>
+            </td>
 
-      <td>
-        <div class="fl-actions">
-          <ng-container *ngIf="t.proofUrl; else noProof">
-            <button class="fl-btn fl-btn-ghost" (click)="viewProof(t.id, t.reference)" title="Voir">👁</button>
-            <button class="fl-btn fl-btn-ghost" (click)="downloadProof(t.id, t.reference)" title="Télécharger">⬇</button>
-          </ng-container>
-          <ng-template #noProof><span class="text-muted">—</span></ng-template>
-        </div>
-      </td>
+            <td>
+              <div class="fl-actions">
+                <ng-container *ngIf="t.proofUrl; else noProof">
+                  <button class="fl-btn fl-btn-ghost" (click)="viewProof(t.id, t.reference)" title="Voir">👁</button>
+                  <button class="fl-btn fl-btn-ghost" (click)="downloadProof(t.id, t.reference)" title="Télécharger">⬇</button>
+                </ng-container>
+                <ng-template #noProof><span class="text-muted">—</span></ng-template>
+              </div>
+            </td>
 
-      <td>
-        <div class="fl-actions">
-          <button class="fl-btn fl-btn-ghost" (click)="goEdit(t)" title="Modifier">✎</button>
-          <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer" style="color: #ef4444;">🗑</button>
+            <td>
+              <div class="fl-actions">
+                <button class="fl-btn fl-btn-ghost" (click)="goEdit(t)" title="Modifier">✎</button>
+                <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer" style="color: #ef4444;">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="tolls.length === 0">
+            <td colspan="8" class="fl-empty">Aucun péage enregistré</td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="tolls.length > 0">
+          <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
+            <td colspan="4" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
+            <td style="color: var(--text);">{{ getTotalAmountTTC() | number:'1.2-2' }} €</td>
+            <td colspan="3"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- ═══ Vue cartes (mobile ≤ 768px) ═══ -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="tolls.length === 0" class="fl-empty">Aucun péage enregistré</div>
+
+      <div *ngFor="let t of tolls" class="toll-card" [class.card-selected]="selectedIds.has(t.id)">
+        <div class="tc-header">
+          <div class="tc-title-group">
+            <input type="checkbox" class="tc-checkbox"
+                   [checked]="selectedIds.has(t.id)" (change)="toggleSelection(t.id)">
+            <span class="tc-date">{{ t.datePassage | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <span class="tc-amount">{{ t.amountTTC | number:'1.2-2' }} €</span>
         </div>
-      </td>
-    </tr>
-    <tr *ngIf="tolls.length === 0">
-      <td colspan="8" class="fl-empty">Aucun péage enregistré</td>
-    </tr>
-  </tbody>
-  <tfoot *ngIf="tolls.length > 0">
-    <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
-      <td colspan="4" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
-      <td style="color: var(--text);">{{ getTotalAmountTTC() | number:'1.2-2' }} €</td>
-      <td colspan="3"></td>
-    </tr>
-  </tfoot>
-</table>
-</div>
-<app-pagination-bar
-  *ngIf="totalElements > 0"
-  [total]="totalElements"
-  [pageIndex]="pageIndex"
-  [pageSize]="pageSize"
-  [loading]="loading"
-  (pageChange)="onPageChange($event)">
-</app-pagination-bar>
+
+        <div class="tc-body">
+          <div class="tc-row">
+            <span class="tc-vehicle">{{ t.vehiculeImmatriculation || '—' }}</span>
+            <span class="tc-driver">{{ t.chauffeurNom || '—' }}</span>
+          </div>
+
+          <div class="tc-gares" *ngIf="t.gareEntree || t.gareSortie || t.notes">
+            <div *ngIf="t.gareEntree || t.gareSortie" class="tc-route">
+              {{ t.gareEntree || '?' }} → {{ t.gareSortie || '?' }}
+            </div>
+            <div *ngIf="t.notes" class="tc-notes">{{ t.notes }}</div>
+          </div>
+        </div>
+
+        <div class="tc-footer">
+          <div class="fl-actions">
+            <ng-container *ngIf="t.proofUrl">
+              <button class="fl-btn fl-btn-ghost" (click)="viewProof(t.id, t.reference)" title="Voir">👁</button>
+              <button class="fl-btn fl-btn-ghost" (click)="downloadProof(t.id, t.reference)" title="Télécharger">⬇</button>
+            </ng-container>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(t)" title="Modifier">✎</button>
+            <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(t)" title="Supprimer" style="color: #ef4444;">🗑</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc-totals-card" *ngIf="tolls.length > 0">
+        <span class="tc-totals-lbl">Total des éléments filtrés</span>
+        <span class="tc-totals-val">{{ getTotalAmountTTC() | number:'1.2-2' }} €</span>
+      </div>
+    </div>
+
+    <app-pagination-bar
+      *ngIf="totalElements > 0"
+      [total]="totalElements"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [loading]="loading"
+      (pageChange)="onPageChange($event)">
+    </app-pagination-bar>
   </div>
 </div>
 

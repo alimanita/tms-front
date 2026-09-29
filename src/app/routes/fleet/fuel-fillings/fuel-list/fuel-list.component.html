@@ -16,7 +16,7 @@
           {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
         </option>
       </select>
-      
+
       <select class="fl-select" [(ngModel)]="selectedChauffeurId" (change)="onFilterChange()">
         <option value="">Tous les chauffeurs</option>
         <option *ngFor="let c of chauffeurs" [value]="c.id">
@@ -26,7 +26,7 @@
 
       <input type="date" class="fl-input" [(ngModel)]="startDate" (change)="onFilterChange()" title="Date de début">
       <input type="date" class="fl-input" [(ngModel)]="endDate" (change)="onFilterChange()" title="Date de fin">
-      
+
       <button class="fl-btn fl-btn-ghost" (click)="resetFilters()" title="Réinitialiser les filtres">
         <mat-icon style="font-size: 18px; width: 18px; height: 18px; line-height: 18px;">refresh</mat-icon>
       </button>
@@ -36,101 +36,179 @@
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-<div class="table-responsive">
-<table *ngIf="!loading" class="fl-table">
-  <thead>
-    <tr>
-      <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
-      <th>Référence</th>
-      <th>Véhicule</th>
-      <th>Chauffeur</th>
-      <th (click)="sortBy('fillingDate')" style="cursor: pointer; user-select: none; white-space: nowrap;">
-        Date
-        <span [style.color]="getSortDirection('fillingDate') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
-          {{ getSortDirection('fillingDate') === 'asc' ? '↑' : '↓' }}
-        </span>
-        <span *ngIf="getSortRank('fillingDate') && sortCriteria.length > 1"
-              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('fillingDate') }}</span>
-      </th>
-      <th>Carburant</th>
-      <th (click)="sortBy('quantityLiters')" style="cursor: pointer; user-select: none; white-space: nowrap;">
-        Quantité (L)
-        <span [style.color]="getSortDirection('quantityLiters') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
-          {{ getSortDirection('quantityLiters') === 'asc' ? '↑' : '↓' }}
-        </span>
-        <span *ngIf="getSortRank('quantityLiters') && sortCriteria.length > 1"
-              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('quantityLiters') }}</span>
-      </th>
-      <th>Prix/L</th>
-      <th (click)="sortBy('totalAmount')" style="cursor: pointer; user-select: none; white-space: nowrap;">
-        Total
-        <span [style.color]="getSortDirection('totalAmount') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
-          {{ getSortDirection('totalAmount') === 'asc' ? '↑' : '↓' }}
-        </span>
-        <span *ngIf="getSortRank('totalAmount') && sortCriteria.length > 1"
-              style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('totalAmount') }}</span>
-      </th>
-      <th>Conso (L/100)</th>
-      <th>Km avant</th>
-      <th>Justificatif</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let p of paginatedItems">
-      <td><input type="checkbox" [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)"></td>
-      <td>{{ p.reference }}</td>
-      <td>{{ p.vehiculeImmatriculation || '—' }}</td>
-      <td>{{ p.chauffeurNom || '—' }}</td>
-      <td>{{ p.fillingDate | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td>{{ p.fuelType }}</td>
-      <td>{{ p.quantityLiters | number:'1.3-3' }}</td>
-      <td>{{ p.pricePerLiter | number:'1.3-3' }}</td>
-      <td><strong>{{ p.totalAmount | number:'1.3-3' }} €</strong></td>
-      <td>
-        <span *ngIf="p.consumptionRate">{{ p.consumptionRate | number:'1.2-2' }}</span>
-        <span *ngIf="!p.consumptionRate" class="text-muted">—</span>
-      </td>
-      <td>{{ p.mileageBefore | number:'1.0-0' }}</td>
+    <!-- ═══ Vue tableau (desktop / tablette) ═══ -->
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" (change)="toggleAll($event)" [checked]="isAllSelected()"></th>
+            <th>Référence</th>
+            <th>Véhicule</th>
+            <th>Chauffeur</th>
+            <th (click)="sortBy('fillingDate')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+              Date
+              <span [style.color]="getSortDirection('fillingDate') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+                {{ getSortDirection('fillingDate') === 'asc' ? '↑' : '↓' }}
+              </span>
+              <span *ngIf="getSortRank('fillingDate') && sortCriteria.length > 1"
+                    style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('fillingDate') }}</span>
+            </th>
+            <th>Carburant</th>
+            <th (click)="sortBy('quantityLiters')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+              Quantité (L)
+              <span [style.color]="getSortDirection('quantityLiters') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+                {{ getSortDirection('quantityLiters') === 'asc' ? '↑' : '↓' }}
+              </span>
+              <span *ngIf="getSortRank('quantityLiters') && sortCriteria.length > 1"
+                    style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('quantityLiters') }}</span>
+            </th>
+            <th>Prix/L</th>
+            <th (click)="sortBy('totalAmount')" style="cursor: pointer; user-select: none; white-space: nowrap;">
+              Total
+              <span [style.color]="getSortDirection('totalAmount') ? 'var(--primary)' : 'var(--muted)'" style="font-size: 12px; margin-left: 2px;">
+                {{ getSortDirection('totalAmount') === 'asc' ? '↑' : '↓' }}
+              </span>
+              <span *ngIf="getSortRank('totalAmount') && sortCriteria.length > 1"
+                    style="font-size: 10px; color: var(--primary); vertical-align: super;">{{ getSortRank('totalAmount') }}</span>
+            </th>
+            <th>Conso (L/100)</th>
+            <th>Km avant</th>
+            <th>Justificatif</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of paginatedItems">
+            <td><input type="checkbox" [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)"></td>
+            <td>{{ p.reference }}</td>
+            <td>{{ p.vehiculeImmatriculation || '—' }}</td>
+            <td>{{ p.chauffeurNom || '—' }}</td>
+            <td>{{ p.fillingDate | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ p.fuelType }}</td>
+            <td>{{ p.quantityLiters | number:'1.3-3' }}</td>
+            <td>{{ p.pricePerLiter | number:'1.3-3' }}</td>
+            <td><strong>{{ p.totalAmount | number:'1.3-3' }} €</strong></td>
+            <td>
+              <span *ngIf="p.consumptionRate">{{ p.consumptionRate | number:'1.2-2' }}</span>
+              <span *ngIf="!p.consumptionRate" class="text-muted">—</span>
+            </td>
+            <td>{{ p.mileageBefore | number:'1.0-0' }}</td>
 
-      <td>
-        <div class="fl-actions">
-          <ng-container *ngIf="p.proofUrl; else noProof">
-            <button class="fl-btn fl-btn-ghost" (click)="viewProof(p.id)" title="Voir">👁</button>
-            <button class="fl-btn fl-btn-ghost" (click)="downloadProof(p.id, p.reference)" title="Télécharger">⬇</button>
-          </ng-container>
-          <ng-template #noProof><span class="text-muted">—</span></ng-template>
-        </div>
-      </td>
+            <td>
+              <div class="fl-actions">
+                <ng-container *ngIf="p.proofUrl; else noProof">
+                  <button class="fl-btn fl-btn-ghost" (click)="viewProof(p.id)" title="Voir">👁</button>
+                  <button class="fl-btn fl-btn-ghost" (click)="downloadProof(p.id, p.reference)" title="Télécharger">⬇</button>
+                </ng-container>
+                <ng-template #noProof><span class="text-muted">—</span></ng-template>
+              </div>
+            </td>
 
-      <td>
-        <div class="fl-actions">
-          <button class="fl-btn fl-btn-ghost" (click)="goEdit(p)" title="Modifier">✎</button>
-          <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(p)" title="Supprimer" style="color: #ef4444;">🗑</button>
+            <td>
+              <div class="fl-actions">
+                <button class="fl-btn fl-btn-ghost" (click)="goEdit(p)" title="Modifier">✎</button>
+                <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(p)" title="Supprimer" style="color: #ef4444;">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="pleins.length === 0">
+            <td colspan="12" class="fl-empty">Aucun plein enregistré</td>
+          </tr>
+        </tbody>
+        <tfoot *ngIf="pleins.length > 0">
+          <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
+            <td colspan="6" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
+            <td style="color: var(--text);">{{ getTotalQuantity() | number:'1.2-2' }} L</td>
+            <td></td>
+            <td style="color: var(--text);">{{ getTotalAmount() | number:'1.2-2' }} €</td>
+            <td colspan="4"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- ═══ Vue cartes (mobile ≤ 768px) ═══ -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="pleins.length === 0" class="fl-empty">Aucun plein enregistré</div>
+
+      <div *ngFor="let p of paginatedItems" class="plein-card" [class.card-selected]="selectedIds.has(p.id)">
+        <div class="pc-header">
+          <div class="pc-title-group">
+            <input type="checkbox" class="pc-checkbox"
+                   [checked]="selectedIds.has(p.id)" (change)="toggleSelection(p.id)">
+            <span class="pc-ref">{{ p.reference }}</span>
+          </div>
+          <span class="pc-total">{{ p.totalAmount | number:'1.3-3' }} €</span>
         </div>
-      </td>
-    </tr>
-    <tr *ngIf="pleins.length === 0">
-      <td colspan="12" class="fl-empty">Aucun plein enregistré</td>
-    </tr>
-  </tbody>
-  <tfoot *ngIf="pleins.length > 0">
-    <tr style="background: var(--primary-light); color: var(--text); font-weight: bold; border-top: 2px solid var(--primary);">
-      <td colspan="6" style="text-align: right; padding-right: 15px; color: var(--text);">Total des éléments filtrés :</td>
-      <td style="color: var(--text);">{{ getTotalQuantity() | number:'1.2-2' }} L</td>
-      <td></td>
-      <td style="color: var(--text);">{{ getTotalAmount() | number:'1.2-2' }} €</td>
-      <td colspan="4"></td>
-    </tr>
-  </tfoot>
-</table>
-    <app-pagination-bar
+
+        <div class="pc-body">
+          <div class="pc-row">
+            <span class="pc-vehicle">{{ p.vehiculeImmatriculation || '—' }}</span>
+            <span class="pc-driver">{{ p.chauffeurNom || '—' }}</span>
+          </div>
+
+          <div class="pc-row pc-meta">
+            <span>{{ p.fillingDate | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="pc-fuel">{{ p.fuelType }}</span>
+          </div>
+
+          <div class="pc-stats">
+            <div class="pc-stat">
+              <span class="pc-stat-lbl">Quantité</span>
+              <span class="pc-stat-val">{{ p.quantityLiters | number:'1.3-3' }} L</span>
+            </div>
+            <div class="pc-stat">
+              <span class="pc-stat-lbl">Prix/L</span>
+              <span class="pc-stat-val">{{ p.pricePerLiter | number:'1.3-3' }}</span>
+            </div>
+            <div class="pc-stat">
+              <span class="pc-stat-lbl">Conso</span>
+              <span class="pc-stat-val">
+                <ng-container *ngIf="p.consumptionRate; else noConso">{{ p.consumptionRate | number:'1.2-2' }}</ng-container>
+                <ng-template #noConso>—</ng-template>
+              </span>
+            </div>
+            <div class="pc-stat">
+              <span class="pc-stat-lbl">Km avant</span>
+              <span class="pc-stat-val">{{ p.mileageBefore | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pc-footer">
+          <div class="fl-actions">
+            <ng-container *ngIf="p.proofUrl">
+              <button class="fl-btn fl-btn-ghost" (click)="viewProof(p.id)" title="Voir">👁</button>
+              <button class="fl-btn fl-btn-ghost" (click)="downloadProof(p.id, p.reference)" title="Télécharger">⬇</button>
+            </ng-container>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(p)" title="Modifier">✎</button>
+            <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="delete(p)" title="Supprimer" style="color: #ef4444;">🗑</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pc-totals-card" *ngIf="pleins.length > 0">
+        <div class="pc-totals-header">Total des éléments filtrés</div>
+        <div class="pc-totals-grid">
+          <div class="pc-totals-box">
+            <span class="pc-stat-lbl">Quantité</span>
+            <span class="pc-totals-val">{{ getTotalQuantity() | number:'1.2-2' }} L</span>
+          </div>
+          <div class="pc-totals-box">
+            <span class="pc-stat-lbl">Montant</span>
+            <span class="pc-totals-val">{{ getTotalAmount() | number:'1.2-2' }} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination : hors du tableau pour rester visible sur mobile -->
+    <app-pagination-bar *ngIf="!loading"
       [total]="pleins.length"
       [pageIndex]="pageIndex"
       [pageSize]="pageSize"
       (pageChange)="onPageChange($event)">
     </app-pagination-bar>
-</div>
   </div>
 </div>
 
