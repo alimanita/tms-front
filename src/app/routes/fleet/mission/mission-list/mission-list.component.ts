@@ -427,16 +427,23 @@ export class MissionListComponent implements OnInit {
       }
       if (this.selectedVehiculeIds.length && !this.selectedVehiculeIds.includes((m as any).vehiculeId)) return false;
       
-      if (this.filterDateDebut) {
-        const startDate = new Date(this.filterDateDebut).getTime();
-        const plannedDate = new Date(m.plannedDeparture).getTime();
-        if (plannedDate < startDate) return false;
-      }
-      if (this.filterDateFin) {
-        const endDate = new Date(this.filterDateFin);
-        endDate.setHours(23, 59, 59, 999);
-        const plannedDate = new Date(m.plannedDeparture).getTime();
-        if (plannedDate > endDate.getTime()) return false;
+      if (this.filterDateDebut || this.filterDateFin) {
+        let pdStr = '';
+        if (Array.isArray(m.plannedDeparture)) {
+          const y = m.plannedDeparture[0];
+          const mo = String(m.plannedDeparture[1]).padStart(2, '0');
+          const d = String(m.plannedDeparture[2]).padStart(2, '0');
+          pdStr = `${y}-${mo}-${d}`;
+        } else if (typeof m.plannedDeparture === 'string') {
+          pdStr = m.plannedDeparture.substring(0, 10);
+        } else if (m.plannedDeparture) {
+          pdStr = new Date(m.plannedDeparture).toISOString().substring(0, 10);
+        }
+
+        if (pdStr) {
+          if (this.filterDateDebut && pdStr < this.filterDateDebut) return false;
+          if (this.filterDateFin && pdStr > this.filterDateFin) return false;
+        }
       }
       
       return true;
