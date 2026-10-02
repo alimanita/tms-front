@@ -232,24 +232,24 @@ export class MissionListComponent implements OnInit {
     });
   }
 
-  // ── Totaux calculés sur la page courante ─────────────────────
+  filteredMissions: MissionResponse[] = [];
+
+  // ── Totaux calculés sur toutes les missions filtrées ─────────────────────
   get totalRevenue(): number {
-    // Tarif brut : toujours le revenue (prix de la course avant déduction)
-    return this.missions.reduce((s, m: any) => s + (m.revenue ?? 0), 0);
+    return this.filteredMissions.reduce((s, m: any) => s + (m.revenue ?? 0), 0);
   }
   get totalNet(): number {
-    // Tarif net : montantCommission pour ST/PARTNER, revenue pour INTERNAL
-    return this.missions.reduce((s, m: any) => {
+    return this.filteredMissions.reduce((s, m: any) => {
       if (m.modeExecution === 'SUBCONTRACTED' || m.modeExecution === 'PARTNER_MISSION') {
         return s + (m.montantCommission ?? 0);
       }
       return s;
     }, 0);
   }
-  get totalFuel():    number { return this.missions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
-  get totalToll():    number { return this.missions.reduce((s, m) => s + (m.tollCost ?? 0), 0); }
-  get totalOtherExpenses(): number { return this.missions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
-  get totalCost():    number { return this.missions.reduce((s, m) => s + (m.totalCost ?? 0), 0); }
+  get totalFuel():    number { return this.filteredMissions.reduce((s, m) => s + (m.fuelCost ?? 0), 0); }
+  get totalToll():    number { return this.filteredMissions.reduce((s, m) => s + (m.tollCost ?? 0), 0); }
+  get totalOtherExpenses(): number { return this.filteredMissions.reduce((s, m) => s + (m.otherExpenses ?? 0), 0); }
+  get totalCost():    number { return this.filteredMissions.reduce((s, m) => s + (m.totalCost ?? 0), 0); }
 
 
   // ── Multi-sort ────────────────────────────────────────────────
@@ -278,26 +278,7 @@ export class MissionListComponent implements OnInit {
     } else {
       this.sortCriteria.unshift({ column, direction: 'desc' });
     }
-    this.applySort();
-  }
-
-  private applySort(): void {
-    const dateColumns = ['plannedDeparture'];
-    this.missions = [...this.missions].sort((a: any, b: any) => {
-      for (const criterion of this.sortCriteria) {
-        let valA = a[criterion.column];
-        let valB = b[criterion.column];
-        if (dateColumns.includes(criterion.column)) {
-          valA = valA ? new Date(valA).getTime() : 0;
-          valB = valB ? new Date(valB).getTime() : 0;
-        }
-        if (valA == null) valA = '';
-        if (valB == null) valB = '';
-        const cmp = valA > valB ? 1 : valA < valB ? -1 : 0;
-        if (cmp !== 0) return criterion.direction === 'asc' ? cmp : -cmp;
-      }
-      return 0;
-    });
+    this.filterAndPaginate();
   }
 
   constructor(
@@ -380,7 +361,27 @@ export class MissionListComponent implements OnInit {
   }
 
   filterAndPaginate(): void {
-    const filtered = this.applyClientFilters(this.allMissionsRaw);
+    let filtered = this.applyClientFilters(this.allMissionsRaw);
+
+    // Apply sorting
+    const dateColumns = ['plannedDeparture'];
+    filtered = filtered.sort((a: any, b: any) => {
+      for (const criterion of this.sortCriteria) {
+        let valA = a[criterion.column];
+        let valB = b[criterion.column];
+        if (dateColumns.includes(criterion.column)) {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+        if (valA == null) valA = '';
+        if (valB == null) valB = '';
+        const cmp = valA > valB ? 1 : valA < valB ? -1 : 0;
+        if (cmp !== 0) return criterion.direction === 'asc' ? cmp : -cmp;
+      }
+      return 0;
+    });
+
+    this.filteredMissions = filtered;
     this.totalElements = filtered.length;
     this.totalPages = Math.ceil(this.totalElements / this.pageSize) || 1;
     if (this.pageIndex >= this.totalPages) {
@@ -425,8 +426,19 @@ export class MissionListComponent implements OnInit {
         }
       }
       if (this.selectedVehiculeIds.length && !this.selectedVehiculeIds.includes((m as any).vehiculeId)) return false;
-      if (this.filterDateDebut && m.plannedDeparture < this.filterDateDebut) return false;
-      if (this.filterDateFin && m.plannedDeparture > this.filterDateFin) return false;
+      
+      if (this.filterDateDebut) {
+        const startDate = new Date(this.filterDateDebut).getTime();
+        const plannedDate = new Date(m.plannedDeparture).getTime();
+        if (plannedDate < startDate) return false;
+      }
+      if (this.filterDateFin) {
+        const endDate = new Date(this.filterDateFin);
+        endDate.setHours(23, 59, 59, 999);
+        const plannedDate = new Date(m.plannedDeparture).getTime();
+        if (plannedDate > endDate.getTime()) return false;
+      }
+      
       return true;
     });
   }
