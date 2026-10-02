@@ -435,15 +435,33 @@ export class MissionListComponent implements OnInit {
           const d = String(m.plannedDeparture[2]).padStart(2, '0');
           pdStr = `${y}-${mo}-${d}`;
         } else if (typeof m.plannedDeparture === 'string') {
-          pdStr = m.plannedDeparture.substring(0, 10);
+          const s = m.plannedDeparture.trim();
+          if (s.includes('/')) {
+            const parts = s.substring(0, 10).split('/');
+            if (parts[0].length === 4) {
+              pdStr = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+            } else if (parts[2]?.length === 4) {
+              pdStr = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+          } else {
+            pdStr = s.substring(0, 10);
+          }
         } else if (m.plannedDeparture) {
-          pdStr = new Date(m.plannedDeparture).toISOString().substring(0, 10);
+          try {
+            const dt = new Date(m.plannedDeparture);
+            if (!isNaN(dt.getTime())) {
+              const y = dt.getFullYear();
+              const mo = String(dt.getMonth() + 1).padStart(2, '0');
+              const d = String(dt.getDate()).padStart(2, '0');
+              pdStr = `${y}-${mo}-${d}`;
+            }
+          } catch (e) {}
         }
 
-        if (pdStr) {
-          if (this.filterDateDebut && pdStr < this.filterDateDebut) return false;
-          if (this.filterDateFin && pdStr > this.filterDateFin) return false;
-        }
+        if (!pdStr) return false;
+
+        if (this.filterDateDebut && pdStr < this.filterDateDebut) return false;
+        if (this.filterDateFin && pdStr > this.filterDateFin) return false;
       }
       
       return true;
@@ -492,11 +510,7 @@ export class MissionListComponent implements OnInit {
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    if (this.isGestion) {
-      this.load();
-    } else {
-      this.filterAndPaginate();
-    }
+    this.filterAndPaginate();
   }
 
   get startIndex(): number { return this.pageIndex * this.pageSize; }
@@ -589,11 +603,7 @@ private updateMissionInList(updated: MissionResponse): void {
 
   onFilterChange(): void {
     this.pageIndex = 0;
-    if (this.isGestion) {
-      this.load();
-    } else {
-      this.filterAndPaginate();
-    }
+    this.filterAndPaginate();
   }
 
   resetFilters(): void {
