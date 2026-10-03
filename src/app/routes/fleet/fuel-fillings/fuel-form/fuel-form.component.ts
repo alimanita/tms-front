@@ -21,6 +21,7 @@ export class FuelFormComponent implements OnInit {
   pleinId?: number;
   loading   = false;
   submitted = false;
+  errorMessage: string | null = null;
   selectedFile: File | null = null;
   previewUrl: string | null = null;
   existingProofUrl: string | null = null;
@@ -172,18 +173,20 @@ export class FuelFormComponent implements OnInit {
     obs$.subscribe({
       next: () => {
         this.loading = false;
-        this.snackBar.open(this.isEdit ? 'Plein mis à jour' : 'Plein enregistré', 'Fermer', { duration: 3000 });
+        this.errorMessage = null;
+        this.snackBar.open(this.isEdit ? 'Plein mis à jour avec succès' : 'Plein enregistré avec succès', 'Fermer', { duration: 3500 });
         this.router.navigate(['/fleet/fuel-fillings']);
       },
       error: (err) => {
-        const status = err?.status || 'Unknown';
-        const msg = err?.message || JSON.stringify(err);
-        const backendError = err?.error ? JSON.stringify(err.error) : '';
-        const fullError = `Status: ${status} | Msg: ${msg} | Backend: ${backendError}`;
-        
-        alert("Erreur technique : " + fullError);
-        this.snackBar.open('Erreur: ' + status, 'Fermer', { duration: 5000 });
         this.loading = false;
+        const detailMsg = err?.error?.detail || err?.error?.message || (typeof err?.error === 'string' ? err.error : null);
+        const msg = detailMsg || "Erreur lors de l'enregistrement du plein. Veuillez vérifier les informations saisies.";
+        this.errorMessage = msg;
+        this.snackBar.open(msg, 'Fermer', {
+          duration: 6000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top'
+        });
       }
     });
   }
@@ -278,9 +281,8 @@ export class FuelFormComponent implements OnInit {
             this.form.patchValue({ fuelType: upperType });
           }
         }
-        if (data.tvaAmount) {
-           // We might deduce TVA rate from amount, but maybe better not override if already set, or calculate it.
-           // const rate = (data.tvaAmount / (data.totalCost - data.tvaAmount)) * 100;
+        if (data.receiptNumber && data.receiptNumber !== 'null') {
+          this.form.patchValue({ receiptNumber: data.receiptNumber });
         }
       },
       error: (err) => {

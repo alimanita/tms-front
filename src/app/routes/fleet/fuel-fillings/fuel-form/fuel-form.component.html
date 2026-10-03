@@ -10,6 +10,15 @@
   </div>
 
   <div class="fleet-body">
+    <div *ngIf="errorMessage" class="fl-alert-error">
+      <mat-icon class="fl-alert-icon">warning</mat-icon>
+      <div class="fl-alert-content">
+        <span class="fl-alert-title">Enregistrement impossible</span>
+        <span class="fl-alert-desc">{{ errorMessage }}</span>
+      </div>
+      <button type="button" class="fl-alert-close" (click)="errorMessage = null" title="Fermer">✕</button>
+    </div>
+
     <form [formGroup]="form" class="fl-form">
       <div class="fl-grid">
 

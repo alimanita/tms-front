@@ -17,6 +17,59 @@ $radius     : 8px;
 .fleet-body   { padding: 24px; }
 .fleet-loading { text-align: center; padding: 40px; color: $text-muted; }
 
+.fl-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: $radius;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: #991b1b;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.08);
+
+  .fl-alert-icon {
+    color: #ef4444;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .fl-alert-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .fl-alert-title {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #991b1b;
+  }
+
+  .fl-alert-desc {
+    font-size: 13px;
+    color: #b91c1c;
+    line-height: 1.4;
+  }
+
+  .fl-alert-close {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #991b1b;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    &:hover { background: #fee2e2; }
+  }
+}
+
 .fl-topbar-actions { display: flex; gap: 8px; align-items: center; }
 
 .fl-btn {
