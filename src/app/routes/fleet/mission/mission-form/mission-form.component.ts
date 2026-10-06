@@ -334,6 +334,7 @@ export class MissionFormComponent implements OnInit {
         patch.notes = newNotes.trim();
 
         this.form.patchValue(patch);
+        this.letterFile = this.aiFile;
         this.removeAiFile();
       },
       error: () => {

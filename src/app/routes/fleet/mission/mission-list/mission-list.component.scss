@@ -22,9 +22,37 @@ $border: #e2e8f0;
   justify-content: space-between;
   margin-bottom: 24px;
 
-  .header-left,
+  .header-left {
+    min-width: 0;
+  }
+
   .header-right {
     min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .export-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
   }
 
   .page-title {

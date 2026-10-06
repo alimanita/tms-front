@@ -13,7 +13,7 @@ interface DriverRow { id: number; fullName: string; }
   selector: 'app-mission-list',
   imports: [CrudTableComponent],
   providers: [CrudHelper],
-  template: `<app-crud-table title="Missions" [columns]="columns" [rows]="rows()" [loading]="loading()" (addClick)="create()" (editClick)="edit($event)" (removeClick)="remove($event)" />`
+  template: `<app-crud-table title="Missions" [columns]="columns" [rows]="rows()" [loading]="loading()" [hasExportPdf]="true" [hasExportCsv]="true" (addClick)="create()" (editClick)="edit($event)" (removeClick)="remove($event)" (exportPdfClick)="exportPdf()" (exportCsvClick)="exportCsv()" />`
 })
 export class MissionListComponent implements OnInit {
   private readonly api = inject(TmsApiService);
@@ -52,4 +52,46 @@ export class MissionListComponent implements OnInit {
     });
   }
   private reload(): void { this.loading.set(true); this.api.list<MissionRow>(this.api.paths.missions).subscribe({ next: (p) => { this.rows.set(p.content); this.loading.set(false); }, error: () => this.loading.set(false) }); }
+
+  exportCsv(): void {
+    const headers = ['Référence', 'Client', 'Véhicule', 'Chauffeur', 'Statut', 'Revenu'];
+    const rows = this.rows().map(r => [
+      r.reference ?? '',
+      r.customerName ?? '',
+      r.vehicleRegistration ?? '',
+      r.driverName ?? '',
+      r.status ?? '',
+      r.revenue != null ? String(r.revenue) : ''
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `missions_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  exportPdf(): void {
+    const rows = this.rows();
+    const statusLabels: Record<string, string> = {
+      PLANNED: 'Planifiée', ASSIGNED: 'Affectée', IN_PROGRESS: 'En cours',
+      DELIVERED: 'Livrée', CANCELLED: 'Annulée'
+    };
+    const tbody = rows.map(r => `<tr>
+      <td>${r.reference ?? ''}</td><td>${r.customerName ?? ''}</td>
+      <td>${r.vehicleRegistration ?? ''}</td><td>${r.driverName ?? ''}</td>
+      <td>${statusLabels[r.status] ?? r.status ?? ''}</td>
+      <td style="text-align:right">${r.revenue != null ? r.revenue.toLocaleString('fr-FR', {minimumFractionDigits:2}) : ''}</td>
+    </tr>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Missions</title>
+    <style>body{font-family:Arial,sans-serif;font-size:11px;margin:20px}
+    h2{margin-bottom:8px}table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #ccc;padding:5px 8px}th{background:#2563eb;color:#fff}
+    tr:nth-child(even){background:#f5f5f5}@media print{body{margin:0}}</style></head>
+    <body><h2>Liste des Missions — ${new Date().toLocaleDateString('fr-FR')}</h2>
+    <table><thead><tr><th>Référence</th><th>Client</th><th>Véhicule</th><th>Chauffeur</th><th>Statut</th><th>Revenu</th></tr></thead>
+    <tbody>${tbody}</tbody></table></body></html>`;
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); win.print(); }
+  }
 }

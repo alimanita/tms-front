@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { jsPDF } from 'jspdf';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 import { MissionService } from '../mission.service';
@@ -712,4 +713,171 @@ private updateMissionInList(updated: MissionResponse): void {
         return t;
     }).join('\n');
   }
+
+  exportCSV(): void {
+    const list = this.selectedRows.size > 0 
+      ? this.filteredMissions.filter(m => this.selectedRows.has(m.id))
+      : this.filteredMissions;
+
+    if (list.length === 0) {
+      this.snackBar.open('Aucune mission à exporter', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    let csv = 'Référence,Titre,Date Départ,Chauffeurs,Véhicule,Statut,Tarif Brut,Commission Net,Autres Frais,Coût Total\n';
+    list.forEach(m => {
+      const ref = (m.reference || '').replace(/"/g, '""');
+      const title = ((m as any).title || '').replace(/"/g, '""');
+      const date = this.formatDate(m.plannedDeparture);
+      const chauffeurs = this.getChauffeursLabel(m).replace(/"/g, '""');
+      const vehicule = (m.vehiculeRef || '').replace(/"/g, '""');
+      const statut = this.getStatusLabel(m.statut);
+      const revenue = m.revenue ?? 0;
+      const net = m.montantCommission ?? 0;
+      const other = m.otherExpenses ?? 0;
+      const cost = m.totalCost ?? 0;
+
+      csv += `"${ref}","${title}","${date}","${chauffeurs}","${vehicule}","${statut}",${revenue},${net},${other},${cost}\n`;
+    });
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `missions_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  async exportPDF(): Promise<void> {
+    const list = this.selectedRows.size > 0
+      ? this.filteredMissions.filter(m => this.selectedRows.has(m.id))
+      : this.filteredMissions;
+
+    if (list.length === 0) {
+      this.snackBar.open('Aucune mission à exporter', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    // Missions avec lettre de mission enregistrée
+    const missionsWithLetter = list.filter(m => m.letterMissionUrl);
+    if (missionsWithLetter.length === 0) {
+      this.snackBar.open('Aucune lettre de mission disponible pour la sélection', 'Fermer', { duration: 4000 });
+      return;
+    }
+
+    this.snackBar.open(`Génération du PDF (${missionsWithLetter.length} lettre(s))...`, '', { duration: 5000 });
+
+    const pdf = new jsPDF();
+    const marginX = 10;
+    const marginY = 10;
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const colCount = 2;
+    const gap = 10;
+    const colW = (pageW - 2 * marginX - gap * (colCount - 1)) / colCount;
+
+    let currentX = marginX;
+    let currentY = marginY;
+    let currentRowH = 0;
+    let currentCol = 0;
+    let imageCount = 0;
+
+    for (const mission of missionsWithLetter) {
+      try {
+        const blob = await this.missionService.downloadLetterBlob(mission.id).toPromise();
+        if (blob) {
+          const contentType = blob.type || 'application/octet-stream';
+
+          if (contentType.startsWith('image/')) {
+            const base64 = await this.blobToBase64(blob);
+            const imgProps = pdf.getImageProperties(base64);
+            let imgW = colW;
+            let imgH = (imgProps.height * imgW) / imgProps.width;
+
+            const labelH = 10;
+            const maxH = (pageH - 3 * marginY - gap - 2 * labelH) / 2;
+            if (imgH > maxH) {
+              imgH = maxH;
+              imgW = (imgProps.width * imgH) / imgProps.height;
+            }
+
+            const totalItemH = imgH + labelH + 2;
+
+            if (currentCol >= colCount) {
+              currentCol = 0;
+              currentX = marginX;
+              currentY += currentRowH + gap;
+              currentRowH = 0;
+            }
+
+            if (currentY + totalItemH > pageH - marginY && imageCount > 0) {
+              pdf.addPage();
+              currentX = marginX;
+              currentY = marginY;
+              currentRowH = 0;
+              currentCol = 0;
+            }
+
+            pdf.setFontSize(8);
+            pdf.setTextColor(60, 60, 60);
+            pdf.text(
+              `${mission.reference || 'Mission'} — ${this.getChauffeursLabel(mission)} — ${this.formatDate(mission.plannedDeparture)}`,
+              currentX, currentY + labelH - 2
+            );
+
+            const offsetX = currentX + (colW - imgW) / 2;
+            pdf.addImage(base64, 'JPEG', offsetX, currentY + labelH, imgW, imgH);
+
+            currentRowH = Math.max(currentRowH, totalItemH);
+            currentX += colW + gap;
+            currentCol++;
+            imageCount++;
+
+          } else {
+            // Fichier PDF ou autre : une page dédiée avec info texte
+            if (imageCount > 0) pdf.addPage();
+            pdf.setFontSize(14);
+            pdf.setTextColor(30, 58, 138);
+            pdf.text(`Lettre de Mission`, marginX, marginY + 10);
+            pdf.setFontSize(11);
+            pdf.setTextColor(60, 60, 60);
+            pdf.text(`Référence : ${mission.reference || '—'}`, marginX, marginY + 22);
+            pdf.text(`Chauffeur : ${this.getChauffeursLabel(mission)}`, marginX, marginY + 32);
+            pdf.text(`Véhicule  : ${mission.vehiculeRef || '—'}`, marginX, marginY + 42);
+            pdf.text(`Départ    : ${this.formatDate(mission.plannedDeparture)}`, marginX, marginY + 52);
+            pdf.text(`Statut    : ${this.getStatusLabel(mission.statut)}`, marginX, marginY + 62);
+            pdf.setFontSize(9);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text(`(Lettre de mission au format non-image — téléchargez-la individuellement)`, marginX, marginY + 78);
+            currentX = marginX;
+            currentY = marginY;
+            currentRowH = 0;
+            currentCol = 0;
+            imageCount++;
+          }
+        }
+      } catch (e) {
+        console.error(`Erreur lettre mission ${mission.id}`, e);
+      }
+    }
+
+    if (imageCount > 0) {
+      pdf.save(`lettres_missions_${new Date().toISOString().slice(0, 10)}.pdf`);
+      this.snackBar.open('PDF généré avec succès', 'Fermer', { duration: 3000 });
+    } else {
+      this.snackBar.open('Aucune lettre image valide trouvée', 'Fermer', { duration: 3000 });
+    }
+  }
+
+  private blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
 }
+

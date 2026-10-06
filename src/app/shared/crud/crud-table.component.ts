@@ -30,10 +30,24 @@ import { CrudColumn } from '../crud/crud.helper';
             }
           </div>
         </div>
-        <button mat-flat-button color="primary" type="button" (click)="addClick.emit()">
-          <mat-icon class="btn-icon">add</mat-icon>
-          Ajouter
-        </button>
+        <div class="header-actions">
+          @if (hasExportPdf()) {
+            <button mat-stroked-button type="button" (click)="exportPdfClick.emit()" class="export-btn">
+              <mat-icon class="btn-icon">picture_as_pdf</mat-icon>
+              PDF
+            </button>
+          }
+          @if (hasExportCsv()) {
+            <button mat-stroked-button type="button" (click)="exportCsvClick.emit()" class="export-btn">
+              <mat-icon class="btn-icon">download</mat-icon>
+              CSV
+            </button>
+          }
+          <button mat-flat-button color="primary" type="button" (click)="addClick.emit()">
+            <mat-icon class="btn-icon">add</mat-icon>
+            Ajouter
+          </button>
+        </div>
       </div>
       
       @if (loading()) {
@@ -176,6 +190,19 @@ import { CrudColumn } from '../crud/crud.helper';
       width: 18px;
       height: 18px;
     }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .export-btn {
+      color: var(--primary);
+      border-color: var(--border);
+      font-size: 0.875rem;
+      height: 36px;
+      line-height: 36px;
+    }
     .loading {
       display: grid;
       place-items: center;
@@ -236,10 +263,14 @@ export class CrudTableComponent<T extends { id: number }> {
   readonly columns = input.required<CrudColumn<T>[]>();
   readonly rows = input.required<T[]>();
   readonly loading = input(false);
+  readonly hasExportPdf = input(false);
+  readonly hasExportCsv = input(false);
 
   readonly addClick = output<void>();
   readonly editClick = output<T>();
   readonly removeClick = output<T>();
+  readonly exportPdfClick = output<void>();
+  readonly exportCsvClick = output<void>();
 
   protected readonly searchTerm = signal('');
 
