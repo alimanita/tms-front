@@ -85,6 +85,26 @@ export class AuthService {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   }
 
+  getRefreshToken(): string | null {
+    return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken || this.isTokenExpired(refreshToken)) {
+      this.logout();
+      return throwError(() => new Error('Refresh token expiré ou absent'));
+    }
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+      tap((response) => this.persistSession(response)),
+      catchError((err) => {
+        this.logout();
+        return throwError(() => err);
+      })
+    );
+  }
+
 private persistSession(response: AuthResponse): void {
   localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
