@@ -1,6 +1,6 @@
-﻿<page-header 
-  title="Performance &amp; B&#233;n&#233;fices Chauffeur" 
-  subtitle="Analyse globale des revenus, d&#233;penses et salaires par chauffeur." />
+<page-header 
+  title="Performance &amp; Bénéfices Chauffeur" 
+  subtitle="Analyse globale des revenus, dépenses et salaires par chauffeur." />
 
 <div class="chauffeur-wrapper tva-wrapper">
 
@@ -11,7 +11,7 @@
         <mat-icon>calendar_month</mat-icon> Par mois
       </button>
       <button [class.active]="periodMode === 'year'" (click)="onPeriodChange('year')">
-        <mat-icon>date_range</mat-icon> Par ann&#233;e
+        <mat-icon>date_range</mat-icon> Par année
       </button>
       <button [class.active]="periodMode === 'all'" (click)="onPeriodChange('all')">
         <mat-icon>all_inclusive</mat-icon> Tout
@@ -49,56 +49,77 @@
   <ng-container *ngIf="stats()">
     <!-- KPI SUMMARY -->
     <div class="summary-grid">
+
+      <!-- Bénéfice Net -->
       <div class="kpi-card" [ngClass]="stats()!.totalBenefice < 0 ? 'kpi-danger' : 'kpi-success'">
         <div class="kpi-icon">
           <mat-icon>{{ stats()!.totalBenefice < 0 ? 'warning' : 'task_alt' }}</mat-icon>
         </div>
         <div class="kpi-body">
-          <span class="kpi-label">B&#233;n&#233;fice Net</span>
-          <span class="kpi-value">{{ stats()!.totalBenefice | number:'1.2-2' }} &#8364;</span>
-          <span class="kpi-sub">Total pour la p&#233;riode s&#233;lectionn&#233;e</span>
+          <span class="kpi-label">Bénéfice Net</span>
+          <span class="kpi-value">{{ stats()!.totalBenefice | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">CA - Dépenses - Salaires</span>
         </div>
       </div>
 
+      <!-- Chiffre d'affaires (missions) -->
       <div class="kpi-card kpi-accise" style="border-left-color: #3b82f6;">
-        <div class="kpi-icon">
-          <mat-icon>account_balance_wallet</mat-icon>
-        </div>
+        <div class="kpi-icon"><mat-icon>account_balance_wallet</mat-icon></div>
         <div class="kpi-body">
-          <span class="kpi-label">Total Revenus</span>
-          <span class="kpi-value">{{ stats()!.totalRevenu | number:'1.2-2' }} &#8364;</span>
-          <span class="kpi-sub">{{ stats()!.totalMissions }} Missions effectu&#233;es</span>
+          <span class="kpi-label">Chiffre d'affaires</span>
+          <span class="kpi-value">{{ stats()!.totalRevenu | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">{{ stats()!.totalMissions }} missions</span>
         </div>
       </div>
 
+      <!-- Carburant -->
+      <div class="kpi-card" style="border-left-color: #f97316; background: #fff7ed;">
+        <div class="kpi-icon" style="color:#f97316;"><mat-icon>local_gas_station</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Carburant</span>
+          <span class="kpi-value" style="color:#f97316;">{{ stats()!.totalCarburant | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">Table fuel_filling</span>
+        </div>
+      </div>
+
+      <!-- Péage -->
       <div class="kpi-card kpi-danger" style="border-left-color: #ef4444;">
-        <div class="kpi-icon">
-          <mat-icon>receipt_long</mat-icon>
-        </div>
+        <div class="kpi-icon"><mat-icon>toll</mat-icon></div>
         <div class="kpi-body">
-          <span class="kpi-label">Total D&#233;penses (Missions)</span>
-          <span class="kpi-value">{{ stats()!.totalDepense | number:'1.2-2' }} &#8364;</span>
+          <span class="kpi-label">Péage</span>
+          <span class="kpi-value">{{ stats()!.totalPeage | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">Table peage</span>
         </div>
       </div>
 
-      <div class="kpi-card kpi-accise" style="border-left-color: #f59e0b;">
-        <div class="kpi-icon">
-          <mat-icon>payments</mat-icon>
+      <!-- Autres dépenses -->
+      <div class="kpi-card" style="border-left-color: #8b5cf6; background: #f5f3ff;">
+        <div class="kpi-icon" style="color:#8b5cf6;"><mat-icon>receipt_long</mat-icon></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Autres dépenses</span>
+          <span class="kpi-value" style="color:#8b5cf6;">{{ stats()!.totalAutres | number:'1.2-2' }} €</span>
+          <span class="kpi-sub">Table depense_diverse</span>
         </div>
+      </div>
+
+      <!-- Salaires -->
+      <div class="kpi-card kpi-accise" style="border-left-color: #f59e0b;">
+        <div class="kpi-icon"><mat-icon>payments</mat-icon></div>
         <div class="kpi-body">
           <span class="kpi-label">Total Salaires &amp; Charges</span>
-          <span class="kpi-value">{{ stats()!.totalSalaire | number:'1.2-2' }} &#8364;</span>
+          <span class="kpi-value">{{ stats()!.totalSalaire | number:'1.2-2' }} €</span>
           <span class="kpi-sub" *ngIf="selectedChauffeur()">Type : {{ selectedChauffeur()!.typeSalaire }} ({{ selectedChauffeur()!.valeurSalaire }})</span>
           <span class="kpi-sub" *ngIf="!selectedChauffeur()">Somme de tous les chauffeurs</span>
         </div>
       </div>
+
     </div>
 
     <!-- DETAILS TABLE -->
     <div class="tabs-container">
       <div class="tab-headers">
         <button class="active">
-          D&#233;tails des op&#233;rations - {{ selectedId === '' ? 'Tous les chauffeurs' : stats()!.chauffeurNom }}
+          Détails des opérations - {{ selectedId === '' ? 'Tous les chauffeurs' : stats()!.chauffeurNom }}
         </button>
       </div>
 
@@ -108,19 +129,19 @@
             <thead>
               <tr *ngIf="selectedId === ''">
                 <th>Chauffeur</th>
-                <th class="text-right">Revenus (&#8364;)</th>
-                <th class="text-right">D&#233;penses (&#8364;)</th>
-                <th class="text-right">Salaire (&#8364;)</th>
-                <th class="text-right">B&#233;n&#233;fice Net (&#8364;)</th>
+                <th class="text-right">Revenus (€)</th>
+                <th class="text-right">Dépenses (€)</th>
+                <th class="text-right">Salaire (€)</th>
+                <th class="text-right">Bénéfice Net (€)</th>
                 <th class="text-right">Missions</th>
               </tr>
               <tr *ngIf="selectedId !== ''">
                 <th>Date</th>
                 <th>Mission</th>
-                <th class="text-right">Revenus (&#8364;)</th>
-                <th class="text-right">D&#233;penses (&#8364;)</th>
-                <th class="text-right">Salaire Mission (&#8364;)</th>
-                <th class="text-right">B&#233;n&#233;fice (&#8364;)</th>
+                <th class="text-right">Revenus (€)</th>
+                <th class="text-right">Dépenses (€)</th>
+                <th class="text-right">Salaire Mission (€)</th>
+                <th class="text-right">Bénéfice (€)</th>
               </tr>
             </thead>
             <tbody>
@@ -154,7 +175,7 @@
 
               <tr *ngIf="details().length === 0">
                 <td [attr.colspan]="selectedId === '' ? 6 : 6" class="text-center empty-msg">
-                  Aucune op&#233;ration sur cette p&#233;riode.
+                  Aucune opération sur cette période.
                 </td>
               </tr>
 
@@ -178,6 +199,7 @@
 
   <div class="loading-state" *ngIf="loading()">
     <mat-icon class="spin">sync</mat-icon>
-    <span>Calcul des agr&#233;gations en cours...</span>
+    <span>Calcul des agrégations en cours...</span>
   </div>
+
 </div>

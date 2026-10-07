@@ -29,6 +29,9 @@ interface ChauffeurStatsDto {
   valeurSalaire:  number | null;
   totalRevenu:    number;
   totalDepense:   number;
+  totalCarburant: number;
+  totalPeage:     number;
+  totalAutres:    number;
   totalSalaire:   number;
   totalBenefice:  number;
   totalMissions:  number;
