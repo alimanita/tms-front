@@ -7,7 +7,8 @@
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-    <table *ngIf="!loading" class="fl-table">
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
       <thead>
         <tr>
           <th>Nom</th>
@@ -51,6 +52,49 @@
         </tr>
       </tbody>
     </table>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="chauffeurs.length === 0" class="fl-empty">Aucun chauffeur enregistré</div>
+
+      <div *ngFor="let c of paginatedItems" class="m-card">
+        <div class="m-card-header">
+          <div class="m-card-title">
+            <strong>{{ c.nom }} {{ c.prenom }}</strong>
+          </div>
+          <div class="m-card-badges">
+            <span class="badge" [ngClass]="statutClass(c.statut)">{{ c.statut }}</span>
+            <span class="badge" [ngClass]="c.actif ? 'badge--green' : 'badge--grey'">
+              {{ c.actif ? 'Oui' : 'Non' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="m-card-body">
+          <div class="m-card-info" *ngIf="c.telephone">
+            <span class="m-label">Téléphone :</span>
+            <span class="m-val">{{ c.telephone }}</span>
+          </div>
+          <div class="m-card-info" *ngIf="c.email">
+            <span class="m-label">Email :</span>
+            <span class="m-val">{{ c.email }}</span>
+          </div>
+          <div class="m-card-info" *ngIf="c.numeroPermis">
+            <span class="m-label">Permis :</span>
+            <span class="m-val">{{ c.numeroPermis }} <small *ngIf="c.dateExpirationPermis">(Exp: {{ c.dateExpirationPermis | date:'dd/MM/yyyy' }})</small></span>
+          </div>
+        </div>
+
+        <div class="m-card-footer">
+          <button class="fl-btn fl-btn-ghost" (click)="goPayslips(c)" title="Fiches de paie">📄 Paie</button>
+          <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎ Modifier</button>
+          <button *ngIf="isAdmin" class="fl-btn fl-btn-ghost" (click)="toggle(c)">
+            {{ c.actif ? '🔴 Désactiver' : '🟢 Activer' }}
+          </button>
+        </div>
+      </div>
+    </div>
     <app-pagination-bar
       [total]="chauffeurs.length"
       [pageIndex]="pageIndex"

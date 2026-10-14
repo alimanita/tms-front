@@ -12,6 +12,8 @@ import { EntretienDialogComponent } from '../entretien-dialog/entretien-dialog.c
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthService } from '@core';
+import { FleetService, VehiculeResponse } from '../../fleet.service';
+import { ChauffeurResponse } from '../../chauffeurs/chauffeur.model';
 
 @Component({
   selector: 'app-entretien-list',
@@ -55,18 +57,28 @@ dateFinFilter   = signal<string>('');
   entityTypeOptions = [
     { value: '', label: 'Tous les types' },
     { value: 'VEHICLE', label: 'Véhicule' },
-    { value: 'MACHINE', label: 'Machine' },
+    { value: 'DRIVER', label: 'Chauffeur' },
   ];
+
+  // ── Autocomplete entité ────────────────────────────────────────────────
+  vehicules: VehiculeResponse[] = [];
+  chauffeurs: ChauffeurResponse[] = [];
+  entityAcText = '';
+  entityAcSuggestions: { id: any; label: string; sub?: string }[] = [];
+  showEntityAcDropdown = false;
+  filterEntityRef: string | null = null;
+  // ─────────────────────────────────────────────────────────────────────
 
 get hasActiveFilters(): boolean {
   return !!this.statutFilter() || !!this.entityTypeFilter() || !!this.searchQuery().trim()
-      || !!this.dateDebutFilter() || !!this.dateFinFilter();
+      || !!this.dateDebutFilter() || !!this.dateFinFilter() || !!this.filterEntityRef;
 }
 
  constructor(
     private ordreTravailService: OrdreTravailService,
     private snackBar: MatSnackBar,
     private authService: AuthService,
+    private fleetService: FleetService,
   ) {
     if (this.authService.hasRole('MECANICIEN')) {
       this.lockedEntityType = 'MACHINE';
@@ -81,6 +93,9 @@ get hasActiveFilters(): boolean {
       this.entityTypeFilter.set(this.lockedEntityType);
     }
     this.load();
+    // Charger les listes pour l'autocomplete
+    this.fleetService.getVehicules().subscribe(res => this.vehicules = res.content ?? res);
+    this.fleetService.getChauffeurs().subscribe(res => this.chauffeurs = res.content ?? res);
   }
 
 load(): void {
@@ -91,6 +106,7 @@ load(): void {
     search: this.searchQuery().trim() || undefined,
     dateDebut: this.dateDebutFilter() || undefined,
     dateFin: this.dateFinFilter() || undefined,
+    entityRef: this.filterEntityRef || undefined,
   }).subscribe({
     next: page => {
       this.entretiens.set(page.content);
@@ -119,6 +135,11 @@ load(): void {
 
   setEntityTypeFilter(value: string): void {
     this.entityTypeFilter.set(value);
+    // Réinitialiser l'autocomplete à chaque changement de type
+    this.entityAcText = '';
+    this.filterEntityRef = null;
+    this.entityAcSuggestions = [];
+    this.showEntityAcDropdown = false;
     this.pageIndex = 0;
     this.load();
   }
@@ -143,16 +164,72 @@ setDateFinFilter(value: string): void {
   this.load();
 }
 
-// ── resetFilters() : ajouter les deux dates ──
+// ── resetFilters() ──
 resetFilters(): void {
   this.statutFilter.set('');
   this.entityTypeFilter.set(this.lockedEntityType || '');
   this.searchQuery.set('');
   this.dateDebutFilter.set('');
   this.dateFinFilter.set('');
+  this.entityAcText = '';
+  this.filterEntityRef = null;
+  this.entityAcSuggestions = [];
+  this.showEntityAcDropdown = false;
   this.pageIndex = 0;
   this.load();
 }
+
+  // ── Autocomplete entité ────────────────────────────────────────────────
+  onEntityAcInput(): void {
+    const term = this.entityAcText.toLowerCase();
+    const type = this.entityTypeFilter();
+    if (type === 'VEHICLE') {
+      this.entityAcSuggestions = this.vehicules
+        .filter(v =>
+          v.immatriculation.toLowerCase().includes(term) ||
+          (v.marque || '').toLowerCase().includes(term) ||
+          (v.modele || '').toLowerCase().includes(term)
+        )
+        .map(v => ({ id: v.immatriculation, label: v.immatriculation, sub: v.marque + ' ' + v.modele }));
+    } else if (type === 'DRIVER') {
+      this.entityAcSuggestions = this.chauffeurs
+        .filter(c =>
+          c.nom.toLowerCase().includes(term) ||
+          c.prenom.toLowerCase().includes(term)
+        )
+        .map(c => ({ id: c.nom + ' ' + c.prenom, label: c.nom + ' ' + c.prenom, sub: c.telephone }));
+    }
+    this.showEntityAcDropdown = true;
+    // Effacer la sélection pendant la frappe
+    this.filterEntityRef = null;
+  }
+
+  selectEntityAc(item: { id: any; label: string; sub?: string }): void {
+    this.entityAcText = item.label;
+    this.filterEntityRef = item.id;
+    this.entityAcSuggestions = [];
+    this.showEntityAcDropdown = false;
+    this.pageIndex = 0;
+    this.load();
+  }
+
+  onEntityAcBlur(): void {
+    setTimeout(() => {
+      this.showEntityAcDropdown = false;
+      if (!this.filterEntityRef) {
+        this.entityAcText = '';
+      }
+    }, 200);
+  }
+
+  clearEntityAc(): void {
+    this.entityAcText = '';
+    this.filterEntityRef = null;
+    this.entityAcSuggestions = [];
+    this.pageIndex = 0;
+    this.load();
+  }
+  // ─────────────────────────────────────────────────────────────────────
 
   openDialog(): void {
     this.otToEdit = null;

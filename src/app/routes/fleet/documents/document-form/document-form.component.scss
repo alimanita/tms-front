@@ -83,9 +83,90 @@ $radius     : 8px;
   &--highlight { background: #f0f9ff; border-radius: $radius; padding: 12px; }
 }
 
+.fl-field-hint {
+  font-size: 12px;
+  color: $text-muted;
+  font-style: italic;
+  padding: 8px 0;
+}
+
 .fl-total {
   font-size: 18px; font-weight: 700; color: $primary; padding: 6px 0;
 }
+
+// ── Autocomplete ────────────────────────────────────────────────────
+.fl-autocomplete {
+  position: relative;
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 12px;
+    border: 1px solid $border;
+    border-radius: $radius;
+    font-size: 13px;
+    font-family: inherit;
+    transition: border-color .15s;
+    background: #fff;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, .1);
+    }
+
+    &.error { border-color: #dc2626; }
+  }
+
+  .fl-autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: $radius;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 200;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  .fl-autocomplete-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background .1s;
+
+    &:last-child { border-bottom: none; }
+
+    &:hover {
+      background: #eff6ff;
+    }
+
+    .fl-ac-main {
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-main;
+    }
+
+    .fl-ac-sub {
+      font-size: 11px;
+      color: $text-muted;
+      margin-top: 2px;
+    }
+  }
+
+  .fl-autocomplete-empty {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: $text-muted;
+    font-style: italic;
+  }
+}
+// ───────────────────────────────────────────────────────────────────
 
 .fl-upload-zone {
   display: flex;

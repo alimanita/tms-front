@@ -95,7 +95,8 @@
   </div>
 
   <!-- Liste des dépenses -->
-  <table *ngIf="!loading" class="expenses-table">
+  <div class="expenses-table-responsive" *ngIf="!loading">
+    <table class="expenses-table">
     <thead>
       <tr>
         <th>Type</th>
@@ -142,6 +143,7 @@
       </tr>
     </tfoot>
   </table>
+  </div>
 
 </div>
 

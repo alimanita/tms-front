@@ -165,3 +165,52 @@
 .status-partiel { background: #fef3c7; color: #b45309; }
 .status-livree  { background: #d1fae5; color: #047857; }
 .status-annulee { background: #fee2e2; color: #b91c1c; }
+
+// ── Responsive ──────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .mission-detail-page {
+    padding: 12px;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .detail-header-left {
+    width: 100%;
+    align-items: center;
+  }
+
+  .detail-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+
+    .action-btn {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  .detail-card {
+    padding: 16px;
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header-actions {
+    grid-template-columns: 1fr;
+  }
+}

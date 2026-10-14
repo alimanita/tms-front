@@ -59,8 +59,12 @@
           <span>{{ mission.vehiculeRef || 'Véhicule #' + mission.vehiculeId }}</span>
         </div>
         <div class="detail-field">
-          <label>Destination</label>
-          <span>{{ mission.destination || '—' }}</span>
+          <label>Lieu de départ</label>
+          <span>{{ mission.departureLocation || '—' }}</span>
+        </div>
+        <div class="detail-field">
+          <label>Lieu d'arrivée</label>
+          <span>{{ mission.arrivalLocation || mission.destination || '—' }}</span>
         </div>
         <div class="detail-field">
           <label>Motif</label>

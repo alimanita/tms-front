@@ -716,3 +716,26 @@
   transition: background 0.15s;
   &:hover { background: #1d4ed8; }
 }
+
+.expenses-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 600px) {
+  .drawer-container {
+    width: 100vw;
+    right: -100vw;
+  }
+  .expenses-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    .add-expense-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}

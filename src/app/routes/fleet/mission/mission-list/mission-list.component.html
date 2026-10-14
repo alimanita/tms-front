@@ -245,6 +245,20 @@
           </span>
           <span class="sort-rank" *ngIf="getSortRank('plannedDeparture') && sortCriteria.length > 1">{{ getSortRank('plannedDeparture') }}</span>
         </th>
+        <th class="col-location sort-th" (click)="sortBy('departureLocation')">
+          Lieu de départ
+          <span class="sort-arrow" [style.color]="getSortDirection('departureLocation') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('departureLocation') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('departureLocation') && sortCriteria.length > 1">{{ getSortRank('departureLocation') }}</span>
+        </th>
+        <th class="col-location sort-th" (click)="sortBy('arrivalLocation')">
+          Lieu d'arrivée
+          <span class="sort-arrow" [style.color]="getSortDirection('arrivalLocation') ? 'var(--primary)' : 'var(--muted)'">
+            {{ getSortDirection('arrivalLocation') === 'asc' ? '↑' : '↓' }}
+          </span>
+          <span class="sort-rank" *ngIf="getSortRank('arrivalLocation') && sortCriteria.length > 1">{{ getSortRank('arrivalLocation') }}</span>
+        </th>
         <th class="col-status">Statut</th>
         <th class="col-revenue sort-th" (click)="sortBy('revenue')" *ngIf="showTarif">
           Tarif
@@ -254,14 +268,6 @@
           <span class="sort-rank" *ngIf="getSortRank('revenue') && sortCriteria.length > 1">{{ getSortRank('revenue') }}</span>
         </th>
         <th class="col-net" *ngIf="showTarif">Net</th>
-        <th class="col-other" *ngIf="showCout">Autres</th>
-        <th class="col-amount sort-th" (click)="sortBy('totalCost')" *ngIf="showCout">
-          Coût
-          <span class="sort-arrow" [style.color]="getSortDirection('totalCost') ? 'var(--primary)' : 'var(--muted)'">
-            {{ getSortDirection('totalCost') === 'asc' ? '↑' : '↓' }}
-          </span>
-          <span class="sort-rank" *ngIf="getSortRank('totalCost') && sortCriteria.length > 1">{{ getSortRank('totalCost') }}</span>
-        </th>
         <th class="col-letter" title="Lettre de mission">
           <mat-icon style="font-size:15px;width:15px;height:15px;color:#94a3b8">description</mat-icon>
         </th>
@@ -327,6 +333,14 @@
           <span class="date-main">{{ formatDate(m.plannedDeparture) }}</span>
         </td>
 
+        <td class="col-location">
+          <span>{{ m.departureLocation || '—' }}</span>
+        </td>
+
+        <td class="col-location">
+          <span>{{ m.arrivalLocation || m.destination || '—' }}</span>
+        </td>
+
         <td class="col-status">
           <div class="status-cell">
             <span class="status-badge" [ngClass]="getStatusClass(m.statut)">
@@ -354,14 +368,6 @@
           <ng-container *ngIf="m.modeExecution === 'INTERNAL' || !m.modeExecution">
             <span class="text-muted">—</span>
           </ng-container>
-        </td>
-
-        <td class="col-other" *ngIf="showCout">
-          <span class="amount-ttc montant-other">{{ (m.otherExpenses ?? 0) | number:'1.2-2' }} €</span>
-        </td>
-
-        <td class="col-amount" *ngIf="showCout">
-          <span class="amount-ttc montant-normal">{{ (m.totalCost ?? 0) | number:'1.2-2' }} €</span>
         </td>
 
         <!-- Lettre de mission -->
@@ -441,6 +447,8 @@
         </td>
         <td class="col-client"></td>
         <td class="col-date"></td>
+        <td class="col-location"></td>
+        <td class="col-location"></td>
         <td class="col-status">
           <span class="totals-label">{{ missions.length }} mission(s)</span>
         </td>
@@ -449,12 +457,6 @@
         </td>
         <td class="col-net" *ngIf="showTarif">
           <span class="totals-amount" style="color:#10b981;font-weight:600;">{{ totalNet | number:'1.2-2' }} €</span>
-        </td>
-        <td class="col-other" *ngIf="showCout">
-          <span class="totals-amount other">{{ totalOtherExpenses | number:'1.2-2' }} €</span>
-        </td>
-        <td class="col-amount" *ngIf="showCout">
-          <span class="totals-amount cost">{{ totalCost | number:'1.2-2' }} €</span>
         </td>
         <td class="col-letter"></td>
         <td class="col-actions"></td>
@@ -534,6 +536,18 @@
             <mat-icon class="m-icon" style="color:#d97706">handshake</mat-icon>
             <span class="m-driver-name" style="color:#92400e">{{ m.partenaireNom || 'Partenaire' }}</span>
             <span class="m-veh-tag" *ngIf="m.externeCamion || m.externeChauffeur">{{ m.externeCamion }}</span>
+          </div>
+        </div>
+
+        <!-- Lieux départ & arrivée -->
+        <div class="m-card-row m-location-row" *ngIf="m.departureLocation || m.arrivalLocation || m.destination">
+          <div class="m-location-wrap">
+            <mat-icon class="m-icon">place</mat-icon>
+            <span class="m-location-text">
+              {{ m.departureLocation || '—' }}
+              <span class="m-location-arrow">→</span>
+              {{ m.arrivalLocation || m.destination || '—' }}
+            </span>
           </div>
         </div>
 

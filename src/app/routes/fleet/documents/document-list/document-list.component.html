@@ -82,7 +82,8 @@
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-    <table *ngIf="!loading" class="fl-table">
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
       <thead>
         <tr>
           <th>Type</th>
@@ -132,6 +133,53 @@
         </tr>
       </tbody>
     </table>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="documents.length === 0" class="fl-empty">Aucun document trouvé</div>
+
+      <div *ngFor="let d of paginatedItems" class="m-card">
+        <div class="m-card-header">
+          <div class="m-card-title">
+            <strong>{{ formatType(d.typeDocument) }}</strong>
+            <small *ngIf="d.referenceNumber" style="display:block; color:#64748b; font-size:11px;">Réf: {{ d.referenceNumber }}</small>
+          </div>
+          <div class="m-card-badges">
+            <span class="badge" [ngClass]="d.status === 'ACTIVE' ? 'badge--green' : 'badge--red'">{{ d.status }}</span>
+          </div>
+        </div>
+
+        <div class="m-card-body">
+          <div class="m-card-info" *ngIf="d.issuer">
+            <span class="m-label">Émetteur :</span>
+            <span class="m-val">{{ d.issuer }}</span>
+          </div>
+          <div class="m-card-info">
+            <span class="m-label">Entité :</span>
+            <span class="m-val">{{ formatEntity(d.entityType) }} ({{ d.entityRef || d.entityId }})</span>
+          </div>
+          <div class="m-card-info" *ngIf="d.issueDate">
+            <span class="m-label">Émission :</span>
+            <span class="m-val">{{ d.issueDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="m-card-info" *ngIf="d.expiryDate">
+            <span class="m-label">Expiration :</span>
+            <span class="m-val" [ngClass]="{'text-red': d.status === 'EXPIRED'}">{{ d.expiryDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="m-card-footer">
+          <ng-container *ngIf="d.fileName">
+            <button class="fl-btn fl-btn-ghost" (click)="viewProof(d.id, d.referenceNumber)" title="Voir">👁 Voir</button>
+            <button class="fl-btn fl-btn-ghost" (click)="downloadFile(d.id, d.referenceNumber)" title="Télécharger">⬇ DL</button>
+          </ng-container>
+          <button class="fl-btn fl-btn-ghost" (click)="goEdit(d)" title="Modifier">✎ Modifier</button>
+          <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(d.id)" style="color: red;" title="Supprimer">🗑</button>
+        </div>
+      </div>
+    </div>
+
     <app-pagination-bar
       [total]="documents.length"
       [pageIndex]="pageIndex"

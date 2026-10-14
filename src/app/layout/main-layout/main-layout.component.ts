@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { MenuService, MenuItem } from '../../core/services/menu.service';
 import { DatePipe, DecimalPipe, CommonModule } from '@angular/common';
@@ -15,6 +16,15 @@ import { MatIconModule } from '@angular/material/icon';
 export class MainLayoutComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly menuService = inject(MenuService);
+  private readonly router = inject(Router);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.sidebarOpen.set(false);
+    });
+  }
 
   protected readonly user = this.authService.user;
   protected readonly dynamicMenu = this.menuService.menu;
@@ -110,6 +120,10 @@ export class MainLayoutComponent implements OnInit {
 
   toggleSidebar(): void {
     this.sidebarOpen.update(v => !v);
+  }
+
+  onNavClick(): void {
+    this.sidebarOpen.set(false);
   }
 
   getPrimaryRoleName(): string {

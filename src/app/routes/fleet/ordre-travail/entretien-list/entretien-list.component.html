@@ -32,6 +32,37 @@
     <option *ngFor="let opt of entityTypeOptions" [value]="opt.value">{{ opt.label }}</option>
   </select>
 
+  <!-- Autocomplete Véhicule / Chauffeur selon le type choisi -->
+  <div class="filter-entity-ac" *ngIf="entityTypeFilter() === 'VEHICLE' || entityTypeFilter() === 'DRIVER'">
+    <div class="filter-entity-ac-inner">
+      <mat-icon class="filter-ac-icon">search</mat-icon>
+      <input
+        type="text"
+        class="filter-ac-input"
+        [placeholder]="entityTypeFilter() === 'VEHICLE' ? 'Filtrer par véhicule...' : 'Filtrer par chauffeur...'"
+        [(ngModel)]="entityAcText"
+        (input)="onEntityAcInput()"
+        (focus)="showEntityAcDropdown = true"
+        (blur)="onEntityAcBlur()"
+        autocomplete="off"
+      >
+      <button class="filter-ac-clear-btn" *ngIf="filterEntityRef" (click)="clearEntityAc()" title="Effacer">✕</button>
+    </div>
+    <div class="filter-ac-dropdown" *ngIf="showEntityAcDropdown && entityAcSuggestions.length > 0">
+      <div
+        class="filter-ac-item"
+        *ngFor="let item of entityAcSuggestions"
+        (mousedown)="selectEntityAc(item)"
+      >
+        <span class="filter-ac-main">{{ item.label }}</span>
+        <span class="filter-ac-sub" *ngIf="item.sub">{{ item.sub }}</span>
+      </div>
+    </div>
+    <div class="filter-ac-empty" *ngIf="showEntityAcDropdown && entityAcSuggestions.length === 0 && entityAcText">
+      Aucun résultat
+    </div>
+  </div>
+
   <div class="filter-date-range">
     <input
       type="date"
@@ -65,7 +96,8 @@
     <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
   </div>
 
-  <table class="bl-table" *ngIf="!loading()">
+  <div class="table-responsive" *ngIf="!loading()">
+    <table class="bl-table">
     <thead>
       <tr>
         <th class="col-ref">Référence</th>
@@ -171,6 +203,67 @@
       </tr>
     </tbody>
   </table>
+  </div>
+
+  <!-- Mobile Cards View -->
+  <div class="mobile-cards-view" *ngIf="!loading()">
+    <div *ngIf="entretiens().length === 0" class="empty-state">
+      <mat-icon>build</mat-icon>
+      <p>{{ hasActiveFilters ? 'Aucun entretien ne correspond à ces filtres' : 'Aucun entretien trouvé' }}</p>
+    </div>
+
+    <div *ngFor="let ot of entretiens()" class="m-card">
+      <div class="m-card-header">
+        <div class="m-card-title">
+          <strong class="ref-link">{{ ot.reference }}</strong>
+        </div>
+        <div class="m-card-badges">
+          <span class="priorite-badge" [ngClass]="prioriteClass(ot.priorite)">{{ ot.priorite }}</span>
+          <span class="status-badge" [ngClass]="statutClass(ot.statut)">{{ statutLabel(ot.statut) }}</span>
+        </div>
+      </div>
+
+      <div class="m-card-body">
+        <div class="m-card-info">
+          <span class="m-label">Véhicule :</span>
+          <span class="m-val">{{ ot.entityRef || (ot.entityType + ' #' + ot.entityId) }}</span>
+        </div>
+        <div class="m-card-info" *ngIf="ot.description">
+          <span class="m-label">Description :</span>
+          <span class="m-val">{{ ot.description }}</span>
+        </div>
+        <div class="m-card-info">
+          <span class="m-label">Coût :</span>
+          <span class="m-val amount-ttc">{{ (ot.actualTotalCost ?? ot.estimatedCost ?? 0) | number:'1.3-3' }} dt</span>
+        </div>
+      </div>
+
+      <div class="m-card-footer">
+        <button class="actions-menu-btn" [matMenuTriggerFor]="mobileMenu" (click)="$event.stopPropagation()">
+          <span class="dots">···</span>
+        </button>
+        <mat-menu #mobileMenu="matMenu" xPosition="before" class="facture-actions-menu">
+          <button mat-menu-item [disabled]="ot.statut === 'COMPLETED' || ot.statut === 'CANCELLED'" (click)="modifier(ot)">
+            <mat-icon class="menu-icon">edit</mat-icon><span>Modifier</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item [disabled]="ot.statut !== 'PLANNED'" (click)="demarrer(ot)">
+            <mat-icon class="menu-icon icon-statut">play_circle</mat-icon><span>Démarrer</span>
+          </button>
+          <button mat-menu-item [disabled]="ot.statut !== 'IN_PROGRESS' && ot.statut !== 'ON_HOLD'" (click)="cloturer(ot)">
+            <mat-icon class="menu-icon icon-statut">flag_circle</mat-icon><span>Clôturer</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item [disabled]="ot.statut === 'COMPLETED' || ot.statut === 'CANCELLED'" (click)="annuler(ot)">
+            <mat-icon class="menu-icon icon-delete">cancel</mat-icon><span>Annuler</span>
+          </button>
+          <button mat-menu-item class="delete-menu-item" [disabled]="ot.statut !== 'DRAFT' && ot.statut !== 'PLANNED'" (click)="delete(ot)">
+            <mat-icon class="menu-icon icon-delete">delete</mat-icon><span>Supprimer</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </div>
 
   <!-- Pagination -->
   <div class="pagination-bar" *ngIf="!loading()">

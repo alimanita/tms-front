@@ -67,6 +67,7 @@
 
 .fl-table {
   width: 100%;
+  min-width: 650px;
   border-collapse: collapse;
 
   thead {
@@ -78,6 +79,7 @@
       letter-spacing: 0.03em;
       color: #777;
       border-bottom: 2px solid #eee;
+      white-space: nowrap;
     }
   }
 
@@ -95,6 +97,7 @@
       font-size: 0.9rem;
       color: #333;
       vertical-align: middle;
+      white-space: nowrap;
     }
   }
 
@@ -142,5 +145,108 @@
   &--grey {
     background: #f0f0f0;
     color: #777;
+  }
+}
+
+.table-responsive {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-cards-view {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .fleet-page {
+    padding: 12px;
+  }
+
+  .fleet-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .fleet-body {
+    padding: 12px;
+  }
+
+  .table-responsive {
+    display: none !important;
+  }
+
+  .mobile-cards-view {
+    display: flex !important;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .m-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .m-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+
+      .m-card-title {
+        font-size: 14px;
+        color: #0f172a;
+      }
+
+      .m-card-badges {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+    }
+
+    .m-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .m-card-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+
+        .m-label {
+          color: #64748b;
+          font-weight: 500;
+        }
+
+        .m-val {
+          color: #1e293b;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .m-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f1f5f9;
+      flex-wrap: wrap;
+    }
   }
 }

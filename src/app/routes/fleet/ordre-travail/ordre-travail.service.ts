@@ -21,7 +21,7 @@ export class OrdreTravailService {
 findAll(
   pageIndex: number,
   pageSize: number,
-  filters?: { statut?: string; entityType?: string; search?: string; dateDebut?: string; dateFin?: string }
+  filters?: { statut?: string; entityType?: string; search?: string; dateDebut?: string; dateFin?: string; entityRef?: string }
 ): Observable<PageResponse<OrdreTravailResponse>> {
   let params = new HttpParams().set('page', pageIndex).set('size', pageSize);
   if (filters?.statut)     params = params.set('statut', filters.statut);
@@ -29,6 +29,7 @@ findAll(
   if (filters?.search)     params = params.set('search', filters.search);
   if (filters?.dateDebut)  params = params.set('dateDebut', filters.dateDebut);
   if (filters?.dateFin)    params = params.set('dateFin', filters.dateFin);
+  if (filters?.entityRef)  params = params.set('entityRef', filters.entityRef);
   return this.http.get<PageResponse<OrdreTravailResponse>>(this.base, { params });
 }
 

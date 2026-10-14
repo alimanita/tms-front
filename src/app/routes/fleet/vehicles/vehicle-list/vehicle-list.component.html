@@ -38,7 +38,8 @@
   <div class="fleet-body">
     <div *ngIf="loading" class="fleet-loading">Chargement…</div>
 
-    <table *ngIf="!loading" class="fl-table">
+    <div class="table-responsive" *ngIf="!loading">
+      <table class="fl-table">
       <thead>
         <tr>
           <th>Référence</th>
@@ -80,6 +81,50 @@
         </tr>
       </tbody>
     </table>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-cards-view" *ngIf="!loading">
+      <div *ngIf="vehicules.length === 0" class="fl-empty">Aucun véhicule enregistré</div>
+
+      <div *ngFor="let v of paginatedItems" class="m-card">
+        <div class="m-card-header">
+          <div class="m-card-title">
+            <strong>{{ v.immatriculation }}</strong>
+            <small *ngIf="v.reference" style="display:block; color:#64748b; font-size:11px;">Ref: {{ v.reference }}</small>
+          </div>
+          <div class="m-card-badges">
+            <span class="badge" [ngClass]="statutClass(v.statut)">{{ v.statut }}</span>
+            <span class="badge" [ngClass]="v.actif ? 'badge--green' : 'badge--grey'">
+              {{ v.actif ? 'Oui' : 'Non' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="m-card-body">
+          <div class="m-card-info">
+            <span class="m-label">Véhicule :</span>
+            <span class="m-val">{{ v.marque }} {{ v.modele }} <small *ngIf="v.annee">({{ v.annee }})</small></span>
+          </div>
+          <div class="m-card-info" *ngIf="v.typeCarburant">
+            <span class="m-label">Carburant :</span>
+            <span class="m-val">{{ v.typeCarburant }}</span>
+          </div>
+          <div class="m-card-info">
+            <span class="m-label">Kilométrage :</span>
+            <span class="m-val">{{ (v.kilometrageActuel | number:'1.0-0') || '0' }} km</span>
+          </div>
+        </div>
+
+        <div class="m-card-footer">
+          <button class="fl-btn fl-btn-ghost" (click)="goFuel(v)" title="Pleins">⛽ Pleins</button>
+          <button class="fl-btn fl-btn-ghost" (click)="goEdit(v)" title="Modifier">✎ Modifier</button>
+          <button class="fl-btn fl-btn-ghost" (click)="toggle(v)">
+            {{ v.actif ? '🔴 Désactiver' : '🟢 Activer' }}
+          </button>
+        </div>
+      </div>
+    </div>
     <app-pagination-bar
       [total]="vehicules.length"
       [pageIndex]="pageIndex"

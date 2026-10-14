@@ -85,7 +85,7 @@ $radius     : 8px;
 }
 
 .fl-table {
-  width: 100%; border-collapse: collapse; font-size: 13px; background: #fff;
+  width: 100%; min-width: 650px; border-collapse: collapse; font-size: 13px; background: #fff;
   border-radius: $radius; overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,.06);
 
@@ -96,7 +96,7 @@ $radius     : 8px;
   }
   td {
     padding: 10px 12px; border-bottom: 1px solid $border; color: $text-main;
-    vertical-align: middle;
+    vertical-align: middle; white-space: nowrap;
   }
   tbody tr:hover { background: #f8fafc; }
 }

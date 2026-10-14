@@ -1,6 +1,7 @@
 import { Component, OnInit, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, VehiculeResponse } from '../../fleet.service';
@@ -12,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'app-document-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, RouterModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatSnackBarModule, RouterModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './document-form.component.html',
   styleUrls: ['./document-form.component.scss'],
 })
@@ -84,6 +85,11 @@ export class DocumentFormComponent implements OnInit {
         entityIdCtrl?.setValue(null);
       }
       entityIdCtrl?.updateValueAndValidity();
+      // Réinitialiser l'autocomplete à chaque changement de type
+      this.entitySearchText = '';
+      this.entityDisplayText = '';
+      this.filteredEntities = [];
+      this.showEntityDropdown = false;
     });
 
     this.loadEntities();
@@ -98,8 +104,12 @@ export class DocumentFormComponent implements OnInit {
           next: d => {
             this.form.patchValue(d);
             if (d.filePath) {
-              // Assumer que fleetService.base pointe vers /api/v1/fleet
               this.existingProofUrl = `${environment.baseUrl}/fleet/documents/${this.documentId}/file`;
+            }
+            // Pré-remplir le libellé de l'autocomplete en mode édition
+            if (d.entityRef) {
+              this.entitySearchText = d.entityRef;
+              this.entityDisplayText = d.entityRef;
             }
           },
           error: () => this.snackBar.open('Erreur chargement', 'Fermer', { duration: 3000 })
@@ -117,6 +127,62 @@ export class DocumentFormComponent implements OnInit {
   get entityType(): string {
     return this.form.get('entityType')?.value;
   }
+
+  // ── Autocomplete entité ────────────────────────────────────────
+  entitySearchText = '';
+  entityDisplayText = '';
+  showEntityDropdown = false;
+  filteredEntities: any[] = [];
+
+  onEntitySearch(): void {
+    const term = this.entitySearchText.toLowerCase();
+    const type = this.entityType;
+
+    if (type === 'VEHICLE') {
+      this.filteredEntities = this.vehicules.filter(v =>
+        v.immatriculation.toLowerCase().includes(term) ||
+        (v.marque || '').toLowerCase().includes(term) ||
+        (v.modele || '').toLowerCase().includes(term)
+      );
+    } else if (type === 'DRIVER') {
+      this.filteredEntities = this.chauffeurs.filter(c =>
+        c.nom.toLowerCase().includes(term) ||
+        c.prenom.toLowerCase().includes(term) ||
+        (c.telephone || '').toLowerCase().includes(term)
+      );
+    }
+    this.showEntityDropdown = true;
+    // Effacer la sélection si l'utilisateur tape
+    this.form.get('entityId')?.setValue(null);
+  }
+
+  selectEntity(id: number, label: string): void {
+    this.form.get('entityId')?.setValue(id);
+    this.entitySearchText = label;
+    this.entityDisplayText = label;
+    this.showEntityDropdown = false;
+    this.filteredEntities = [];
+  }
+
+  onEntityBlur(): void {
+    // Délai pour permettre le click sur l'item
+    setTimeout(() => {
+      this.showEntityDropdown = false;
+      // Si rien n'a été sélectionné, réinitialiser
+      if (!this.form.get('entityId')?.value) {
+        this.entitySearchText = '';
+      }
+    }, 200);
+  }
+
+  private resetEntityAutocomplete(): void {
+    this.entitySearchText = '';
+    this.entityDisplayText = '';
+    this.filteredEntities = [];
+    this.showEntityDropdown = false;
+    this.form.get('entityId')?.setValue(null);
+  }
+  // ─────────────────────────────────────────────────────────────────
 
   isDragging = false;
 

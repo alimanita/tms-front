@@ -76,41 +76,79 @@
       <p>Aucun partenaire enregistré</p>
     </div>
 
-    <table *ngIf="!loading && partenaires.length > 0" class="fl-table">
-      <thead>
-        <tr>
-          <th>Société</th>
-          <th>Contact</th>
-          <th>Téléphone</th>
-          <th>Commission défaut</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of partenaires">
-          <td>
+    <div class="table-responsive" *ngIf="!loading && partenaires.length > 0">
+      <table class="fl-table">
+        <thead>
+          <tr>
+            <th>Société</th>
+            <th>Contact</th>
+            <th>Téléphone</th>
+            <th>Commission défaut</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of partenaires">
+            <td>
+              <strong>{{ p.nom }}</strong>
+              <div class="sub-text" *ngIf="p.matriculeFiscal">{{ p.matriculeFiscal }}</div>
+            </td>
+            <td>{{ p.contact || '—' }}</td>
+            <td>{{ p.telephone || '—' }}</td>
+            <td>
+              <span *ngIf="p.tauxCommissionDefaut != null" class="commission-badge">
+                {{ p.tauxCommissionDefaut }}%
+              </span>
+              <span *ngIf="p.tauxCommissionDefaut == null">—</span>
+            </td>
+            <td>
+              <span class="statut-badge" [ngClass]="p.statut.toLowerCase()">{{ statutLabel(p.statut) }}</span>
+            </td>
+            <td>
+              <button class="icon-btn" (click)="openEdit(p)" title="Modifier">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-cards-view" *ngIf="!loading && partenaires.length > 0">
+      <div *ngFor="let p of partenaires" class="m-card">
+        <div class="m-card-header">
+          <div class="m-card-title">
             <strong>{{ p.nom }}</strong>
-            <div class="sub-text" *ngIf="p.matriculeFiscal">{{ p.matriculeFiscal }}</div>
-          </td>
-          <td>{{ p.contact || '—' }}</td>
-          <td>{{ p.telephone || '—' }}</td>
-          <td>
-            <span *ngIf="p.tauxCommissionDefaut != null" class="commission-badge">
-              {{ p.tauxCommissionDefaut }}%
-            </span>
-            <span *ngIf="p.tauxCommissionDefaut == null">—</span>
-          </td>
-          <td>
+            <small *ngIf="p.matriculeFiscal" style="display:block; color:#64748b; font-size:11px;">{{ p.matriculeFiscal }}</small>
+          </div>
+          <div class="m-card-badges">
             <span class="statut-badge" [ngClass]="p.statut.toLowerCase()">{{ statutLabel(p.statut) }}</span>
-          </td>
-          <td>
-            <button class="icon-btn" (click)="openEdit(p)" title="Modifier">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </div>
+        </div>
+
+        <div class="m-card-body">
+          <div class="m-card-info" *ngIf="p.contact">
+            <span class="m-label">Contact :</span>
+            <span class="m-val">{{ p.contact }}</span>
+          </div>
+          <div class="m-card-info" *ngIf="p.telephone">
+            <span class="m-label">Téléphone :</span>
+            <span class="m-val">{{ p.telephone }}</span>
+          </div>
+          <div class="m-card-info" *ngIf="p.tauxCommissionDefaut != null">
+            <span class="m-label">Commission :</span>
+            <span class="m-val commission-badge">{{ p.tauxCommissionDefaut }}%</span>
+          </div>
+        </div>
+
+        <div class="m-card-footer">
+          <button class="icon-btn" (click)="openEdit(p)" title="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

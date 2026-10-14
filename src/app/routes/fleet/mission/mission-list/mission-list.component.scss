@@ -639,6 +639,14 @@ select.filter-select {
   white-space: nowrap;
 }
 
+.col-location {
+  min-width: 120px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .col-status {
   min-width: 105px;
   white-space: nowrap;
@@ -1318,6 +1326,37 @@ td.col-amount {
     height: 14px;
     color: #94a3b8;
     flex-shrink: 0;
+  }
+}
+
+.m-location-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+  min-width: 0;
+
+  .m-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: #3b82f6;
+    flex-shrink: 0;
+  }
+
+  .m-location-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .m-location-arrow {
+    color: #94a3b8;
+    margin: 0 4px;
+    font-weight: 700;
   }
 }
 

@@ -38,19 +38,78 @@
 
         <div class="fl-field">
           <label>Choix de l'entité *</label>
-          <select formControlName="entityId" [class.error]="submitted && form.get('entityId')?.invalid">
-            <option [ngValue]="null">-- Sélectionner --</option>
-            <ng-container *ngIf="entityType === 'VEHICLE'">
-              <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
-            </ng-container>
-            <ng-container *ngIf="entityType === 'DRIVER'">
-              <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.nom }} {{ c.prenom }}</option>
-            </ng-container>
-            <ng-container *ngIf="entityType === 'PARTNER'">
+
+          <!-- Autocomplete Véhicule -->
+          <ng-container *ngIf="entityType === 'VEHICLE'">
+            <div class="fl-autocomplete">
+              <input
+                type="text"
+                [placeholder]="'Rechercher un véhicule...'"
+                [(ngModel)]="entitySearchText"
+                [ngModelOptions]="{standalone: true}"
+                (input)="onEntitySearch()"
+                (focus)="showEntityDropdown = true"
+                (blur)="onEntityBlur()"
+                [value]="entityDisplayText"
+                [class.error]="submitted && form.get('entityId')?.invalid"
+              >
+              <div class="fl-autocomplete-dropdown" *ngIf="showEntityDropdown && filteredEntities.length > 0">
+                <div
+                  class="fl-autocomplete-item"
+                  *ngFor="let v of filteredEntities"
+                  (mousedown)="selectEntity(v.id, v.immatriculation + ' (' + v.marque + ')')"
+                >
+                  <span class="fl-ac-main">{{ v.immatriculation }}</span>
+                  <span class="fl-ac-sub">{{ v.marque }} {{ v.modele }}</span>
+                </div>
+              </div>
+              <div class="fl-autocomplete-empty" *ngIf="showEntityDropdown && filteredEntities.length === 0 && entitySearchText">
+                Aucun véhicule trouvé
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Autocomplete Chauffeur -->
+          <ng-container *ngIf="entityType === 'DRIVER'">
+            <div class="fl-autocomplete">
+              <input
+                type="text"
+                [placeholder]="'Rechercher un chauffeur...'"
+                [(ngModel)]="entitySearchText"
+                [ngModelOptions]="{standalone: true}"
+                (input)="onEntitySearch()"
+                (focus)="showEntityDropdown = true"
+                (blur)="onEntityBlur()"
+                [class.error]="submitted && form.get('entityId')?.invalid"
+              >
+              <div class="fl-autocomplete-dropdown" *ngIf="showEntityDropdown && filteredEntities.length > 0">
+                <div
+                  class="fl-autocomplete-item"
+                  *ngFor="let c of filteredEntities"
+                  (mousedown)="selectEntity(c.id, c.nom + ' ' + c.prenom)"
+                >
+                  <span class="fl-ac-main">{{ c.nom }} {{ c.prenom }}</span>
+                  <span class="fl-ac-sub" *ngIf="c.telephone">{{ c.telephone }}</span>
+                </div>
+              </div>
+              <div class="fl-autocomplete-empty" *ngIf="showEntityDropdown && filteredEntities.length === 0 && entitySearchText">
+                Aucun chauffeur trouvé
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Partenaire simple select -->
+          <ng-container *ngIf="entityType === 'PARTNER'">
+            <select formControlName="entityId" [class.error]="submitted && form.get('entityId')?.invalid">
+              <option [ngValue]="null">-- Sélectionner --</option>
               <option *ngFor="let p of partenaires" [value]="p.id">{{ p.nom }}</option>
-            </ng-container>
-            <!-- Entreprise et Autre : pas de sous-sélection (entityId optionnel) -->
-          </select>
+            </select>
+          </ng-container>
+
+          <!-- Autre / Entreprise : pas de sélection -->
+          <span *ngIf="entityType !== 'VEHICLE' && entityType !== 'DRIVER' && entityType !== 'PARTNER'" class="fl-field-hint">
+            Pas de sélection requise pour ce type d'entité.
+          </span>
         </div>
 
         <div class="fl-field">
