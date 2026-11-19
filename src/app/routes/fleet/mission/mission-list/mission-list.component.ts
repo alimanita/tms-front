@@ -138,13 +138,17 @@ export class MissionListComponent implements OnInit {
   isAdmin = isAdminRole();
   readonly statut = StatutMission;
 
-  // ── Modal Lettre de mission ──────────────────────────────────
+  // ── Modal Lettre / CMR ──────────────────────────────────
   letterModalOpen = false;
   letterLoading   = false;
   letterIsImage   = false;
   letterSafeUrl: SafeUrl | null = null;
+  docModalTitle   = 'Lettre de mission';
+  uploadModalTitle = 'Joindre la lettre de mission';
+  uploadDocType: 'LETTER' | 'CMR' = 'LETTER';
   private letterBlobUrl: string | null = null;
-  private currentLetterMission: MissionResponse | null = null;
+  private currentDocMission: MissionResponse | null = null;
+  private currentDocType: 'LETTER' | 'CMR' = 'LETTER';
 
   @ViewChild('letterFileInput') letterFileInput!: ElementRef<HTMLInputElement>;
   uploadModalOpen = false;
@@ -153,6 +157,17 @@ export class MissionListComponent implements OnInit {
   private missionIdForUpload: number | null = null;
 
   triggerUploadLetter(missionId: number): void {
+    this.uploadDocType = 'LETTER';
+    this.uploadModalTitle = 'Joindre la lettre de mission';
+    this.missionIdForUpload = missionId;
+    this.uploadModalOpen = true;
+    this.selectedUploadFile = null;
+    this.isDragging = false;
+  }
+
+  triggerUploadCmr(missionId: number): void {
+    this.uploadDocType = 'CMR';
+    this.uploadModalTitle = 'Joindre le CMR';
     this.missionIdForUpload = missionId;
     this.uploadModalOpen = true;
     this.selectedUploadFile = null;
@@ -220,15 +235,21 @@ export class MissionListComponent implements OnInit {
     if (!this.selectedUploadFile || !this.missionIdForUpload) return;
     
     this.loading = true;
-    this.missionService.uploadLetter(this.missionIdForUpload, this.selectedUploadFile).subscribe({
+    const req$ = this.uploadDocType === 'CMR'
+      ? this.missionService.uploadCmr(this.missionIdForUpload, this.selectedUploadFile)
+      : this.missionService.uploadLetter(this.missionIdForUpload, this.selectedUploadFile);
+
+    req$.subscribe({
       next: () => {
-        this.snackBar.open('Lettre de mission jointe avec succès', 'Fermer', { duration: 3000 });
+        const msg = this.uploadDocType === 'CMR' ? 'CMR joint avec succès' : 'Lettre de mission jointe avec succès';
+        this.snackBar.open(msg, 'Fermer', { duration: 3000 });
         this.closeUploadModal();
         this.load();
       },
       error: () => {
         this.loading = false;
-        this.snackBar.open('Erreur lors du téléchargement de la lettre', 'Fermer', { duration: 3000 });
+        const msg = this.uploadDocType === 'CMR' ? 'Erreur lors du téléchargement du CMR' : 'Erreur lors du téléchargement de la lettre';
+        this.snackBar.open(msg, 'Fermer', { duration: 3000 });
       },
     });
   }
@@ -624,9 +645,11 @@ private updateMissionInList(updated: MissionResponse): void {
 
   viewLetter(m: MissionResponse): void {
     if (!m.letterMissionUrl) return;
+    this.docModalTitle = 'Lettre de mission';
+    this.currentDocType = 'LETTER';
+    this.currentDocMission = m;
     this.letterModalOpen = true;
     this.letterLoading = true;
-    this.currentLetterMission = m;
 
     this.missionService.downloadLetterBlob(m.id).subscribe({
       next: (blob) => {
@@ -649,6 +672,35 @@ private updateMissionInList(updated: MissionResponse): void {
     });
   }
 
+  viewCmr(m: MissionResponse): void {
+    if (!m.cmrUrl) return;
+    this.docModalTitle = 'Document CMR (Lettre de voiture)';
+    this.currentDocType = 'CMR';
+    this.currentDocMission = m;
+    this.letterModalOpen = true;
+    this.letterLoading = true;
+
+    this.missionService.downloadCmrBlob(m.id).subscribe({
+      next: (blob) => {
+        const contentType = blob.type || 'application/octet-stream';
+        this.letterIsImage = contentType.startsWith('image/');
+
+        if (this.letterBlobUrl) {
+          window.URL.revokeObjectURL(this.letterBlobUrl);
+        }
+        const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+        this.letterBlobUrl = url;
+        this.letterSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.letterLoading = false;
+      },
+      error: () => {
+        this.letterLoading = false;
+        this.letterModalOpen = false;
+        this.snackBar.open('Impossible de charger le document CMR', 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
   closeLetterModal(): void {
     this.letterModalOpen = false;
     if (this.letterBlobUrl) {
@@ -656,12 +708,20 @@ private updateMissionInList(updated: MissionResponse): void {
       this.letterBlobUrl = null;
     }
     this.letterSafeUrl = null;
-    this.currentLetterMission = null;
+    this.currentDocMission = null;
+  }
+
+  downloadCurrentDoc(): void {
+    if (!this.currentDocMission) return;
+    if (this.currentDocType === 'CMR') {
+      this.downloadCmr(this.currentDocMission);
+    } else {
+      this.downloadLetter(this.currentDocMission);
+    }
   }
 
   downloadCurrentLetter(): void {
-    if (!this.currentLetterMission) return;
-    this.downloadLetter(this.currentLetterMission);
+    this.downloadCurrentDoc();
   }
 
   downloadLetter(m: MissionResponse): void {
@@ -676,6 +736,21 @@ private updateMissionInList(updated: MissionResponse): void {
         window.URL.revokeObjectURL(url);
       },
       error: () => this.snackBar.open('Erreur lors du téléchargement de la lettre', 'Fermer', { duration: 3000 })
+    });
+  }
+
+  downloadCmr(m: MissionResponse): void {
+    if (!m.cmrUrl) return;
+    this.missionService.downloadCmrBlob(m.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CMR_${m.reference || m.id}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Erreur lors du téléchargement du CMR', 'Fermer', { duration: 3000 })
     });
   }
 

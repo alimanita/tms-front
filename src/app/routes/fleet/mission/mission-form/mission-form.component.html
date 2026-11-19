@@ -184,6 +184,9 @@
                 <label for="aiFileInput" class="fl-btn fl-btn-ghost file-btn" title="Choisir un fichier">
                   <mat-icon style="vertical-align:middle;margin-right:4px;">attach_file</mat-icon> Parcourir
                 </label>
+                <span *ngIf="existingLetterUrl" style="margin-left:12px;font-size:12px;color:#10b981;font-weight:500;">
+                  ✓ Lettre existante enregistrée
+                </span>
               </div>
             </ng-container>
 
@@ -209,6 +212,33 @@
                 <mat-icon style="vertical-align:middle;margin-right:6px;color:#3b82f6">description</mat-icon>
                 {{ letterFile.name }}
                 <button type="button" class="fl-file-remove" (click)="removeLetterFile()" title="Supprimer">✕</button>
+              </span>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- CMR (Lettre de voiture) -->
+        <div class="fl-field fl-field--full">
+          <label>Document CMR (Lettre de voiture - PDF, image…)</label>
+          <div class="fl-upload-zone" [class.has-file]="!!cmrFile">
+            <input type="file" id="cmrInput" accept=".pdf,image/*,.doc,.docx" (change)="onCmrSelected($event)" hidden />
+            
+            <ng-container *ngIf="!cmrFile">
+              <div class="upload-actions" style="display:flex;align-items:center;gap:12px;">
+                <label for="cmrInput" class="fl-btn fl-btn-ghost file-btn" style="cursor:pointer;" title="Choisir un fichier CMR">
+                  <mat-icon style="vertical-align:middle;margin-right:4px;">attach_file</mat-icon> Joindre un CMR
+                </label>
+                <span *ngIf="existingCmrUrl" style="font-size:12px;color:#10b981;font-weight:500;">
+                  ✓ Un CMR est déjà enregistré pour cette mission (sélectionnez un nouveau fichier pour le remplacer)
+                </span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="cmrFile">
+              <span class="fl-file-name">
+                <mat-icon style="vertical-align:middle;margin-right:6px;color:#059669">description</mat-icon>
+                {{ cmrFile.name }}
+                <button type="button" class="fl-file-remove" (click)="removeCmrFile()" title="Supprimer">✕</button>
               </span>
             </ng-container>
           </div>

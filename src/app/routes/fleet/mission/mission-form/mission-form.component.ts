@@ -31,6 +31,9 @@ export class MissionFormComponent implements OnInit {
   selectedChauffeurToAdd: number | null = null;
 
   letterFile: File | null = null;
+  existingLetterUrl: string | null = null;
+  cmrFile: File | null = null;
+  existingCmrUrl: string | null = null;
 
   aiFile: File | null = null;
   aiPreviewUrl: string | null = null;
@@ -144,6 +147,9 @@ export class MissionFormComponent implements OnInit {
           revenue:           m.revenue ?? null,
         });
         
+        this.existingLetterUrl = m.letterMissionUrl ?? null;
+        this.existingCmrUrl = m.cmrUrl ?? null;
+
         // Charger les créneaux chauffeurs
         if (m.chauffeurs && Array.isArray(m.chauffeurs)) {
            this.chauffeurSlots = m.chauffeurs.map((c: any) => ({
@@ -207,6 +213,17 @@ export class MissionFormComponent implements OnInit {
     if (input) input.value = '';
   }
 
+  onCmrSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.cmrFile = input.files?.[0] ?? null;
+  }
+
+  removeCmrFile(): void {
+    this.cmrFile = null;
+    const input = document.getElementById('cmrInput') as HTMLInputElement | null;
+    if (input) input.value = '';
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessage = null;
@@ -248,8 +265,8 @@ export class MissionFormComponent implements OnInit {
     };
 
     const req$ = this.isEdit && this.missionId
-      ? this.missionService.update(this.missionId, request, this.letterFile ?? undefined)
-      : this.missionService.create(request, this.letterFile ?? undefined);
+      ? this.missionService.update(this.missionId, request, this.letterFile ?? undefined, this.cmrFile ?? undefined)
+      : this.missionService.create(request, this.letterFile ?? undefined, this.cmrFile ?? undefined);
 
     req$.subscribe({
       next: () => {

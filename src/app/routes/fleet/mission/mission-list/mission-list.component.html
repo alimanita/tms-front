@@ -21,7 +21,7 @@
   <div class="fl-modal-overlay" *ngIf="uploadModalOpen" (click)="closeUploadModal()">
     <div class="fl-modal" (click)="$event.stopPropagation()" style="max-width: 500px; padding: 24px;">
       <div class="fl-modal-header" style="margin-bottom: 20px;">
-        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #1f2937;">Joindre une lettre de mission</h3>
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: #1f2937;">{{ uploadModalTitle }}</h3>
         <button class="fl-modal-close" (click)="closeUploadModal()" style="background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer;">&times;</button>
       </div>
 
@@ -65,7 +65,7 @@
 <div class="fl-modal-overlay" *ngIf="letterModalOpen" (click)="closeLetterModal()">
   <div class="fl-modal" (click)="$event.stopPropagation()">
     <div class="fl-modal-header">
-      <h3>Lettre de mission</h3>
+      <h3>{{ docModalTitle }}</h3>
       <button class="fl-modal-close" (click)="closeLetterModal()">✕</button>
     </div>
 
@@ -79,7 +79,7 @@
     </div>
 
     <div class="fl-modal-footer">
-      <button class="fl-btn fl-btn-primary" style="background:#3b82f6;color:white;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="downloadCurrentLetter()">
+      <button class="fl-btn fl-btn-primary" style="background:#3b82f6;color:white;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="downloadCurrentDoc()">
         ⬇ Télécharger
       </button>
       <button class="fl-btn fl-btn-ghost" style="background:#f1f5f9;color:#374151;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="closeLetterModal()">
@@ -271,6 +271,7 @@
         <th class="col-letter" title="Lettre de mission">
           <mat-icon style="font-size:15px;width:15px;height:15px;color:#94a3b8">description</mat-icon>
         </th>
+        <th class="col-cmr" title="Document CMR (Lettre de voiture)">CMR</th>
         <th class="col-actions">Actions</th>
       </tr>
     </thead>
@@ -278,7 +279,7 @@
     <tbody>
 
       <tr *ngIf="missions.length === 0">
-        <td colspan="12">
+        <td colspan="13">
           <div class="empty-state">
             <mat-icon>route</mat-icon>
             <p>Aucune mission trouvée</p>
@@ -386,6 +387,22 @@
           </div>
         </td>
 
+        <!-- CMR -->
+        <td class="col-cmr">
+          <div class="fl-actions">
+            <ng-container *ngIf="m.cmrUrl; else noCmr">
+              <button class="fl-btn fl-btn-ghost" (click)="viewCmr(m)" title="Voir le CMR">👀</button>
+              <button class="fl-btn fl-btn-ghost" (click)="downloadCmr(m)" title="Télécharger le CMR">⬇</button>
+            </ng-container>
+            <ng-template #noCmr>
+              <button class="fl-btn fl-btn-ghost" *ngIf="m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS; else justDashCmr" (click)="triggerUploadCmr(m.id)" title="Joindre le CMR">
+                <mat-icon style="font-size:16px;width:16px;height:16px;color:#3b82f6;">attach_file</mat-icon>
+              </button>
+              <ng-template #justDashCmr><span class="text-muted">—</span></ng-template>
+            </ng-template>
+          </div>
+        </td>
+
         <td class="col-actions">
           <button class="actions-menu-btn" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()">
             <span class="dots">···</span>
@@ -406,6 +423,18 @@
             <button mat-menu-item *ngIf="m.letterMissionUrl" (click)="downloadLetter(m)">
               <mat-icon class="menu-icon icon-letter">download</mat-icon>
               <span>Lettre de mission</span>
+            </button>
+            <button mat-menu-item *ngIf="m.cmrUrl" (click)="viewCmr(m)">
+              <mat-icon class="menu-icon icon-voir">visibility</mat-icon>
+              <span>Voir CMR</span>
+            </button>
+            <button mat-menu-item *ngIf="m.cmrUrl" (click)="downloadCmr(m)">
+              <mat-icon class="menu-icon icon-letter">download</mat-icon>
+              <span>Télécharger CMR</span>
+            </button>
+            <button mat-menu-item *ngIf="!m.cmrUrl && (m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS)" (click)="triggerUploadCmr(m.id)">
+              <mat-icon class="menu-icon icon-edit">attach_file</mat-icon>
+              <span>Joindre CMR</span>
             </button>
 
             <mat-divider></mat-divider>
@@ -459,6 +488,7 @@
           <span class="totals-amount" style="color:#10b981;font-weight:600;">{{ totalNet | number:'1.2-2' }} €</span>
         </td>
         <td class="col-letter"></td>
+        <td class="col-cmr"></td>
         <td class="col-actions"></td>
       </tr>
 
@@ -499,6 +529,18 @@
             <button mat-menu-item *ngIf="m.letterMissionUrl" (click)="downloadLetter(m)">
               <mat-icon class="menu-icon icon-letter">download</mat-icon>
               <span>Lettre de mission</span>
+            </button>
+            <button mat-menu-item *ngIf="m.cmrUrl" (click)="viewCmr(m)">
+              <mat-icon class="menu-icon icon-voir">visibility</mat-icon>
+              <span>Voir CMR</span>
+            </button>
+            <button mat-menu-item *ngIf="m.cmrUrl" (click)="downloadCmr(m)">
+              <mat-icon class="menu-icon icon-letter">download</mat-icon>
+              <span>Télécharger CMR</span>
+            </button>
+            <button mat-menu-item *ngIf="!m.cmrUrl && (m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS)" (click)="triggerUploadCmr(m.id)">
+              <mat-icon class="menu-icon icon-edit">attach_file</mat-icon>
+              <span>Joindre CMR</span>
             </button>
             <mat-divider></mat-divider>
             <button mat-menu-item [disabled]="m.statut !== statut.PLANNED" (click)="demarrer(m)">
@@ -568,6 +610,20 @@
               <button class="m-letter-btn m-letter-btn--add" *ngIf="m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS" (click)="triggerUploadLetter(m.id)">
                 <mat-icon>attach_file</mat-icon>
                 <span>+ Lettre</span>
+              </button>
+            </ng-template>
+          </div>
+          <div class="m-letter-wrap" style="margin-left:6px;">
+            <ng-container *ngIf="m.cmrUrl; else noCmrMobile">
+              <button class="m-letter-btn" (click)="viewCmr(m)" title="Voir CMR">
+                <mat-icon>assignment</mat-icon>
+                <span>CMR</span>
+              </button>
+            </ng-container>
+            <ng-template #noCmrMobile>
+              <button class="m-letter-btn m-letter-btn--add" *ngIf="m.statut === statut.PLANNED || m.statut === statut.IN_PROGRESS" (click)="triggerUploadCmr(m.id)">
+                <mat-icon>attach_file</mat-icon>
+                <span>+ CMR</span>
               </button>
             </ng-template>
           </div>

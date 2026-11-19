@@ -34,9 +34,6 @@
                 class="action-btn action-cancel" (click)="annuler()">
           <mat-icon>cancel</mat-icon> Annuler
         </button>
-        <!-- <button *ngIf="mission.statut === statut.PLANNED" class="action-btn action-delete" (click)="supprimer()">
-          <mat-icon>delete</mat-icon> Supprimer
-        </button> -->
       </div>
     </div>
 
@@ -102,6 +99,86 @@
       </div>
     </div>
 
+    <!-- Documents de transport (Lettre & CMR) -->
+    <div class="detail-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0;">Documents de transport</h3>
+        <span *ngIf="uploadingDoc" style="font-size:13px; color:#2563eb; display:flex; align-items:center; gap:6px;">
+          <mat-progress-spinner diameter="16" mode="indeterminate"></mat-progress-spinner> Envoi en cours…
+        </span>
+      </div>
+
+      <!-- Hidden inputs for file upload -->
+      <input type="file" #letterInput hidden (change)="onLetterFileSelected($event)" accept=".pdf,image/*">
+      <input type="file" #cmrInput hidden (change)="onCmrFileSelected($event)" accept=".pdf,image/*">
+
+      <div class="doc-cards-grid">
+        <!-- Lettre de mission -->
+        <div class="doc-card" [class.doc-card--present]="!!mission.letterMissionUrl">
+          <div class="doc-card-header">
+            <div class="doc-card-icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div class="doc-card-info">
+              <h4>Lettre de mission</h4>
+              <span class="doc-card-status" *ngIf="mission.letterMissionUrl">✓ Document attaché</span>
+              <span class="doc-card-status doc-card-status--empty" *ngIf="!mission.letterMissionUrl">Non attachée</span>
+            </div>
+          </div>
+          <div class="doc-card-actions">
+            <ng-container *ngIf="mission.letterMissionUrl">
+              <button class="doc-action-btn" (click)="viewLetter()" title="Consulter">
+                <mat-icon>visibility</mat-icon> Voir
+              </button>
+              <button class="doc-action-btn" (click)="downloadLetter()" title="Télécharger">
+                <mat-icon>download</mat-icon> Télécharger
+              </button>
+              <button class="doc-action-btn doc-action-btn--secondary" (click)="letterInput.click()" title="Remplacer le document">
+                <mat-icon>sync</mat-icon> Remplacer
+              </button>
+            </ng-container>
+            <ng-container *ngIf="!mission.letterMissionUrl">
+              <button class="doc-action-btn doc-action-btn--primary" (click)="letterInput.click()">
+                <mat-icon>attach_file</mat-icon> Joindre la lettre
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- CMR (Lettre de voiture) -->
+        <div class="doc-card" [class.doc-card--present]="!!mission.cmrUrl">
+          <div class="doc-card-header">
+            <div class="doc-card-icon doc-card-icon--cmr">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="doc-card-info">
+              <h4>Document CMR</h4>
+              <span class="doc-card-status" *ngIf="mission.cmrUrl">✓ CMR attaché</span>
+              <span class="doc-card-status doc-card-status--empty" *ngIf="!mission.cmrUrl">Non attaché</span>
+            </div>
+          </div>
+          <div class="doc-card-actions">
+            <ng-container *ngIf="mission.cmrUrl">
+              <button class="doc-action-btn" (click)="viewCmr()" title="Consulter">
+                <mat-icon>visibility</mat-icon> Voir
+              </button>
+              <button class="doc-action-btn" (click)="downloadCmr()" title="Télécharger">
+                <mat-icon>download</mat-icon> Télécharger
+              </button>
+              <button class="doc-action-btn doc-action-btn--secondary" (click)="cmrInput.click()" title="Remplacer le CMR">
+                <mat-icon>sync</mat-icon> Remplacer
+              </button>
+            </ng-container>
+            <ng-container *ngIf="!mission.cmrUrl">
+              <button class="doc-action-btn doc-action-btn--primary" (click)="cmrInput.click()">
+                <mat-icon>attach_file</mat-icon> Joindre le CMR
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Dépenses -->
     <div class="detail-card">
       <app-mission-expenses
@@ -115,6 +192,34 @@
   <div *ngIf="!loading && !mission" class="detail-not-found">
     <mat-icon>error_outline</mat-icon>
     <p>Mission introuvable</p>
+  </div>
+
+  <!-- Modal Document (View) -->
+  <div class="fl-modal-overlay" *ngIf="docModalOpen" (click)="closeDocModal()">
+    <div class="fl-modal" (click)="$event.stopPropagation()">
+      <div class="fl-modal-header">
+        <h3>{{ docModalTitle }}</h3>
+        <button class="fl-modal-close" (click)="closeDocModal()">✕</button>
+      </div>
+
+      <div class="fl-modal-body">
+        <div *ngIf="docLoading" class="fl-modal-loading">Chargement…</div>
+
+        <ng-container *ngIf="!docLoading">
+          <img *ngIf="docIsImage" [src]="docSafeUrl" class="fl-modal-img" [alt]="docModalTitle"/>
+          <iframe *ngIf="!docIsImage" [src]="docSafeUrl" class="fl-modal-pdf"></iframe>
+        </ng-container>
+      </div>
+
+      <div class="fl-modal-footer">
+        <button class="fl-btn fl-btn-primary" style="background:#3b82f6;color:white;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="downloadCurrentDoc()">
+          ⬇ Télécharger
+        </button>
+        <button class="fl-btn fl-btn-ghost" style="background:#f1f5f9;color:#374151;border-radius:8px;padding:8px 16px;border:none;cursor:pointer;" (click)="closeDocModal()">
+          Fermer
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

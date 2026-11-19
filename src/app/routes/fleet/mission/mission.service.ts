@@ -59,20 +59,26 @@ findAllFiltered(params: {
     return this.http.get<MissionResponse>(`${this.baseUrl}/${id}`);
   }
 
-  create(request: MissionRequest, letterFile?: File): Observable<MissionResponse> {
+  create(request: MissionRequest, letterFile?: File, cmrFile?: File): Observable<MissionResponse> {
     const formData = new FormData();
     formData.append('mission', new Blob([JSON.stringify(request)], { type: 'application/json' }));
     if (letterFile) {
       formData.append('letter', letterFile);
     }
+    if (cmrFile) {
+      formData.append('cmr', cmrFile);
+    }
     return this.http.post<MissionResponse>(this.baseUrl, formData);
   }
 
-  update(id: number, request: MissionRequest, letterFile?: File): Observable<MissionResponse> {
+  update(id: number, request: MissionRequest, letterFile?: File, cmrFile?: File): Observable<MissionResponse> {
     const formData = new FormData();
     formData.append('mission', new Blob([JSON.stringify(request)], { type: 'application/json' }));
     if (letterFile) {
       formData.append('letter', letterFile);
+    }
+    if (cmrFile) {
+      formData.append('cmr', cmrFile);
     }
     return this.http.put<MissionResponse>(`${this.baseUrl}/${id}`, formData);
   }
@@ -89,6 +95,16 @@ findAllFiltered(params: {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<MissionResponse>(`${this.baseUrl}/${id}/letter`, formData);
+  }
+
+  downloadCmrBlob(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/cmr`, { responseType: 'blob' });
+  }
+
+  uploadCmr(id: number, file: File): Observable<MissionResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<MissionResponse>(`${this.baseUrl}/${id}/cmr`, formData);
   }
 
   soumettre(id: number): Observable<MissionResponse> {

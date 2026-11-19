@@ -45,6 +45,7 @@ export interface MissionResponse {
   totalCost?: number;
   revenue?: number;
   letterMissionUrl?: string;
+  cmrUrl?: string;
   motifRejet?: string;
   motifAnnulation?: string;
   createdAt?: string;
