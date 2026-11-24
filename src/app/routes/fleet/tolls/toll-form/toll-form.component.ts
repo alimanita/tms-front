@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+﻿import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { FleetService } from '../../fleet.service';
 import { PeageRequest } from '../peage.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MissionService } from '../../mission/mission.service';
+import { isChauffeurRole } from 'app/core/authentication/helpers';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-toll-form',
@@ -66,28 +68,41 @@ export class TollFormComponent implements OnInit {
   }
 
   loadDropdowns(): void {
-    this.fleetService.getVehicules({ size: 1000 }).subscribe((page: any) => {
-      this.vehicules = page.content ?? page;
-      const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];
-      if (qpVehiculeId && !this.isEdit) {
-        this.peageForm.patchValue({ vehiculeId: +qpVehiculeId });
-      }
-    });
+    // Chargement vehicules + chauffeurs ensemble, puis liaison reactive
+    forkJoin({
+      vehicules: this.fleetService.getVehicules({ size: 1000 }),
+      chauffeurs: this.fleetService.getChauffeurs({ size: 1000 }),
+      missions: this.missionService.findAll(0, 1000),
+    }).subscribe({
+      next: ({ vehicules, chauffeurs, missions }: any) => {
+        this.vehicules = vehicules.content ?? vehicules;
+        this.chauffeurs = chauffeurs.content ?? chauffeurs;
+        this.missions = missions.content ?? missions;
 
-    this.fleetService.getChauffeurs({ size: 1000 }).subscribe((page: any) => {
-      this.chauffeurs = page.content ?? page;
-      const qpChauffeurId = this.route.snapshot.queryParams['chauffeurId'];
-      if (qpChauffeurId && !this.isEdit) {
-        this.peageForm.patchValue({ chauffeurId: +qpChauffeurId });
-      }
-    });
+        // Query params pre-selection
+        const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];
+        if (qpVehiculeId && !this.isEdit) this.peageForm.patchValue({ vehiculeId: +qpVehiculeId });
+        const qpChauffeurId = this.route.snapshot.queryParams['chauffeurId'];
+        if (qpChauffeurId && !this.isEdit) this.peageForm.patchValue({ chauffeurId: +qpChauffeurId });
+        const qpMissionId = this.route.snapshot.queryParams['missionId'];
+        if (qpMissionId && !this.isEdit) this.peageForm.patchValue({ missionId: +qpMissionId });
 
-    this.missionService.findAll(0, 1000).subscribe((page: any) => {
-      this.missions = page.content ?? page;
-      const qpMissionId = this.route.snapshot.queryParams['missionId'];
-      if (qpMissionId && !this.isEdit) {
-        this.peageForm.patchValue({ missionId: +qpMissionId });
-      }
+        // Auto pre-selection pour role CHAUFFEUR
+        if (isChauffeurRole() && !this.isEdit) {
+          this.fleetService.getMonVehicule().subscribe({ next: v => { if (v) this.peageForm.patchValue({ vehiculeId: v.id }); }, error: () => {} });
+          this.fleetService.getMonChauffeur().subscribe({ next: c => { if (c) this.peageForm.patchValue({ chauffeurId: c.id }); }, error: () => {} });
+        }
+
+        // ── Liaison chauffeur <=> vehicule (disponible uniquement en creation) ──
+        this.peageForm.get('chauffeurId')?.valueChanges.subscribe((val: any) => {
+          if (val == null || this.isEdit) return;
+          const id = +val;
+          const v = this.vehicules.find(x => +x.chauffeurAffecteId! === id);
+          if (v) this.peageForm.patchValue({ vehiculeId: v.id }, { emitEvent: false });
+        });
+
+      },
+      error: () => this.snackBar.open('Erreur chargement données', 'Fermer', { duration: 3000 })
     });
   }
 

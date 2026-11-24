@@ -25,10 +25,10 @@ export class FuelListComponent implements OnInit {
   pleins: PleinCarburantResponse[] = [];
   vehicules: VehiculeResponse[]    = [];
   chauffeurs: ChauffeurResponse[]  = [];
-  
+
   selectedIds: Set<number> = new Set();
-  
-  // Multi-sort: tableau de critères triés par priorité
+
+  // Multi-sort
   sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
     { column: 'fillingDate', direction: 'desc' }
   ];
@@ -37,7 +37,7 @@ export class FuelListComponent implements OnInit {
   selectedChauffeurId?: number | '';
   startDate?: string;
   endDate?: string;
-  
+
   loading = false;
   proofModalOpen = false;
   proofLoading = false;
@@ -46,12 +46,13 @@ export class FuelListComponent implements OnInit {
   currentProofId: number | null = null;
   currentProofRef = '';
   private currentProofBlobUrl: string | null = null;
+
   constructor(
     private fleetService: FleetService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
-     private sanitizer: DomSanitizer,
+    private sanitizer: DomSanitizer,
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +60,7 @@ export class FuelListComponent implements OnInit {
       next: (page: any) => this.vehicules = page.content ?? page,
       error: () => {}
     });
-    
+
     this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
       next: (page: any) => this.chauffeurs = page.content ?? page,
       error: () => {}
@@ -80,7 +81,7 @@ export class FuelListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    
+
     const params: any = {
       page: this.pageIndex,
       size: this.pageSize,
@@ -89,7 +90,7 @@ export class FuelListComponent implements OnInit {
       startDate: this.startDate || '',
       endDate: this.endDate || ''
     };
-    
+
     if (this.sortCriteria.length > 0) {
       params.sort = this.sortCriteria.map(c => `${c.column},${c.direction}`);
     }
@@ -158,7 +159,7 @@ export class FuelListComponent implements OnInit {
 
   onFilterChange(): void {
     this.router.navigate([], {
-      queryParams: { 
+      queryParams: {
         vehiculeId: this.selectedVehiculeId || null,
         chauffeurId: this.selectedChauffeurId || null,
         startDate: this.startDate || null,
@@ -199,13 +200,13 @@ export class FuelListComponent implements OnInit {
   exportCSV(): void {
     if (this.selectedIds.size === 0) return;
     const selectedPleins = this.pleins.filter(p => this.selectedIds.has(p.id));
-    
-    let csv = 'Référence,Véhicule,Chauffeur,Date,Carburant,Quantité,Prix/L,Montant Total,Montant HT,TVA,Conso (L/100)\n';
+
+    let csv = 'Reference,Vehicule,Chauffeur,Date,Carburant,Quantite,Prix/L,Montant Total,Montant HT,TVA,Conso (L/100)\n';
     selectedPleins.forEach(p => {
       csv += `${p.reference || ''},${p.vehiculeImmatriculation || ''},${p.chauffeurNom || ''},${p.fillingDate || ''},${p.fuelType || ''},${p.quantityLiters || ''},${p.pricePerLiter || ''},${p.totalAmount || ''},${p.amountHT || ''},${p.tvaAmount || ''},${p.consumptionRate || ''}\n`;
     });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -213,32 +214,35 @@ export class FuelListComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
+  /**
+   * Export PDF multi-tickets: pack le maximum de tickets par page (4, 6 ou 8)
+   * selon le ratio hauteur/largeur des images.
+   * - Tickets etroits/hauts (ratio > 2.5) : 2 col x 4 lignes = 8 par page
+   * - Tickets moyens       (ratio > 1.5) : 2 col x 3 lignes = 6 par page
+   * - Tickets larges/courts              : 2 col x 2 lignes = 4 par page
+   */
   async exportPDF(): Promise<void> {
     if (this.selectedIds.size === 0) return;
     const selectedPleins = this.pleins.filter(p => this.selectedIds.has(p.id) && p.proofUrl);
     if (selectedPleins.length === 0) {
-      this.snackBar.open('Aucun justificatif disponible pour la sélection', 'Fermer', { duration: 3000 });
+      this.snackBar.open('Aucun justificatif disponible pour la selection', 'Fermer', { duration: 3000 });
       return;
     }
 
-    this.snackBar.open('Génération du PDF en cours...', '', { duration: 3000 });
-    const pdf = new jsPDF();
-    
-    const marginX = 10;
-    const marginY = 10;
-    const usableWidth = pdf.internal.pageSize.getWidth() - 2 * marginX;
-    const colCount = 2;
-    const gap = 10;
-    const colWidth = (usableWidth - gap * (colCount - 1)) / colCount;
-    const maxPageHeight = pdf.internal.pageSize.getHeight();
-    
-    let currentX = marginX;
-    let currentY = marginY;
-    let currentRowHeight = 0;
-    let currentColumn = 0;
-    let imageCount = 0;
+    this.snackBar.open('Generation du PDF en cours...', '', { duration: 5000 });
+
+    // --- 1. Charger toutes les images ---
+    interface ImgEntry {
+      base64: string;
+      format: string;
+      origW: number;
+      origH: number;
+      label: string;
+    }
+    const images: ImgEntry[] = [];
 
     for (const plein of selectedPleins) {
       try {
@@ -246,65 +250,90 @@ export class FuelListComponent implements OnInit {
         if (res && res.body) {
           const blob = res.body;
           const contentType = res.headers.get('Content-Type') || blob.type;
-          
           if (contentType.startsWith('image/')) {
             const base64 = await this.blobToBase64(blob);
-            
-            const imgProps = pdf.getImageProperties(base64);
-            let imgWidth = colWidth;
-            let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-            
-            const textHeight = 5;
-            
-            // Calculer l'espace max pour l'image en prenant en compte les marges, l'espacement et le texte
-            const maxAllowedHeight = (maxPageHeight - 3 * marginY - gap - 2 * textHeight - 10) / 2;
-            if (imgHeight > maxAllowedHeight) {
-                imgHeight = maxAllowedHeight;
-                imgWidth = (imgProps.width * imgHeight) / imgProps.height;
-            }
-
-            const totalItemHeight = imgHeight + textHeight + 2;
-
-            if (currentColumn >= colCount) {
-              currentColumn = 0;
-              currentX = marginX;
-              currentY += currentRowHeight + gap;
-              currentRowHeight = 0;
-            }
-
-            if (currentY + totalItemHeight > maxPageHeight - marginY && imageCount > 0) {
-               pdf.addPage();
-               currentX = marginX;
-               currentY = marginY;
-               currentRowHeight = 0;
-               currentColumn = 0;
-            }
-
-            pdf.setFontSize(9);
-            pdf.text(`Plein: ${plein.reference || 'N/A'} - ${plein.vehiculeImmatriculation || 'N/A'} - ${plein.totalAmount}€`, currentX, currentY + textHeight);
-            
-            const offsetX = currentX + (colWidth - imgWidth) / 2;
-            pdf.addImage(base64, 'JPEG', offsetX, currentY + textHeight + 2, imgWidth, imgHeight);
-            
-            currentRowHeight = Math.max(currentRowHeight, totalItemHeight);
-            currentX += colWidth + gap;
-            currentColumn++;
-            imageCount++;
-          } else {
-             console.warn('Type non supporté pour PDF merge. Ignoré pour ce justificatif.');
+            const isPng = contentType.includes('png') || base64.startsWith('data:image/png');
+            const format = isPng ? 'PNG' : 'JPEG';
+            // Obtenir dimensions reelles via Image
+            const dims = await this.getImageDimensions(base64);
+            images.push({
+              base64,
+              format,
+              origW: dims.width,
+              origH: dims.height,
+              label: `${plein.reference || 'REF'} - ${plein.vehiculeImmatriculation || ''} - ${plein.totalAmount || ''}dt`
+            });
           }
         }
       } catch (e) {
-        console.error('Erreur lors du téléchargement du justificatif', e);
+        console.error('Erreur telechargement justificatif', e);
       }
     }
-    
-    if (imageCount > 0) {
-      pdf.save('justificatifs_carburant.pdf');
-      this.snackBar.open('PDF généré avec succès', 'Fermer', { duration: 3000 });
-    } else {
-      this.snackBar.open('Erreur: Aucun justificatif image valide trouvé', 'Fermer', { duration: 3000 });
+
+    if (images.length === 0) {
+      this.snackBar.open('Aucun justificatif image valide trouve', 'Fermer', { duration: 3000 });
+      return;
     }
+
+    // --- 2. Determiner le layout selon ratio moyen ---
+    const avgRatio = images.reduce((s, i) => s + i.origH / i.origW, 0) / images.length;
+    const colCount = 2;
+    let rowCount: number;
+    if (avgRatio > 2.5) {
+      rowCount = 4; // 8 par page
+    } else if (avgRatio > 1.5) {
+      rowCount = 3; // 6 par page
+    } else {
+      rowCount = 2; // 4 par page
+    }
+    const perPage = colCount * rowCount;
+
+    // --- 3. Generer le PDF ---
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();   // 210 mm
+    const pageH = pdf.internal.pageSize.getHeight();  // 297 mm
+    const marginX = 6;
+    const marginY = 8;
+    const gapX = 5;
+    const gapY = 7;
+    const labelH = 5;  // hauteur reservee pour le texte de reference
+
+    const cellW = (pageW - marginX * 2 - gapX * (colCount - 1)) / colCount;
+    const cellH = (pageH - marginY * 2 - gapY * (rowCount - 1) - labelH * rowCount) / rowCount;
+
+    images.forEach((img, idx) => {
+      if (idx > 0 && idx % perPage === 0) {
+        pdf.addPage();
+      }
+      const posInPage = idx % perPage;
+      const col = posInPage % colCount;
+      const row = Math.floor(posInPage / colCount);
+
+      const cellX = marginX + col * (cellW + gapX);
+      const cellY = marginY + row * (cellH + labelH + gapY);
+
+      // Label
+      pdf.setFontSize(7);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(img.label, cellX, cellY + labelH - 1, { maxWidth: cellW });
+
+      // Image (fit dans cellule en preservant ratio)
+      const scale = Math.min(cellW / img.origW, cellH / img.origH);
+      const dw = img.origW * scale;
+      const dh = img.origH * scale;
+      const imgX = cellX + (cellW - dw) / 2;
+      const imgY = cellY + labelH + (cellH - dh) / 2;
+
+      try {
+        pdf.addImage(img.base64, img.format, imgX, imgY, dw, dh);
+      } catch {
+        // Fallback: essayer avec JPEG
+        try { pdf.addImage(img.base64, 'JPEG', imgX, imgY, dw, dh); } catch {}
+      }
+    });
+
+    pdf.save('justificatifs_carburant.pdf');
+    this.snackBar.open('PDF genere avec succes (' + images.length + ' ticket(s))', 'Fermer', { duration: 3500 });
   }
 
   private blobToBase64(blob: Blob): Promise<string> {
@@ -313,6 +342,15 @@ export class FuelListComponent implements OnInit {
       reader.onloadend = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
+    });
+  }
+
+  private getImageDimensions(base64: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve({ width: 100, height: 150 }); // fallback
+      img.src = base64;
     });
   }
 
@@ -334,77 +372,70 @@ export class FuelListComponent implements OnInit {
     });
   }
 
+  downloadProof(pleinId: number, filename = 'justificatif'): void {
+    this.fleetService.getProofFile(pleinId).subscribe({
+      next: (res) => {
+        const blob = res.body!;
+        const disposition = res.headers.get('Content-Disposition');
+        const match = disposition?.match(/filename="(.+)"/);
+        const finalName = match?.[1] ?? filename;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = finalName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.snackBar.open('Erreur lors du telechargement', 'Fermer', { duration: 3000 })
+    });
+  }
 
+  viewProof(pleinId: number, reference = ''): void {
+    this.proofModalOpen = true;
+    this.proofLoading = true;
+    this.currentProofId = pleinId;
+    this.currentProofRef = reference;
 
-downloadProof(pleinId: number, filename = 'justificatif'): void {
-  this.fleetService.getProofFile(pleinId).subscribe({
-    next: (res) => {
-      const blob = res.body!;
-      const disposition = res.headers.get('Content-Disposition');
-      const match = disposition?.match(/filename="(.+)"/);
-      const finalName = match?.[1] ?? filename;
+    this.fleetService.getProofFile(pleinId).subscribe({
+      next: (res) => {
+        const blob = res.body!;
+        const contentType = res.headers.get('Content-Type') || blob.type;
+        this.proofIsImage = contentType.startsWith('image/');
+        const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+        this.currentProofBlobUrl = url;
+        this.proofSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.proofLoading = false;
+      },
+      error: () => {
+        this.proofLoading = false;
+        this.snackBar.open('Impossible de charger le justificatif', 'Fermer', { duration: 3000 });
+        this.proofModalOpen = false;
+      }
+    });
+  }
 
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = finalName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    },
-    error: () => this.snackBar.open('Erreur lors du téléchargement', 'Fermer', { duration: 3000 })
-  });
-}
-
-viewProof(pleinId: number, reference = ''): void {
-  this.proofModalOpen = true;
-  this.proofLoading = true;
-  this.currentProofId = pleinId;
-  this.currentProofRef = reference;
-
-  this.fleetService.getProofFile(pleinId).subscribe({
-    next: (res) => {
-      const blob = res.body!;
-      const contentType = res.headers.get('Content-Type') || blob.type;
-      this.proofIsImage = contentType.startsWith('image/');
-
-      const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
-      this.currentProofBlobUrl = url;
-      this.proofSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-      this.proofLoading = false;
-    },
-    error: () => {
-      this.proofLoading = false;
-      this.snackBar.open('Impossible de charger le justificatif', 'Fermer', { duration: 3000 });
-      this.proofModalOpen = false;
+  closeProofModal(): void {
+    this.proofModalOpen = false;
+    if (this.currentProofBlobUrl) {
+      window.URL.revokeObjectURL(this.currentProofBlobUrl);
+      this.currentProofBlobUrl = null;
     }
-  });
-}
-
-closeProofModal(): void {
-  this.proofModalOpen = false;
-  if (this.currentProofBlobUrl) {
-    window.URL.revokeObjectURL(this.currentProofBlobUrl);
-    this.currentProofBlobUrl = null;
-  }
-  this.proofSafeUrl = null;
-}
-
-  getTotalQuantity(): number {
-    return this.summaryTotalQuantity;
+    this.proofSafeUrl = null;
   }
 
-  getTotalAmount(): number {
-    return this.summaryTotalAmount;
-  }
+  getTotalQuantity(): number { return this.summaryTotalQuantity; }
+  getTotalAmount(): number { return this.summaryTotalAmount; }
 
   // --- Pagination ---
   pageIndex = 0;
   pageSize = 10;
-  private _displayVar = 'pleins';
 
-  get paginatedItems(): any[] {
-    const start = this.pageIndex * this.pageSize;
-    return ((this as any)['pleins'] as any[] || []).slice(start, start + this.pageSize);
+  get paginatedItems(): PleinCarburantResponse[] {
+    if (this.pleins.length > this.pageSize) {
+      const start = this.pageIndex * this.pageSize;
+      return this.pleins.slice(start, start + this.pageSize);
+    }
+    return this.pleins;
   }
 
   onPageChange(e: PageChangeEvent): void {
@@ -412,5 +443,4 @@ closeProofModal(): void {
     this.pageSize = e.pageSize;
     this.load();
   }
-
 }

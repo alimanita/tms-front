@@ -123,3 +123,8 @@ export function isAdminRole(): boolean {
 
   return roles.some(r => adminRoles.includes(r));
 }
+
+export function isChauffeurRole(): boolean {
+  const roles = getRolesFromToken();
+  return roles.some(r => r === 'ROLE_CHAUFFEUR' || r === 'CHAUFFEUR');
+}

@@ -3,6 +3,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { UtilisateurLite } from './chauffeurs/chauffeur-form/chauffeur-form.component';
 import { ChauffeurResponse } from './chauffeurs/chauffeur.model';
@@ -85,6 +86,7 @@ export interface VehiculeRequest {
   statut?: string;
   kilometrageActuel?: number;
   capaciteReservoir?: number;
+  chauffeurAffecteId?: number | null;
 }
 
 export interface VehiculeResponse {
@@ -99,6 +101,8 @@ export interface VehiculeResponse {
   kilometrageActuel?: number;
   capaciteReservoir?: number;
   actif?: boolean;
+  chauffeurAffecteId?: number | null;
+  chauffeurNom?: string | null;
 }
 
 export interface PleinCarburantRequest {
@@ -397,6 +401,13 @@ export class FleetService {
 
   getVehiculesDisponibles(): Observable<VehiculeResponse[]> {
     return this.http.get<VehiculeResponse[]>(`${this.base}/vehicules/disponibles`);
+  }
+
+  /** Retourne le vehicule affecte au chauffeur connecte (204 = aucun) */
+  getMonVehicule(): Observable<VehiculeResponse | null> {
+    return this.http.get<VehiculeResponse>(`${this.base}/vehicules/mon-vehicule`, { observe: 'response' }).pipe(
+      map((res: any) => res.status === 204 ? null : res.body)
+    );
   }
 
   saveVehicule(request: VehiculeRequest, id?: number): Observable<VehiculeResponse> {

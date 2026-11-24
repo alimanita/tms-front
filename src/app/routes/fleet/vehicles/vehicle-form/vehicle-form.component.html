@@ -1,10 +1,10 @@
 <div class="fleet-page">
   <div class="fleet-topbar">
-    <h2 class="fleet-title">{{ isEdit ? 'Modifier le véhicule' : 'Nouveau véhicule' }}</h2>
+    <h2 class="fleet-title">{{ isEdit ? 'Modifier le vehicule' : 'Nouveau vehicule' }}</h2>
     <div class="fl-topbar-actions">
       <button class="fl-btn fl-btn-ghost"  (click)="onCancel()" [disabled]="loading">← Retour</button>
       <button class="fl-btn fl-btn-primary" (click)="onSubmit()" [disabled]="loading">
-        {{ loading ? 'Enregistrement…' : 'Enregistrer' }}
+        {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
       </button>
     </div>
   </div>
@@ -21,16 +21,16 @@
 
         <div class="fl-field">
           <label>Marque</label>
-          <input formControlName="marque" placeholder="Mercedes, Renault…"/>
+          <input formControlName="marque" placeholder="Mercedes, Renault..."/>
         </div>
 
         <div class="fl-field">
-          <label>Modèle</label>
-          <input formControlName="modele" placeholder="Sprinter, Master…"/>
+          <label>Modele</label>
+          <input formControlName="modele" placeholder="Sprinter, Master..."/>
         </div>
 
         <div class="fl-field">
-          <label>Année</label>
+          <label>Annee</label>
           <input type="number" formControlName="annee" min="1990" [max]="2030"/>
         </div>
 
@@ -49,13 +49,24 @@
         </div>
 
         <div class="fl-field">
-          <label>Kilométrage actuel (km)</label>
+          <label>Kilometrage actuel (km)</label>
           <input type="number" formControlName="kilometrageActuel" min="0"/>
         </div>
 
         <div class="fl-field">
-          <label>Capacité réservoir (L)</label>
+          <label>Capacite reservoir (L)</label>
           <input type="number" formControlName="capaciteReservoir" min="0"/>
+        </div>
+
+        <!-- Affectation chauffeur -->
+        <div class="fl-field">
+          <label>Chauffeur affecte</label>
+          <select formControlName="chauffeurAffecteId">
+            <option [ngValue]="null">-- Aucun --</option>
+            <option *ngFor="let c of chauffeurs" [value]="c.id">
+              {{ c.nom }} {{ c.prenom }}
+            </option>
+          </select>
         </div>
 
         <div class="fl-field fl-field--checkbox">

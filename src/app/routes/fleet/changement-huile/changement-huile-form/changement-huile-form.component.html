@@ -1,4 +1,4 @@
-﻿<div class="fleet-page">
+<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier Vidange' : 'Nouvelle Vidange' }}</h2>
   </div>
@@ -8,9 +8,9 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>Véhicule *</label>
+          <label>Vehicule *</label>
           <select formControlName="entityId" [ngClass]="{'is-invalid': submitted && form.controls['entityId'].invalid}">
-            <option [ngValue]="null">-- SÃ©lectionner --</option>
+            <option [ngValue]="null">-- Selectionner --</option>
             <option *ngFor="let v of vehicules" [value]="v.id">{{ v.immatriculation }} ({{ v.marque }})</option>
           </select>
         </div>
@@ -36,16 +36,16 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>QuantitÃ© (Litres) *</label>
+          <label>Quantite (Litres) *</label>
           <input type="number" formControlName="quantityLiters" step="0.1"
                  [ngClass]="{'is-invalid': submitted && form.controls['quantityLiters'].invalid}">
         </div>
         <div class="fl-col">
-          <label>CoÃ»t unitaire (dt/L)</label>
+          <label>Cout unitaire (dt/L)</label>
           <input type="number" formControlName="unitCost" step="0.01">
         </div>
         <div class="fl-col">
-          <label>CoÃ»t Total (dt)</label>
+          <label>Cout Total (dt)</label>
           <input type="number" formControlName="totalCost" step="0.01">
         </div>
       </div>
@@ -63,7 +63,7 @@
 
       <div class="fl-row">
         <div class="fl-col">
-          <label>EffectuÃ© par</label>
+          <label>Effectue par</label>
           <input type="text" formControlName="performedBy">
         </div>
         <div class="fl-col">

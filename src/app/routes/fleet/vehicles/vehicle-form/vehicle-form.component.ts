@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { FleetService } from '../../fleet.service';
+import { FleetService, VehiculeResponse } from '../../fleet.service';
+import { ChauffeurResponse } from '../../chauffeurs/chauffeur.model';
 import { getEntrepriseId } from 'app/core/authentication/helpers';
 
 @Component({
@@ -20,6 +21,8 @@ export class VehicleFormComponent implements OnInit {
   loading = false;
   submitted = false;
   private idEntreprise = getEntrepriseId() ?? 0;
+
+  chauffeurs: ChauffeurResponse[] = [];
 
   readonly carburants = ['DIESEL', 'ESSENCE', 'ELECTRIQUE', 'HYBRIDE'];
   readonly statuts = ['DISPONIBLE', 'EN_SERVICE', 'HORS_SERVICE'];
@@ -43,6 +46,12 @@ export class VehicleFormComponent implements OnInit {
       kilometrageActuel: [0, Validators.min(0)],
       capaciteReservoir: [null, Validators.min(0)],
       actif: [true],
+      chauffeurAffecteId: [null],
+    });
+
+    this.fleetService.getChauffeurs({ page: 0, size: 500 }).subscribe({
+      next: (page: any) => { this.chauffeurs = page.content ?? page; },
+      error: () => {}
     });
 
     this.route.paramMap.subscribe(params => {
@@ -52,7 +61,7 @@ export class VehicleFormComponent implements OnInit {
         this.vehiculeId = +id;
 
         this.fleetService.getVehiculeById(this.vehiculeId).subscribe({
-          next: v => this.form.patchValue({
+          next: (v: VehiculeResponse) => this.form.patchValue({
             immatriculation: v.immatriculation,
             marque: v.marque ?? '',
             modele: v.modele ?? '',
@@ -62,6 +71,7 @@ export class VehicleFormComponent implements OnInit {
             kilometrageActuel: v.kilometrageActuel ?? 0,
             capaciteReservoir: v.capaciteReservoir ?? null,
             actif: v.actif ?? true,
+            chauffeurAffecteId: v.chauffeurAffecteId ?? null,
           }),
           error: () => this.snackBar.open('Erreur chargement', 'Fermer', { duration: 3000 })
         });
@@ -86,7 +96,7 @@ export class VehicleFormComponent implements OnInit {
 
     request$.subscribe({
       next: () => {
-        this.snackBar.open('Véhicule enregistré', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Vehicule enregistre', 'Fermer', { duration: 3000 });
         this.router.navigate(['/fleet/vehicules']);
       },
       error: () => {

@@ -99,7 +99,7 @@ export enum TypeDepense {
 export interface DepenseMissionRequest {
   expenseType: TypeDepense;
   montant: number;
-  currency?: string;         // dÃ©faut 'dt' cÃ´tÃ© backend si omis
+  currency?: string;         // defaut 'dt' cote backend si omis
   expenseDate: string;       // ISO LocalDateTime, ex: "2026-07-04T10:00:00"
   description?: string;
   receiptPath?: string;

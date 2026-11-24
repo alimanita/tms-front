@@ -1,10 +1,12 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+﻿import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, VehiculeResponse, PleinCarburantRequest } from '../../fleet.service';
 import { MissionService } from '../../mission/mission.service';
+import { isChauffeurRole } from 'app/core/authentication/helpers';
+import { forkJoin } from 'rxjs';
 
 import { MatIconModule } from '@angular/material/icon';
 
@@ -57,19 +59,35 @@ export class FuelFormComponent implements OnInit {
       notes:          [''],
     });
 
-    this.fleetService.getVehicules({ size: 1000 }).subscribe({
-      next: (page: any) => {
-        this.vehicules = page.content ?? page;
-        const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];
-        if (qpVehiculeId && !this.isEdit) {
-          this.form.patchValue({ vehiculeId: +qpVehiculeId });
-        }
-      },
-      error: () => this.snackBar.open('Erreur chargement véhicules', 'Fermer', { duration: 3000 })
-    });
+    // Chargement vehicules + chauffeurs ensemble, puis liaison reactive
+    forkJoin({
+      vehicules: this.fleetService.getVehicules({ size: 1000 }),
+      chauffeurs: this.fleetService.getChauffeurs({ size: 1000 }),
+    }).subscribe({
+      next: ({ vehicules, chauffeurs }: any) => {
+        this.vehicules = vehicules.content ?? vehicules;
+        this.chauffeurs = chauffeurs.content ?? chauffeurs;
 
-    this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
-      next: (page: any) => { this.chauffeurs = page.content ?? page; }
+        // Query params pre-selection
+        const qpVehiculeId = this.route.snapshot.queryParams['vehiculeId'];
+        if (qpVehiculeId && !this.isEdit) this.form.patchValue({ vehiculeId: +qpVehiculeId });
+
+        // Auto pre-selection pour role CHAUFFEUR
+        if (isChauffeurRole() && !this.isEdit) {
+          this.fleetService.getMonVehicule().subscribe({ next: v => { if (v) this.form.patchValue({ vehiculeId: v.id }); }, error: () => {} });
+          this.fleetService.getMonChauffeur().subscribe({ next: c => { if (c) this.form.patchValue({ chauffeurId: c.id }); }, error: () => {} });
+        }
+
+        // ── Liaison chauffeur <=> vehicule (disponible uniquement en creation) ──
+        this.form.get('chauffeurId')?.valueChanges.subscribe((val: any) => {
+          if (val == null || this.isEdit) return;
+          const id = +val;
+          const v = this.vehicules.find(x => +x.chauffeurAffecteId! === id);
+          if (v) this.form.patchValue({ vehiculeId: v.id }, { emitEvent: false });
+        });
+
+      },
+      error: () => this.snackBar.open('Erreur chargement données', 'Fermer', { duration: 3000 })
     });
 
     this.missionService.findAll(0, 1000).subscribe({

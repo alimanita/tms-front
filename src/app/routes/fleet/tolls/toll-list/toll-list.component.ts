@@ -26,8 +26,7 @@ export class TollListComponent implements OnInit {
   vehicules: VehiculeResponse[] = [];
   chauffeurs: ChauffeurResponse[] = [];
   selectedIds: Set<number> = new Set();
-  
-  // Multi-sort: tableau de critères triés par priorité
+
   sortCriteria: { column: string; direction: 'asc' | 'desc' }[] = [
     { column: 'datePassage', direction: 'desc' }
   ];
@@ -39,7 +38,7 @@ export class TollListComponent implements OnInit {
   selectedChauffeurId?: number | '';
   startDate?: string;
   endDate?: string;
-  
+
   loading = false;
   proofModalOpen = false;
   proofLoading = false;
@@ -62,7 +61,7 @@ export class TollListComponent implements OnInit {
       next: (page: any) => this.vehicules = page.content ?? page,
       error: () => {}
     });
-    
+
     this.fleetService.getChauffeurs({ size: 1000 }).subscribe({
       next: (page: any) => this.chauffeurs = page.content ?? page,
       error: () => {}
@@ -82,7 +81,7 @@ export class TollListComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    
+
     const params: any = {
       page: this.pageIndex,
       size: this.pageSize,
@@ -91,7 +90,7 @@ export class TollListComponent implements OnInit {
       startDate: this.startDate || '',
       endDate: this.endDate || ''
     };
-    
+
     if (this.sortCriteria.length > 0) {
       params.sort = this.sortCriteria.map(c => `${c.column},${c.direction}`);
     }
@@ -115,9 +114,7 @@ export class TollListComponent implements OnInit {
       endDate: this.endDate || ''
     };
     this.fleetService.getPeageSummary(summaryParams).subscribe({
-      next: (summary: any) => {
-        this.summaryTotalTTC = summary?.totalAmountTTC ?? 0;
-      },
+      next: (summary: any) => { this.summaryTotalTTC = summary?.totalAmountTTC ?? 0; },
       error: () => {}
     });
   }
@@ -127,13 +124,11 @@ export class TollListComponent implements OnInit {
     this.load();
   }
 
-  // Retourne la direction active pour une colonne, ou null si non triée
   getSortDirection(column: string): 'asc' | 'desc' | null {
     const found = this.sortCriteria.find(c => c.column === column);
     return found ? found.direction : null;
   }
 
-  // Retourne le rang de priorité (1er, 2ème...) ou null
   getSortRank(column: string): number | null {
     const idx = this.sortCriteria.findIndex(c => c.column === column);
     return idx >= 0 ? idx + 1 : null;
@@ -144,14 +139,11 @@ export class TollListComponent implements OnInit {
     if (existingIdx >= 0) {
       const current = this.sortCriteria[existingIdx];
       if (current.direction === 'desc') {
-        // desc → asc
         this.sortCriteria[existingIdx] = { column, direction: 'asc' };
       } else {
-        // asc → suppression du critère
         this.sortCriteria.splice(existingIdx, 1);
       }
     } else {
-      // Nouvelle colonne: ajout en premier critère
       this.sortCriteria.unshift({ column, direction: 'desc' });
     }
     this.applyFilters();
@@ -164,7 +156,7 @@ export class TollListComponent implements OnInit {
 
   onFilterChange(): void {
     this.router.navigate([], {
-      queryParams: { 
+      queryParams: {
         vehiculeId: this.selectedVehiculeId || null,
         chauffeurId: this.selectedChauffeurId || null,
         startDate: this.startDate || null,
@@ -197,13 +189,13 @@ export class TollListComponent implements OnInit {
   }
 
   delete(t: PeageResponse): void {
-    if (!confirm('Supprimer ce péage ?')) return;
+    if (!confirm('Supprimer ce peage ?')) return;
     this.fleetService.deletePeage(t.id!).subscribe({
       next: () => this.load(),
       error: () => this.snackBar.open('Erreur suppression', 'Fermer', { duration: 3000 })
     });
   }
-  
+
   toggleSelection(id: number): void {
     if (this.selectedIds.has(id)) {
       this.selectedIds.delete(id);
@@ -226,14 +218,14 @@ export class TollListComponent implements OnInit {
 
   exportCSV(): void {
     if (this.selectedIds.size === 0) return;
-    const selecteTolls = this.tolls.filter(t => this.selectedIds.has(t.id));
-    
-    let csv = 'ID,Reference,Date,Véhicule,Chauffeur,Montant TTC,Montant HT,TVA,Gare Entrée,Gare Sortie\n';
-    selecteTolls.forEach(t => {
+    const selectedTolls = this.tolls.filter(t => this.selectedIds.has(t.id));
+
+    let csv = 'ID,Reference,Date,Vehicule,Chauffeur,Montant TTC,Montant HT,TVA,Gare Entree,Gare Sortie\n';
+    selectedTolls.forEach(t => {
       csv += `${t.id},${t.reference},${t.datePassage || ''},${t.vehiculeImmatriculation || ''},${t.chauffeurNom || ''},${t.amountTTC || ''},${t.amountHT || ''},${t.tvaAmount || ''},"${t.gareEntree || ''}","${t.gareSortie || ''}"\n`;
     });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -241,99 +233,124 @@ export class TollListComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   }
 
+  /**
+   * Export PDF multi-tickets: pack le maximum de tickets par page (4, 6 ou 8)
+   * selon le ratio hauteur/largeur des images.
+   * - Tickets etroits/hauts (ratio > 2.5) : 2 col x 4 lignes = 8 par page
+   * - Tickets moyens       (ratio > 1.5) : 2 col x 3 lignes = 6 par page
+   * - Tickets larges/courts              : 2 col x 2 lignes = 4 par page
+   */
   async exportPDF(): Promise<void> {
     if (this.selectedIds.size === 0) return;
-    const selecteTolls = this.tolls.filter(t => this.selectedIds.has(t.id) && t.proofUrl);
-    if (selecteTolls.length === 0) {
-      this.snackBar.open('Aucun justificatif disponible pour la sélection', 'Fermer', { duration: 3000 });
+    const selectedTolls = this.tolls.filter(t => this.selectedIds.has(t.id) && t.proofUrl);
+    if (selectedTolls.length === 0) {
+      this.snackBar.open('Aucun justificatif disponible pour la selection', 'Fermer', { duration: 3000 });
       return;
     }
 
-    this.snackBar.open('Génération du PDF en cours...', '', { duration: 3000 });
-    const pdf = new jsPDF();
-    
-    const marginX = 10;
-    const marginY = 10;
-    const usableWidh = pdf.internal.pageSize.getWidth() - 2 * marginX;
-    const colCount = 2;
-    const gap = 10;
-    const colWidh = (usableWidh - gap * (colCount - 1)) / colCount;
-    const maxPageHeight = pdf.internal.pageSize.getHeight();
-    
-    let currentX = marginX;
-    let currentY = marginY;
-    let currentRowHeight = 0;
-    let currentColumn = 0;
-    let imageCount = 0;
+    this.snackBar.open('Generation du PDF en cours...', '', { duration: 5000 });
 
-    for (const toll of selecteTolls) {
+    // --- 1. Charger toutes les images ---
+    interface ImgEntry {
+      base64: string;
+      format: string;
+      origW: number;
+      origH: number;
+      label: string;
+    }
+    const images: ImgEntry[] = [];
+
+    for (const toll of selectedTolls) {
       try {
         const res = await this.fleetService.getPeageProofFile(toll.id).toPromise();
         if (res && res.body) {
           const blob = res.body;
           const contentType = res.headers.get('Content-Type') || blob.type;
-          
           if (contentType.startsWith('image/')) {
             const base64 = await this.blobToBase64(blob);
-            
-            const imgProps = pdf.getImageProperties(base64);
-            let imgWidh = colWidh;
-            let imgHeight = (imgProps.height * imgWidh) / imgProps.width;
-            
-            const textHeight = 5;
-            
-            // Calculer l'espace max pour l'image en prenant en compte les marges, l'espacement et le texte
-            // 3 * marginY (haut, milieu, bas), 1 * gap, 2 * textHeight
-            const maxAllowedHeight = (maxPageHeight - 3 * marginY - gap - 2 * textHeight - 10) / 2;
-            if (imgHeight > maxAllowedHeight) {
-                imgHeight = maxAllowedHeight;
-                imgWidh = (imgProps.width * imgHeight) / imgProps.height;
-            }
-
-            const totalItemHeight = imgHeight + textHeight + 2;
-
-            if (currentColumn >= colCount) {
-              currentColumn = 0;
-              currentX = marginX;
-              currentY += currentRowHeight + gap;
-              currentRowHeight = 0;
-            }
-
-            if (currentY + totalItemHeight > maxPageHeight - marginY && imageCount > 0) {
-               pdf.addPage();
-               currentX = marginX;
-               currentY = marginY;
-               currentRowHeight = 0;
-               currentColumn = 0;
-            }
-
-            pdf.setFontSize(9);
-            pdf.text(`Péage: ${toll.reference || 'N/A'} - ${toll.amountTTC}€`, currentX, currentY + textHeight);
-            
-            const offsetX = currentX + (colWidh - imgWidh) / 2;
-            pdf.addImage(base64, 'JPEG', offsetX, currentY + textHeight + 2, imgWidh, imgHeight);
-            
-            currentRowHeight = Math.max(currentRowHeight, totalItemHeight);
-            currentX += colWidh + gap;
-            currentColumn++;
-            imageCount++;
-          } else {
-             console.warn('Type non supporté pour PDF merge (ex: PDF). Ignoré pour ce justificatif.');
+            const isPng = contentType.includes('png') || base64.startsWith('data:image/png');
+            const format = isPng ? 'PNG' : 'JPEG';
+            const dims = await this.getImageDimensions(base64);
+            images.push({
+              base64,
+              format,
+              origW: dims.width,
+              origH: dims.height,
+              label: `${toll.reference || 'REF'} - ${toll.vehiculeImmatriculation || ''} - ${toll.amountTTC || ''}dt`
+            });
           }
         }
       } catch (e) {
-        console.error('Erreur lors du téléchargement du justificatif', e);
+        console.error('Erreur telechargement justificatif', e);
       }
     }
-    
-    if (imageCount > 0) {
-      pdf.save('justificatifs_peages.pdf');
-      this.snackBar.open('PDF généré avec succès', 'Fermer', { duration: 3000 });
-    } else {
-      this.snackBar.open('Erreur: Aucun justificatif image valide trouvé', 'Fermer', { duration: 3000 });
+
+    if (images.length === 0) {
+      this.snackBar.open('Aucun justificatif image valide trouve', 'Fermer', { duration: 3000 });
+      return;
     }
+
+    // --- 2. Determiner le layout selon ratio moyen ---
+    const avgRatio = images.reduce((s, i) => s + i.origH / i.origW, 0) / images.length;
+    const colCount = 2;
+    let rowCount: number;
+    if (avgRatio > 2.5) {
+      rowCount = 4; // 8 par page
+    } else if (avgRatio > 1.5) {
+      rowCount = 3; // 6 par page
+    } else {
+      rowCount = 2; // 4 par page
+    }
+    const perPage = colCount * rowCount;
+
+    // --- 3. Generer le PDF ---
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();   // 210 mm
+    const pageH = pdf.internal.pageSize.getHeight();  // 297 mm
+    const marginX = 6;
+    const marginY = 8;
+    const gapX = 5;
+    const gapY = 7;
+    const labelH = 5;
+
+    const cellW = (pageW - marginX * 2 - gapX * (colCount - 1)) / colCount;
+    const cellH = (pageH - marginY * 2 - gapY * (rowCount - 1) - labelH * rowCount) / rowCount;
+
+    images.forEach((img, idx) => {
+      if (idx > 0 && idx % perPage === 0) {
+        pdf.addPage();
+      }
+      const posInPage = idx % perPage;
+      const col = posInPage % colCount;
+      const row = Math.floor(posInPage / colCount);
+
+      const cellX = marginX + col * (cellW + gapX);
+      const cellY = marginY + row * (cellH + labelH + gapY);
+
+      // Label
+      pdf.setFontSize(7);
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(img.label, cellX, cellY + labelH - 1, { maxWidth: cellW });
+
+      // Image (fit dans cellule en preservant ratio)
+      const scale = Math.min(cellW / img.origW, cellH / img.origH);
+      const dw = img.origW * scale;
+      const dh = img.origH * scale;
+      const imgX = cellX + (cellW - dw) / 2;
+      const imgY = cellY + labelH + (cellH - dh) / 2;
+
+      try {
+        pdf.addImage(img.base64, img.format, imgX, imgY, dw, dh);
+      } catch {
+        try { pdf.addImage(img.base64, 'JPEG', imgX, imgY, dw, dh); } catch {}
+      }
+    });
+
+    pdf.save('justificatifs_peages.pdf');
+    this.snackBar.open('PDF genere avec succes (' + images.length + ' ticket(s))', 'Fermer', { duration: 3500 });
   }
 
   private blobToBase64(blob: Blob): Promise<string> {
@@ -345,6 +362,15 @@ export class TollListComponent implements OnInit {
     });
   }
 
+  private getImageDimensions(base64: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve({ width: 100, height: 150 });
+      img.src = base64;
+    });
+  }
+
   downloadProof(peageId: number, filename = 'justificatif'): void {
     this.fleetService.getPeageProofFile(peageId).subscribe({
       next: (res) => {
@@ -352,7 +378,6 @@ export class TollListComponent implements OnInit {
         const disposition = res.headers.get('Content-Disposition');
         const match = disposition?.match(/filename="(.+)"/);
         const finalName = match?.[1] ?? filename;
-  
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -360,22 +385,21 @@ export class TollListComponent implements OnInit {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => this.snackBar.open('Erreur lors du téléchargement', 'Fermer', { duration: 3000 })
+      error: () => this.snackBar.open('Erreur lors du telechargement', 'Fermer', { duration: 3000 })
     });
   }
-  
+
   viewProof(peageId: number, reference = ''): void {
     this.proofModalOpen = true;
     this.proofLoading = true;
     this.currentProofId = peageId;
     this.currentProofRef = reference;
-  
+
     this.fleetService.getPeageProofFile(peageId).subscribe({
       next: (res) => {
         const blob = res.body!;
         const contentType = res.headers.get('Content-Type') || blob.type;
         this.proofIsImage = contentType.startsWith('image/');
-  
         const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
         this.currentProofBlobUrl = url;
         this.proofSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
@@ -388,7 +412,7 @@ export class TollListComponent implements OnInit {
       }
     });
   }
-  
+
   closeProofModal(): void {
     this.proofModalOpen = false;
     if (this.currentProofBlobUrl) {
@@ -398,7 +422,5 @@ export class TollListComponent implements OnInit {
     this.proofSafeUrl = null;
   }
 
-  getTotalAmountTTC(): number {
-    return this.summaryTotalTTC;
-  }
+  getTotalAmountTTC(): number { return this.summaryTotalTTC; }
 }

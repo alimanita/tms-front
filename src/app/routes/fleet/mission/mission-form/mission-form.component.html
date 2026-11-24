@@ -1,4 +1,4 @@
-<div class="fleet-page">
+﻿﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier la mission' : 'Nouvelle mission' }}</h2>
     <div class="fl-topbar-actions">
@@ -73,10 +73,17 @@
             <label>Véhicule</label>
             <select formControlName="vehiculeId">
               <option [ngValue]="null">-- Sélectionner un véhicule --</option>
-              <option *ngFor="let v of vehicules" [value]="v.id">
+              <option *ngFor="let v of vehicules" [ngValue]="v.id">
                 {{ v.immatriculation }} - {{ v.marque }} {{ v.modele }}
               </option>
             </select>
+            <small style="color:#6c757d;font-size:0.78rem;margin-top:2px;display:block">
+              <ng-container *ngFor="let v of vehicules">
+                <ng-container *ngIf="v.id === form.get('vehiculeId')?.value && v.chauffeurNom">
+                  &#x1F697; Chauffeur affect&eacute; : <strong>{{ v.chauffeurNom }}</strong>
+                </ng-container>
+              </ng-container>
+            </small>
           </div>
         </ng-container>
 
@@ -102,7 +109,7 @@
           <div style="display: flex; gap: 10px; margin-bottom: 12px;">
             <select [(ngModel)]="selectedChauffeurToAdd" [ngModelOptions]="{standalone: true}" style="flex: 1; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
               <option [ngValue]="null">-- Sélectionner un chauffeur --</option>
-              <option *ngFor="let c of chauffeurs" [value]="c.id">{{ c.prenom }} {{ c.nom }}</option>
+              <option *ngFor="let c of chauffeurs" [ngValue]="c.id">{{ c.prenom }} {{ c.nom }}</option>
             </select>
             <button type="button" class="fl-btn fl-btn-primary" (click)="addChauffeur()" [disabled]="!selectedChauffeurToAdd" style="padding: 8px 16px; border-radius: 6px;">
               <mat-icon style="vertical-align: middle;">add</mat-icon> Ajouter

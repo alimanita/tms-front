@@ -1,4 +1,4 @@
-<div class="fleet-page">
+﻿﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier la Dépense Diverse' : 'Nouvelle Dépense Diverse' }}</h2>
     <div class="fl-topbar-actions">
@@ -18,10 +18,17 @@
           <label>Chauffeur *</label>
           <select formControlName="chauffeurId">
             <option [ngValue]="null">— Sélectionner —</option>
-            <option *ngFor="let c of chauffeurs" [value]="c.id">
+            <option *ngFor="let c of chauffeurs" [ngValue]="c.id">
               {{ c.nom }} {{ c.prenom }}
             </option>
           </select>
+          <small style="color:#6c757d;font-size:0.78rem;margin-top:2px;display:block">
+            <ng-container *ngFor="let v of vehicules">
+              <ng-container *ngIf="v.chauffeurAffecteId === form.get('chauffeurId')?.value">
+                &#x1F69B; V&eacute;hicule affect&eacute; : <strong>{{ v.immatriculation }}</strong>
+              </ng-container>
+            </ng-container>
+          </small>
         </div>
 
         <!-- Catégorie -->
@@ -43,10 +50,17 @@
           <label>Véhicule (Optionnel)</label>
           <select formControlName="vehiculeId">
             <option [ngValue]="null">— Aucun —</option>
-            <option *ngFor="let v of vehicules" [value]="v.id">
+            <option *ngFor="let v of vehicules" [ngValue]="v.id">
               {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
             </option>
           </select>
+          <small style="color:#6c757d;font-size:0.78rem;margin-top:2px;display:block">
+            <ng-container *ngFor="let v of vehicules">
+              <ng-container *ngIf="v.id === form.get('vehiculeId')?.value && v.chauffeurNom">
+                &#x1F697; Chauffeur affect&eacute; : <strong>{{ v.chauffeurNom }}</strong>
+              </ng-container>
+            </ng-container>
+          </small>
         </div>
 
         <!-- Description -->

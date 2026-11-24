@@ -1,23 +1,23 @@
-﻿<div class="fleet-page">
+<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">Historique des Vidanges (Changement d'Huile)</h2>
     <button class="fl-btn fl-btn-primary" (click)="goAdd()">+ Nouvelle Vidange</button>
   </div>
 
   <div class="fleet-body">
-    <div *ngIf="loading" class="fleet-loading">Chargementâdt¦</div>
+    <div *ngIf="loading" class="fleet-loading">Chargement...</div>
 
     <table *ngIf="!loading" class="fl-table">
       <thead>
         <tr>
-          <th>RÃ©fÃ©rence</th>
-          <th>Type EntitÃ©</th>
-          <th>EntitÃ©</th>
+          <th>Reference</th>
+          <th>Type Entite</th>
+          <th>Entite</th>
           <th>Type Huile</th>
           <th>Date</th>
           <th>Km/H au changement</th>
-          <th>QuantitÃ© (L)</th>
-          <th>CoÃ»t Total</th>
+          <th>Quantite (L)</th>
+          <th>Cout Total</th>
           <th>Prochain Km/H</th>
           <th></th>
         </tr>
@@ -34,12 +34,12 @@
           <td>{{ c.totalCost | currency:'dt' }}</td>
           <td>{{ c.nextChangeKm || c.nextChangeHours }}</td>
           <td class="fl-actions">
-            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">âœŽ</button>
-            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(c.id)" style="color: red;" title="Supprimer">ðŸ—‘</button>
+            <button class="fl-btn fl-btn-ghost" (click)="goEdit(c)" title="Modifier">✎</button>
+            <button class="fl-btn fl-btn-ghost" (click)="deleteRecord(c.id)" style="color: red;" title="Supprimer">🗑</button>
           </td>
         </tr>
         <tr *ngIf="changements.length === 0">
-          <td colspan="10" class="fl-empty">Aucune vidange enregistrÃ©e</td>
+          <td colspan="10" class="fl-empty">Aucune vidange enregistree</td>
         </tr>
       </tbody>
     </table>
@@ -51,4 +51,3 @@
     </app-pagination-bar>
   </div>
 </div>
-

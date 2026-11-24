@@ -1,4 +1,4 @@
-<div class="fleet-page">
+﻿<div class="fleet-page">
   <div class="fleet-topbar">
     <h2 class="fleet-title">{{ isEdit ? 'Modifier le Péage' : 'Nouveau Péage' }}</h2>
     <div class="fl-topbar-actions">
@@ -18,10 +18,19 @@
           <label>Véhicule *</label>
           <select formControlName="vehiculeId">
             <option [ngValue]="null">— Sélectionner —</option>
-            <option *ngFor="let v of vehicules" [value]="v.id">
+            <option *ngFor="let v of vehicules" [ngValue]="v.id">
               {{ v.immatriculation }} — {{ v.marque }} {{ v.modele }}
+              <ng-container *ngIf="v.chauffeurNom"> ({{ v.chauffeurNom }})</ng-container>
             </option>
           </select>
+          <small *ngIf="peageForm.get('vehiculeId')?.value"
+                 style="color:#6c757d; font-size:0.78rem; margin-top:2px; display:block;">
+            <ng-container *ngFor="let v of vehicules">
+              <ng-container *ngIf="v.id === peageForm.get('vehiculeId')?.value && v.chauffeurNom">
+                🚗 Chauffeur affecté : <strong>{{ v.chauffeurNom }}</strong>
+              </ng-container>
+            </ng-container>
+          </small>
         </div>
 
         <!-- Chauffeur -->
@@ -29,10 +38,18 @@
           <label>Chauffeur *</label>
           <select formControlName="chauffeurId">
             <option [ngValue]="null">— Sélectionner —</option>
-            <option *ngFor="let c of chauffeurs" [value]="c.id">
+            <option *ngFor="let c of chauffeurs" [ngValue]="c.id">
               {{ c.nom }} {{ c.prenom }}
             </option>
           </select>
+          <small *ngIf="peageForm.get('chauffeurId')?.value"
+                 style="color:#6c757d; font-size:0.78rem; margin-top:2px; display:block;">
+            <ng-container *ngFor="let v of vehicules">
+              <ng-container *ngIf="v.chauffeurAffecteId === peageForm.get('chauffeurId')?.value">
+                🚛 Véhicule affecté : <strong>{{ v.immatriculation }}</strong>
+              </ng-container>
+            </ng-container>
+          </small>
         </div>
 
         <!-- Date passage -->

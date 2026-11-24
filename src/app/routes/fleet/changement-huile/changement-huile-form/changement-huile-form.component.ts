@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FleetService, VehiculeResponse, MachineResponse } from '../../fleet.service';
+import { isChauffeurRole } from 'app/core/authentication/helpers';
 
 @Component({
   selector: 'app-changement-huile-form',
@@ -61,6 +62,14 @@ export class ChangementHuileFormComponent implements OnInit {
 
     this.loadEntities();
 
+    
+    // Auto pre-selection pour role CHAUFFEUR
+    if (isChauffeurRole() && !this.isEdit) {
+      this.fleetService.getMonVehicule().subscribe({
+        next: v => { if (v) this.form.patchValue({ entityId: v.id }); },
+        error: () => {}
+      });
+    }
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
@@ -76,11 +85,13 @@ export class ChangementHuileFormComponent implements OnInit {
   }
 
   loadEntities(): void {
-    this.fleetService.getVehicules().subscribe(res => {
-      this.vehicules = res.content ?? res;
+    this.fleetService.getVehicules({ page: 0, size: 500 }).subscribe({
+      next: res => { this.vehicules = res.content ?? res; },
+      error: () => this.snackBar.open('Erreur chargement véhicules', 'Fermer', { duration: 3000 })
     });
-    this.fleetService.getMachines().subscribe(res => {
-      this.machines = res.content ?? res;
+    this.fleetService.getMachines({ page: 0, size: 500 }).subscribe({
+      next: res => { this.machines = res.content ?? res; },
+      error: () => {}
     });
   }
 
